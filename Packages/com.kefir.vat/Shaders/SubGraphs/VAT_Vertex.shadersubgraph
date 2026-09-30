@@ -201,7 +201,7 @@
     "m_Precision": 0,
     "overrideHLSLDeclaration": false,
     "hlslDeclarationOverride": 0,
-    "m_Hidden": false,
+    "m_Hidden": true,
     "m_PerRendererData": false,
     "m_customAttributes": [],
     "m_Value": {
@@ -236,7 +236,7 @@
     "m_Precision": 1,
     "overrideHLSLDeclaration": true,
     "hlslDeclarationOverride": 2,
-    "m_Hidden": false,
+    "m_Hidden": true,
     "m_PerRendererData": false,
     "m_customAttributes": [],
     "m_Value": {
@@ -269,7 +269,7 @@
     "m_Precision": 1,
     "overrideHLSLDeclaration": true,
     "hlslDeclarationOverride": 3,
-    "m_Hidden": false,
+    "m_Hidden": true,
     "m_PerRendererData": false,
     "m_customAttributes": [],
     "m_Value": {

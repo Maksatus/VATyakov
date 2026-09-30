@@ -1055,7 +1055,7 @@
     "m_AdditionalMotionVectorMode": 0,
     "m_AlembicMotionVectors": false,
     "m_SupportsLODCrossFade": false,
-    "m_CustomEditorGUI": "",
+    "m_CustomEditorGUI": "Kefir.Vat.Editor.VatShaderGUI",
     "m_SupportVFX": false
 }
 

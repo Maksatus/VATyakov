@@ -103,9 +103,6 @@ namespace Kefir.Vat.Editor
             asset.ApplyTo(material, 0);
             EditorUtility.SetDirty(material);
 
-            if (profile.CreatePrefab && profile.Prefab == null)
-                profile.Prefab = CreatePrefab(asset, material, Path.ChangeExtension(path, ".prefab"));
-
             EditorUtility.SetDirty(profile);
             AssetDatabase.SaveAssets();
             Debug.Log(Describe(asset) + string.Format(CultureInfo.InvariantCulture,
@@ -123,12 +120,15 @@ namespace Kefir.Vat.Editor
 
             var info = asset.Layout;
             var clip = asset.Clips[0];
-            long bytes = (long)info.Width * info.Height * 8;
+            long bytes = PositionTextureBytes(info);
             return string.Format(CultureInfo.InvariantCulture,
                 "VAT '{0}': {1} вертексов, клип '{2}' — {3} кадров, {4:0.###} fps; _VatPosTex {5}×{6} ({7} блок.), {8:0.##} МБ",
                 asset.name, info.Elements, clip.Name, clip.FrameCount, clip.FrameRate, info.Width, info.Height, info.Blocks,
                 bytes / (1024.0 * 1024.0));
         }
+
+        /// <summary>Actual size of _VatPosTex in bytes: width × height × 8 (RGBAHalf), padding texels included.</summary>
+        internal static long PositionTextureBytes(VatLayoutInfo info) => (long)info.Width * info.Height * 8;
 
         static Shader ResolveShader(VatBakeProfile profile) => profile.Shader != null ? profile.Shader : Shader.Find(DefaultShaderName);
 
@@ -172,26 +172,77 @@ namespace Kefir.Vat.Editor
             return material;
         }
 
-        static GameObject CreatePrefab(VatAsset asset, Material material, string path)
+        /// <summary>
+        /// Test prefab for the Compare scene: MeshFilter + MeshRenderer with the template material in every slot.
+        /// Game prefabs are assembled by hand, so a bake never calls this. An existing prefab is updated in place,
+        /// which also refreshes its material slots after the submesh count changed.
+        /// </summary>
+        public static GameObject CreatePrefab(VatBakeProfile profile)
         {
-            // Built in a preview scene so the user's scenes are never marked dirty.
-            var scene = EditorSceneManager.NewPreviewScene();
-            try
+            var asset = profile.Asset;
+            if (asset == null)
+                throw new VatBakeException("Сначала запеките профиль.");
+            if (!asset.TryValidate(out var error))
+                throw new VatBakeException(error);
+            if (profile.Material == null)
+                throw new VatBakeException("Нет материала-шаблона — запеките профиль заново.");
+
+            string path = profile.Prefab != null
+                ? AssetDatabase.GetAssetPath(profile.Prefab)
+                : AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(AssetDatabase.GetAssetPath(asset), ".prefab"));
+
+            GameObject prefab;
+            if (profile.Prefab != null)
             {
-                var root = EditorUtility.CreateGameObjectWithHideFlags(Path.GetFileNameWithoutExtension(path), HideFlags.HideAndDontSave);
-                SceneManager.MoveGameObjectToScene(root, scene);
-                root.hideFlags = HideFlags.None;
-                root.AddComponent<MeshFilter>().sharedMesh = asset.Mesh;
-                var materials = new Material[Mathf.Max(1, asset.Mesh.subMeshCount)];
-                for (int i = 0; i < materials.Length; i++)
-                    materials[i] = material;
-                root.AddComponent<MeshRenderer>().sharedMaterials = materials;
-                return PrefabUtility.SaveAsPrefabAsset(root, AssetDatabase.GenerateUniqueAssetPath(path));
+                var root = PrefabUtility.LoadPrefabContents(path);
+                try
+                {
+                    Fill(root, asset, profile.Material);
+                    prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally
+                {
+                    PrefabUtility.UnloadPrefabContents(root);
+                }
             }
-            finally
+            else
             {
-                EditorSceneManager.ClosePreviewScene(scene);
+                // Built in a preview scene so the user's scenes are never marked dirty.
+                var scene = EditorSceneManager.NewPreviewScene();
+                try
+                {
+                    var root = EditorUtility.CreateGameObjectWithHideFlags(Path.GetFileNameWithoutExtension(path), HideFlags.HideAndDontSave);
+                    SceneManager.MoveGameObjectToScene(root, scene);
+                    root.hideFlags = HideFlags.None;
+                    Fill(root, asset, profile.Material);
+                    prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                }
+                finally
+                {
+                    EditorSceneManager.ClosePreviewScene(scene);
+                }
             }
+
+            profile.Prefab = prefab;
+            EditorUtility.SetDirty(profile);
+            AssetDatabase.SaveAssetIfDirty(profile);
+            return prefab;
+        }
+
+        static void Fill(GameObject root, VatAsset asset, Material material)
+        {
+            var filter = root.GetComponent<MeshFilter>();
+            if (filter == null)
+                filter = root.AddComponent<MeshFilter>();
+            filter.sharedMesh = asset.Mesh;
+
+            var renderer = root.GetComponent<MeshRenderer>();
+            if (renderer == null)
+                renderer = root.AddComponent<MeshRenderer>();
+            var materials = new Material[Mathf.Max(1, asset.Mesh.subMeshCount)];
+            for (int i = 0; i < materials.Length; i++)
+                materials[i] = material;
+            renderer.sharedMaterials = materials;
         }
     }
 }

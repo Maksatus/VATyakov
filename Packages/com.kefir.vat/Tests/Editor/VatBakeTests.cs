@@ -139,8 +139,9 @@ namespace Kefir.Vat.Tests
         {
             _rig = new VatTestRig(_scene, 300, legacy: false);
             _profile = CreateProfile(_rig);
-            _profile.CreatePrefab = true;
             var asset = VatBaker.Bake(_profile, TempFolder + "/Rebake.asset");
+            Assert.IsNull(_profile.Prefab, "a bake never creates a prefab");
+            VatBaker.CreatePrefab(_profile);
             var ids = new[] { Id(asset), Id(asset.Mesh), Id(asset.PositionTexture) };
             int heightBefore = asset.PositionTexture.height;
             string materialPath = AssetDatabase.GetAssetPath(_profile.Material);
@@ -184,7 +185,6 @@ namespace Kefir.Vat.Tests
             profile.Clip = rig.Clip;
             profile.Fps = Fps;
             profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
-            profile.CreatePrefab = false;
             return profile;
         }
 
