@@ -1,0 +1,16 @@
+{
+    "name": "Kefir.Vat.Dev",
+    "rootNamespace": "Kefir.Vat.Dev",
+    "references": [
+        "Kefir.Vat"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
