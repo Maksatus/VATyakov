@@ -77,6 +77,7 @@ namespace VATyakov.Editor
         {
             GetOrAdd<MeshFilter>(root).sharedMesh = profile.Asset.Mesh;
             GetOrAdd<MeshRenderer>(root).sharedMaterials = Slots(profile.Material, profile.Asset.Mesh.subMeshCount);
+            GetOrAdd<VatAnimator>(root).Asset = profile.Asset; // §4
         }
 
         static Material[] Slots(Material material, int subMeshCount)

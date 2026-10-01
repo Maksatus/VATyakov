@@ -50,6 +50,18 @@ namespace VATyakov
             return u < _frameCount ? u : 0.0;
         }
 
+        // A loop: the phase in [0, 1). A one-shot: 0 at frame 0, 1 at the last frame.
+        public float NormalizedTime(double position)
+        {
+            double u = Wrap(position);
+            if (!_loop)
+                return _frameCount > 1 ? (float)(u / (_frameCount - 1)) : 1f;
+            float phase = (float)(u / _frameCount);
+            return phase < 1f ? phase : 0f; // rounded up to 1 in float: the next cycle starts
+        }
+
+        public double Position(float normalizedTime) => normalizedTime * (double)(_loop ? _frameCount : _frameCount - 1);
+
         // §1.4: _VatFrame = (row0, row1, frac, 0). A one-shot reaches its last frame as f0 = F − 2 with frac = 1.
         public Vector4 Frame(double position)
         {

@@ -13,8 +13,9 @@
 | 1.4 Alembic | готово | 0.4.0 |
 | 1.5 Дрейф | готово | 0.5.0 |
 | 1.6 Несколько клипов в одном ассете | готово | 0.6.0 |
-| 1.7 | следующая | — |
-| 1.8–1.19 | не начаты | — |
+| 1.7 VatAnimator: материал на юнита и управление | готово | 0.7.0 |
+| 1.8 | следующая | — |
+| 1.9–1.19 | не начаты | — |
 
 Проверки на устройствах (iPhone 12, Adreno, Mali): результаты не записаны — дописать сюда при следующем прогоне.
 1.3 на устройствах: сцена `RotDecode` (кнопка RGBA8 в Compare) — «RGBA8: OK» или число неверных текселей и API.
@@ -45,12 +46,22 @@
   покоя); после последнего кадра `VatDriftPolicy` выбирает один, `encoder.Layout` — раскладка с решением о дрейфе.
   Ошибки обоих вариантов — `VatPrecision` в ассете.
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
-  `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер пока — `Assets/VatDev/Scripts/VatCompare`.
+  `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
+  уникальный VAT-шаблон, VAT = есть `_VatFrame`, только в Play mode, `Dispose` в `OnDestroy`), `VatPlayer` (клип,
+  скорость, пауза, нормализованное время поверх `VatPlayback`; время передаётся снаружи — тестируется в EditMode),
+  `VatEndLatch` (событие one-shot), `VatPropertyBlockCheck` (`[Conditional]` UNITY_EDITOR/DEVELOPMENT_BUILD).
+  Запись — в `LateUpdate`, событие `ClipFinished` после записи. `VatCompare` в Compare берёт копию `VatAnimator`
+  из префаба и выключает его.
 - **Шейдер:** `VatCore.hlsl` — адрес тексела, тексел и сумма дрейфа, декод smallest-three, nlerp и оси кадра;
   `VatMath.cs` — его CPU-зеркало. Дрейф читается всегда (без него в текстуре нули).
   `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float`; SubGraph `VAT_Vertex` отдаёт
   Position, Normal, Tangent. Шаблон по умолчанию — `VAT_Lit_Vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
 - **Тестовый контент:** `Assets/VatDev/Content/Bow`, результаты бейка — `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/Compare.unity`.
+  Толпа (1.7): профиль `Bakes/Bow_OneShot` — те же три клипа лука, но one-shot (VAT 26, Fire 79, BakeSave 98 кадров),
+  префаб `Bow_OneShot_Vat`; сцена `Scenes/Animator.unity` (третья в сборке) — 100 юнитов `VatCrowd` в сетке 10×10,
+  каждый по `ClipFinished` играет следующий клип. Кнопки и клавиши: Pool (P, `SetActive` всех), Hit (H, `_BaseColor`
+  на 0.15 с), Reverse (R), Pause (Space); счётчики Finished, Doubled (повторное событие за один Play, должно быть 0) и
+  Materials (все загруженные `Material`, не должно расти при пуле).
   У `WeaponLandingBow.fbx` (legacy) три клипа: `VAT` (кадры 0–25 take Fire), `Fire` (take целиком, 2.6 с), `BakeSave`
   (take целиком, 3.23 с); профили `Bow_Default` и `Bow_Upgrade` запекают все три (loop, 30 fps): 200 строк, у Upgrade
   2 блока — текстура 2265×400.
@@ -67,7 +78,7 @@
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAsset, VatClip, VatLayoutInfo, VatMath, VatPlayback, VatPrecision, VatShaderIds, VatTiming
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatPlayback, VatPlayer, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming
 - `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — VAT_Vertex.shadersubgraph
 - `Samples/UnlitVertex/` — VAT_Unlit_Vertex.shadergraph; `Samples/LitVertex/` — VAT_Lit_Vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexTriplanar/` — VAT_Lit_Vertex_Triplanar.shadergraph (меши без UV)
@@ -79,11 +90,12 @@
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftCodec, VatDriftPolicy, VatDriftTexels, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositionVariant, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (источник — VatSourceFields*, подсказка loop — VatLoopHint*)
 - `Editor/Asset/` — VatAssetEditor, VatDefaultClip, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка с дрейфом и без — VatAssetPrecision*, клип по умолчанию — VatAssetDefaultClip*)
+- `Editor/Animator/` — VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = Default), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI, IVatMaterialSection, VatClipField, VatClipLookup, VatFoldoutHeader, VatFrameField, VatMaterialBinding, VatObjectLinkField; `Sections/` — VatAdvancedSection, VatAnimationSection, VatSurfaceSection
 - `Editor/Framework/` — ControllerExtensions, ControllerInspector, EditorContainer, IController, Property, Trigger, VisualElementExtensions
 - `Editor/Ui/` — VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMathTests, VatPlaybackTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — VAT_HalfParent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
-- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем)
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — VAT_HalfParent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
+- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
 
@@ -136,3 +148,19 @@
   рендерер из preview-сцены, и тест через `VatProfileLookup` был нестабилен.
   Лог бейка: «degenerate tangents» — сумма по кадрам (вертекс-кадры), поэтому у лука с тремя клипами 4800 = 24 × 200.
   Проверено в Play mode в Compare: Fire кадр 20 и BakeSave кадр 50 — SMR и VAT совпадают на обоих луках. 183 теста зелёные.
+- **1.7:** продуктовые решения (вопросы к пользователю): `Play` всегда с начала; `GetNormalizedTime` у loop — фаза
+  в [0, 1); Play On Enable при каждом `OnEnable` перезапускает клип из поля Clip (пусто — клип по умолчанию ассета);
+  hit-flash — через `_BaseColor`, без эмиссии в графах. Записано в §1.3 и §1.6. Сам решил (план не уточнял): у
+  компонента одно поле `VatAsset`, таблица клипов — из него; loop события не даёт; ошибка MPB — один раз на рендерер;
+  `_VatFrame` не пишется, если кадр не изменился.
+  Событие: `VatEndLatch` помнит «стоим у конца в сторону движения» и обновляется только при ненулевой скорости, поэтому
+  пауза или смена скорости у конца не дают повтор, а разворот даёт его на другом конце.
+  VAT-шаблон — материал со свойством `_VatFrame`. Рендереры — `GetComponentsInChildren<Renderer>(true)` (в том числе
+  неактивные LOD), трогаются только те, у кого есть VAT-слот. Копии создаются лениво (`OnEnable` или первое
+  обращение к `Materials`/`Set*`), поэтому эффекты можно писать из чужого `Awake`.
+  Тестовые префабы `Bow_Default_Vat`/`Bow_Upgrade_Vat` пересобраны с `VatAnimator`. Префабы Jelly и Water не
+  пересобирались: `VatAnimator` появится у них при следующем Create Prefab, а `VatCompare` к этому готов.
+  Проверено в Play mode (Animator, 100 юнитов): за 30 с ~1400 событий, Doubled 0; 20 переключений пула — Materials
+  201 до и после; Hit красит `_BaseColor` и возвращает его; MPB на одном юните — одна ошибка с именем объекта. Compare
+  на Fire кадр 20 — SMR и VAT совпадают через копию `VatAnimator`. Шаблонные `.mat` после Play mode в git не
+  изменились. Замер стоимости записи (маркер `VatAnimator.Write`) не делал — его проверяет пользователь. 203 теста зелёные.

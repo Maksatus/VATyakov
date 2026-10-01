@@ -65,4 +65,5 @@
 - `Assets/VatDev/Content/Alembic/Water.abc` — жидкость с постоянной топологией (1.4), сравнение — сцена
   `CompareAlembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/Compare.unity` — сравнение SMR и VAT,
-  она же первая сцена сборки; вторая — `RotDecode`, проверка RGBA8 на устройствах (1.3).
+  она же первая сцена сборки; вторая — `RotDecode`, проверка RGBA8 на устройствах (1.3); третья — `Animator`,
+  толпа из 100 `VatAnimator` (1.7).

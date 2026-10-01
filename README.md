@@ -3,7 +3,7 @@
 Vertex Animation Textures для Unity и URP: анимация запекается в текстуры и проигрывается в вершинном шейдере
 Shader Graph без SkinnedMeshRenderer и Animator.
 
-## Реализовано — 0.6.0 (подверсии 1.1–1.6)
+## Реализовано — 0.7.0 (подверсии 1.1–1.7)
 
 - Бейк SkinnedMeshRenderer в Vertex-режиме: позиции вертексов по кадрам, смещения от позы покоя в RGBAHalf.
   Блендшейпы запекаются вместе со скиннингом.
@@ -27,12 +27,16 @@ Shader Graph без SkinnedMeshRenderer и Animator.
   в Scene view).
 - SubGraph `VAT_Vertex` (позиция, нормаль, тангент), примеры `VAT_Lit_Vertex` с normal map (шаблон по умолчанию),
   `VAT_Lit_Vertex_Triplanar` для мешей без UV и `VAT_Unlit_Vertex`.
+- `VatAnimator` — компонент юнита: в Play mode у каждого юнита своя копия VAT-материала (одна на шаблон, включая
+  LOD и экипировку), без MaterialPropertyBlock. `Play` по имени или индексу, `Speed`, `Pause/Resume`,
+  `GetNormalizedTime`, событие `ClipFinished` (один раз за Play, для one-shot), Play On Enable для пулов через
+  `SetActive`, эффекты юнита через `SetFloat/SetColor/SetVector`. В edit mode шаблоны не трогаются. Тестовый
+  префаб бейка собирается сразу с `VatAnimator`.
 
 ## Будет реализовано
 
 | Подверсия | Возможность |
 |---|---|
-| 1.7 | `VatAnimator`: материал на юнита, Play, скорость, пауза, событие конца клипа, эффекты юнита |
 | 1.8 | Переходы: CrossFade и вес перехода из кода |
 | 1.9 | Motion vectors для TAA и motion blur |
 | 1.10 | Память и ошибка в инспекторе, «бейк устарел», валидатор сборки |

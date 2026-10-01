@@ -35,6 +35,7 @@ namespace VATyakov.Dev
 
         Material _shared;
         Material _material;
+        VatAnimator _animator;
         AnimationClip _clip;
         PlayableGraph _graph;
         AnimationClipPlayable _playable;
@@ -57,12 +58,26 @@ namespace VATyakov.Dev
                 return;
             }
 
-            _shared = _vat.sharedMaterial;
-            _material = new Material(_shared) { name = _shared.name + " (Compare)", hideFlags = HideFlags.DontSave };
-            _vat.sharedMaterial = _material;
+            if (!UseAnimatorCopy())
+            {
+                _shared = _vat.sharedMaterial;
+                _material = new Material(_shared) { name = _shared.name + " (Compare)", hideFlags = HideFlags.DontSave };
+                _vat.sharedMaterial = _material;
+            }
             _playback = null;
             if (!HasAlembic())
                 SetUpAnimation();
+        }
+
+        // A baked prefab carries a VatAnimator (1.7): its copy is used, and its own playback is switched off.
+        bool UseAnimatorCopy()
+        {
+            _animator = _vat.GetComponent<VatAnimator>();
+            if (_animator == null)
+                return false;
+            _animator.enabled = false;
+            _material = _animator.Materials[0];
+            return true;
         }
 
         bool HasSource() => HasAlembic() || _source != null && _clips.Length > 0;
@@ -108,10 +123,14 @@ namespace VATyakov.Dev
         void OnDisable()
         {
             DestroyGraph();
-            if (_vat != null && _shared != null)
-                _vat.sharedMaterial = _shared;
-            if (_material != null)
-                Destroy(_material);
+            if (_animator == null)
+            {
+                if (_vat != null && _shared != null)
+                    _vat.sharedMaterial = _shared;
+                if (_material != null)
+                    Destroy(_material);
+            }
+
             _material = null;
         }
 

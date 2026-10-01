@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.7.0] — подверсия 1.7
+
+### Добавлено
+- `VatAnimator` (§1.6) — компонент юнита. В Play mode и в сборке делает по одной `DontSave`-копии на каждый
+  уникальный VAT-шаблон в слотах всех рендереров объекта, включая дочерние (LOD, экипировка), и ставит их в слоты.
+  Копии живут до `OnDestroy`: пулинг через `SetActive` их не пересоздаёт. В edit mode материалы не трогаются.
+- Управление: `Play(name | index[, normalizedTime])` — всегда с начала (one-shot при отрицательной скорости — с
+  последнего кадра), `Speed`, `Pause/Resume`, `IsPaused`, `CurrentClip`, `GetNormalizedTime()` (loop — фаза в
+  [0, 1), one-shot — [0, 1]), Play On Enable (клип из поля Clip, по умолчанию — клип по умолчанию ассета).
+- Событие `ClipFinished`: one-shot дошёл до конца в сторону проигрывания; один раз за Play и направление. Пауза и
+  смена скорости у конца его не повторяют, разворот назад — повторяет на другом конце. Loop не заканчивается.
+- Эффекты юнита: `SetFloat/SetColor/SetVector` (по id и по имени) пишут во все копии, сами копии — `Materials`.
+- Dev-проверка в редакторе и development-сборке: у рендерера юнита есть MaterialPropertyBlock — ошибка с именем
+  объекта, один раз на рендерер.
+- Инспектор `VatAnimator`: VAT Asset, Clip (выпадающий список клипов ассета), Play On Enable, Speed.
+- Маркер профайлера `VatAnimator.Write`: запись `_VatFrame` и проверка MPB.
+- `VatClip.NormalizedTime(position)` и `VatClip.Position(normalizedTime)`.
+
+### Изменено
+- Тестовый префаб бейка (Create Prefab) получает `VatAnimator` с VAT-ассетом профиля (§4).
+- `_VatFrame` пишется только когда кадр изменился: на паузе и у законченного one-shot записи нет.
+
 ## [0.6.0] — подверсия 1.6
 
 ### Добавлено
