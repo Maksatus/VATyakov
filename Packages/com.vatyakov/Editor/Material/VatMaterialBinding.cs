@@ -35,7 +35,7 @@ namespace VATyakov.Editor
             if (asset == null || !asset.TryValidate(out _))
                 return new VatMaterialBinding(VatMaterialStatus.Foreign);
 
-            int clip = VatClipLookup.Find(asset, material.GetVector(VatShaderIds.ClipA));
+            int clip = VatClipLookup.Find(asset, material.GetVector(VatShaderIds.Frame));
             return new VatMaterialBinding(VatMaterialStatus.Bound, asset, clip, IsStaleFor(material, asset, clip));
         }
 

@@ -7,18 +7,15 @@
 
 #include "Packages/com.vatyakov/Shaders/VatCore.hlsl"
 
-// Vertex mode, subversion 1.1: positions only, one clip, nearest frame.
-// pos = rest + Δ, Δ from _VatPosTex (RGBAHalf), read with an exact texel load, no filtering.
-void VatVertexPosition_float(float VertexId, float3 RestPosition, float Time,
-    UnityTexture2D PosTex, float4 Layout, float4 ClipA,
+// Vertex mode: pos = rest + lerp(Δ0, Δ1, frac). Frame = (row0, row1, frac, 0) from the CPU (§1.4).
+void VatVertexPosition_float(float VertexId, float3 RestPosition,
+    UnityTexture2D PosTex, float4 Layout, float4 Frame,
     out float3 Position)
 {
-    VatClip clip = VatUnpackClip(ClipA);
-    float frac;
-    uint frame = VatLoopFrame(VatFramePosition(clip, Time), clip.frameCount, frac);
-    int2 texel = VatTexel((uint)VertexId, (uint)Layout.x, (uint)Layout.y, clip.startRow + frame);
-    float3 delta = LOAD_TEXTURE2D_LOD(PosTex.tex, texel, 0).xyz;
-    Position = RestPosition + delta;
+    uint id = (uint)VertexId;
+    float3 d0 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0).xyz;
+    float3 d1 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0).xyz;
+    Position = RestPosition + lerp(d0, d1, Frame.z);
 }
 
 #endif // VATYAKOV_SHADERGRAPH_INCLUDED

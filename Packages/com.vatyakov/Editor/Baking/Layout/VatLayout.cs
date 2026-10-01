@@ -38,25 +38,25 @@ namespace VATyakov.Editor
             long row = 0;
             for (int i = 0; i < clips.Length; i++)
             {
-                clips[i] = LoopClip(requests[i], (int)row);
+                clips[i] = Clip(requests[i], (int)row);
                 row += clips[i].FrameCount;
                 RequireHeight(blocks, row);
             }
             return clips;
         }
 
-        // 1.1 bakes loops only; one-shot arrives in 1.2.
-        static VatClip LoopClip(VatClipRequest request, int startRow)
+        static VatClip Clip(VatClipRequest request, int startRow)
         {
             int frames = FrameCount(request);
-            return new VatClip(request.Name, startRow, frames, request.Length, VatMath.LoopFrameRate(frames, request.Length), loop: true);
+            float rate = VatTiming.FrameRate(frames, request.Length, request.Loop);
+            return new VatClip(request.Name, startRow, frames, request.Length, rate, request.Loop);
         }
 
         static int FrameCount(VatClipRequest request)
         {
             try
             {
-                return VatMath.LoopFrameCount(request.Length, request.Fps);
+                return VatTiming.FrameCount(request.Length, request.Fps, request.Loop);
             }
             catch (ArgumentOutOfRangeException e)
             {

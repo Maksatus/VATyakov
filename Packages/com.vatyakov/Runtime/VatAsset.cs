@@ -41,16 +41,13 @@ namespace VATyakov
             return error == null;
         }
 
-        // For template materials (t0 = 0, speed 1); per-unit state is VatAnimator's job.
+        // Template materials show the first frame of the clip; playback is the driver's job (§1.3).
         public void ApplyTo(Material material, int clipIndex)
         {
             RequireApplicable(material, clipIndex);
-            var layout = _layout.ShaderLayout;
-            var state = _clips[clipIndex].State(0f);
-            Debug.Assert(VatMath.IsFinite(layout) && VatMath.IsFinite(state), "VAT state must be finite.");
             material.SetTexture(VatShaderIds.PosTex, _positionTexture);
-            material.SetVector(VatShaderIds.Layout, layout);
-            material.SetVector(VatShaderIds.ClipA, state);
+            material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
+            material.SetVector(VatShaderIds.Frame, _clips[clipIndex].Frame(0.0));
         }
 
         internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, VatClip[] clips, string sourceHash)

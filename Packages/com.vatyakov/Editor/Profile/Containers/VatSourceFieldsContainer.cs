@@ -9,6 +9,7 @@ namespace VATyakov.Editor
             Root.WithElements(
                 new PropertyField { bindingPath = "_source", label = "Персонаж" },
                 new PropertyField { bindingPath = "_clip", label = "Анимация" },
+                new PropertyField { bindingPath = "_loop", label = "Цикл" },
                 new PropertyField { bindingPath = "_fps", label = "Кадров в секунду" });
         }
     }

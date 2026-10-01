@@ -116,7 +116,7 @@ namespace VATyakov.Tests
             float maxError = 0f;
             for (int k = 0; k < clip.FrameCount; k++)
             {
-                var reference = _rig.ReferencePositions(VatMath.LoopFrameTime(k, clip.FrameCount, clip.Length));
+                var reference = _rig.ReferencePositions(clip.FrameTime(k));
                 for (int v = 0; v < rest.Length; v++)
                 {
                     var decoded = rest[v] + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
@@ -125,6 +125,24 @@ namespace VATyakov.Tests
                 }
             }
             Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+        }
+
+        // §1.3: F = round(L·fps) + 1, the last frame is the pose at t = L even when the source clip wraps there.
+        [Test]
+        public void OneShotBake_EndsOnTheClipEnd([Values] bool legacy, [Values] bool loopingClip)
+        {
+            _rig = new VatTestRig(_scene, 300, legacy, loopingClip);
+            _profile = CreateProfile(_rig);
+            _profile.Loop = false;
+            var asset = VatBaker.Bake(_profile, TempFolder + "/OneShot.asset");
+
+            var clip = asset.Clips[0];
+            Assert.IsFalse(clip.Loop);
+            Assert.AreEqual(Mathf.RoundToInt(VatTestRig.Length * Fps) + 1, clip.FrameCount);
+            Assert.AreEqual(Fps, clip.FrameRate, 1e-4f, "fps_eff = (F − 1) / L");
+            Assert.AreEqual(VatTestRig.Length, clip.FrameTime(clip.FrameCount - 1), 1e-9);
+            Assert.AreEqual(clip.Frame(0.0), _profile.Material.GetVector(VatShaderIds.Frame), "template shows frame 0");
+            AssertDecodesToReference(asset, VatTestUtil.ReadGpu(asset.PositionTexture));
         }
 
         [Test]
@@ -158,7 +176,7 @@ namespace VATyakov.Tests
             Assert.AreEqual(reloaded.Mesh, prefab.GetComponent<MeshFilter>().sharedMesh);
             Assert.AreEqual(10, material.GetTexture(VatShaderIds.PosTex).height);
             Assert.AreEqual(reloaded.Layout.ShaderLayout, material.GetVector(VatShaderIds.Layout));
-            Assert.AreEqual(reloaded.Clips[0].State(0f), material.GetVector(VatShaderIds.ClipA));
+            Assert.AreEqual(reloaded.Clips[0].Frame(0.0), material.GetVector(VatShaderIds.Frame));
             Assert.IsFalse(material.enableInstancing);
         }
 

@@ -7,19 +7,21 @@ namespace VATyakov.Editor
         public readonly string Name;
         public readonly float Length;
         public readonly float Fps;
+        public readonly bool Loop;
 
-        public VatClipRequest(string name, float length, float fps)
+        public VatClipRequest(string name, float length, float fps, bool loop = true)
         {
             Name = name;
             Length = length;
             Fps = fps;
+            Loop = loop;
         }
 
-        public static VatClipRequest[] From(IReadOnlyList<VatSourceClip> clips, float fps)
+        public static VatClipRequest[] From(IReadOnlyList<VatSourceClip> clips, float fps, bool loop)
         {
             var requests = new VatClipRequest[clips.Count];
             for (int i = 0; i < requests.Length; i++)
-                requests[i] = new VatClipRequest(clips[i].Name, clips[i].Length, fps);
+                requests[i] = new VatClipRequest(clips[i].Name, clips[i].Length, fps, loop);
             return requests;
         }
     }

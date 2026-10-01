@@ -15,6 +15,7 @@ namespace VATyakov.Editor
             hash.Append(DependencyHash(profile.Clip));
             hash.Append(profile.Clip.name);
             hash.Append(profile.Fps);
+            hash.Append(profile.Loop ? 1 : 0);
             return hash.ToString();
         }
 

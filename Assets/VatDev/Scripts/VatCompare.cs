@@ -6,8 +6,9 @@ namespace VATyakov.Dev
 {
     /// <summary>
     /// Compare scene driver (plan §5): the source SkinnedMeshRenderer and its VAT copy side by side.
-    /// Step mode shows baked frame k on both — the source is sampled at t_k, the VAT material gets rate 0 and
-    /// offset k. Play mode runs both from Time.time. Works in Play mode and in player builds; the VAT material is a
+    /// Step mode shows baked frame k on both. Play mode runs a VatPlayback from Time.time: the source is sampled at
+    /// the time the VAT frames interpolate, so they match on baked frames and differ between them only by the
+    /// interpolation error. _speed can be changed while playing. Works in Play mode and in player builds; the VAT material is a
     /// runtime copy, because MaterialPropertyBlock is not allowed (§1.6).
     /// </summary>
     public sealed class VatCompare : MonoBehaviour
@@ -25,7 +26,7 @@ namespace VATyakov.Dev
         Material _material;
         PlayableGraph _graph;
         AnimationClipPlayable _playable;
-        float _playStart;
+        VatPlayback _playback;
 
         public int Frame => _frame;
 
@@ -59,7 +60,7 @@ namespace VATyakov.Dev
                 AnimationPlayableOutput.Create(_graph, "out", animator).SetSourcePlayable(_playable);
             }
 
-            _playStart = Time.time;
+            _playback = null;
         }
 
         void OnDisable()
@@ -80,18 +81,24 @@ namespace VATyakov.Dev
             if (_step)
             {
                 _frame = Mathf.Clamp(_frame, 0, clip.FrameCount - 1);
-                time = VatMath.LoopFrameTime(_frame, clip.FrameCount, clip.Length);
-                _material.SetVector(VatShaderIds.ClipA, clip.State(0f, 0f, _frame)); // f = offset = k exactly
+                time = clip.FrameTime(_frame);
+                _material.SetVector(VatShaderIds.Frame, clip.Frame(_frame));
             }
             else
             {
-                float elapsed = (Time.time - _playStart) * _speed;
-                time = Mathf.Repeat(elapsed, clip.Length);
-                _material.SetVector(VatShaderIds.ClipA, clip.State(_playStart, _speed));
+                _playback ??= new VatPlayback(clip, Time.timeAsDouble, _speed, StartPosition(clip));
+                if (_playback.Speed != _speed)
+                    _playback.SetSpeed(Time.timeAsDouble, _speed);
+                double position = clip.Wrap(_playback.Position(Time.timeAsDouble));
+                time = clip.FrameRate > 0f ? position / clip.FrameRate : 0.0;
+                _material.SetVector(VatShaderIds.Frame, clip.Frame(position));
             }
 
             Sample(time);
         }
+
+        // A one-shot played backwards starts from its last frame.
+        float StartPosition(VatClip clip) => _speed < 0f && !clip.Loop ? clip.FrameCount - 1 : 0f;
 
         void Sample(double time)
         {
@@ -108,7 +115,7 @@ namespace VATyakov.Dev
         public void SetStep(bool step)
         {
             _step = step;
-            _playStart = Time.time;
+            _playback = null;
         }
 
         public void Advance(int frames)

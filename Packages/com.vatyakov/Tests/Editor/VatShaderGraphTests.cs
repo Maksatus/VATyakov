@@ -25,12 +25,12 @@ namespace VATyakov.Tests
             // Only VatVertexPosition_float exists, so a _half call would also fail to compile.
             StringAssert.Contains("VatVertexPosition_float(", code);
             StringAssert.DoesNotContain("VatVertexPosition_half", code);
-            // Promoted state must stay float4 in UnityPerMaterial: half would destroy the packed clip and W > 2048.
-            StringAssert.Contains("float4 _VatClipA;", code);
+            // Promoted state must stay float4 in UnityPerMaterial: half breaks rows and W above 2048.
+            StringAssert.Contains("float4 _VatFrame;", code);
             StringAssert.Contains("float4 _VatLayout;", code);
-            StringAssert.DoesNotContain("half4 _VatClipA", code);
+            StringAssert.DoesNotContain("half4 _VatFrame", code);
             StringAssert.DoesNotContain("half4 _VatLayout", code);
-            StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatClipA, float4)", code, "state is Hybrid Per Instance");
+            StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatFrame, float4)", code, "state is Hybrid Per Instance");
         }
 
         [Test]

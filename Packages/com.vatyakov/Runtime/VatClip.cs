@@ -38,9 +38,25 @@ namespace VATyakov
 
         public bool Loop => _loop;
 
-        public float Packed => VatMath.PackClip(_startRow, _frameCount, _loop);
+        // Source time of baked frame k (§1.3).
+        public double FrameTime(int frame) => VatTiming.FrameTime(frame, _frameCount, _length, _loop);
 
-        // §1.4: (±(startRow·4096 + F), rate, t0, offset), rate = fps_eff·speed.
-        public Vector4 State(float t0, float speed = 1f, float offset = 0f) => new Vector4(Packed, _frameRate * speed, t0, offset);
+        // Shown frame position: a loop wraps into [0, F), a one-shot stops at 0 and F − 1.
+        public double Wrap(double position)
+        {
+            if (!_loop)
+                return Math.Min(Math.Max(position, 0.0), _frameCount - 1);
+            double u = position - _frameCount * Math.Floor(position / _frameCount);
+            return u < _frameCount ? u : 0.0;
+        }
+
+        // §1.4: _VatFrame = (row0, row1, frac, 0). A one-shot reaches its last frame as f0 = F − 2 with frac = 1.
+        public Vector4 Frame(double position)
+        {
+            double u = Wrap(position);
+            int f0 = Math.Min((int)u, _loop ? _frameCount - 1 : Math.Max(_frameCount - 2, 0));
+            int f1 = f0 + 1 < _frameCount ? f0 + 1 : _loop ? 0 : f0;
+            return new Vector4(_startRow + f0, _startRow + f1, (float)(u - f0), 0f);
+        }
     }
 }

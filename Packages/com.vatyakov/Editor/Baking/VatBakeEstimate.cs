@@ -36,6 +36,6 @@ namespace VATyakov.Editor
         }
 
         static VatClipRequest[] Requests(VatBakeProfile profile) =>
-            new[] { new VatClipRequest(profile.Clip.name, profile.Clip.length, profile.Fps) };
+            new[] { new VatClipRequest(profile.Clip.name, profile.Clip.length, profile.Fps, profile.Loop) };
     }
 }

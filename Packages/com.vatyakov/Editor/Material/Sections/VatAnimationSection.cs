@@ -42,6 +42,8 @@ namespace VATyakov.Editor
         {
             VatObjectLinkField.Draw(AnimationLabel, binding.Asset);
             DrawClip(binding);
+            if (binding.ClipIndex >= 0)
+                VatFrameField.Draw(material, binding.Asset.Clips[binding.ClipIndex]);
             if (binding.IsStale)
                 DrawStale(material, binding);
         }

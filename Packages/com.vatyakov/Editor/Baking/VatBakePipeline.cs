@@ -7,7 +7,7 @@ namespace VATyakov.Editor
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
             using var source = new SkinnedFrameSource(profile.Source, new[] { profile.Clip });
-            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps));
+            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.Loop));
             var encoder = new VertexEncoder(layout, source.Mesh);
             SampleAll(source, layout, encoder);
             return Build(layout, encoder, name);
@@ -32,7 +32,7 @@ namespace VATyakov.Editor
             for (int k = 0; k < clip.FrameCount; k++)
             {
                 VatBakeProgress.Report(clip, k);
-                source.Sample(index, VatMath.LoopFrameTime(k, clip.FrameCount, clip.Length), frame);
+                source.Sample(index, clip.FrameTime(k), frame);
                 encoder.AddFrame(index, k, frame);
             }
         }

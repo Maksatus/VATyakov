@@ -22,7 +22,8 @@ namespace VATyakov.Tests
         readonly Transform _bone0;
         readonly Transform _bone1;
 
-        public VatTestRig(Scene scene, int vertexCount, bool legacy)
+        // loopingClip: loopTime for Generic, WrapMode.Loop for legacy — both wrap t = L to the pose at 0.
+        public VatTestRig(Scene scene, int vertexCount, bool legacy, bool loopingClip = false)
         {
             Root = NewObject("RigRoot", scene, null);
             var model = NewObject("Model", scene, Root.transform).transform;
@@ -44,7 +45,7 @@ namespace VATyakov.Tests
             Renderer.bones = new[] { _bone0, _bone1 };
             Renderer.rootBone = _bone0;
 
-            Clip = BuildClip(legacy);
+            Clip = BuildClip(legacy, loopingClip);
             if (!legacy)
                 Root.AddComponent<Animator>();
         }
@@ -123,9 +124,11 @@ namespace VATyakov.Tests
 
         static int[] Quad(int i) => new[] { i, i + 2, i + 1, i + 1, i + 2, i + 3 };
 
-        AnimationClip BuildClip(bool legacy)
+        AnimationClip BuildClip(bool legacy, bool looping)
         {
             var clip = new AnimationClip { name = legacy ? "RigLegacy" : "RigGeneric", legacy = legacy };
+            if (legacy && looping)
+                clip.wrapMode = WrapMode.Loop;
             string bone0 = AnimationUtility.CalculateTransformPath(_bone0, Root.transform);
             string bone1 = AnimationUtility.CalculateTransformPath(_bone1, Root.transform);
             Set(clip, bone0, "x", AnimationCurve.Constant(0f, Length, 0f));
@@ -134,7 +137,16 @@ namespace VATyakov.Tests
             Set(clip, bone1, "x", AnimationCurve.Linear(0f, 0f, Length, 50f * Length));
             Set(clip, bone1, "y", AnimationCurve.Constant(0f, Length, Bone1Rest.y));
             Set(clip, bone1, "z", AnimationCurve.Constant(0f, Length, 0f));
+            if (!legacy && looping)
+                SetLoopTime(clip);
             return clip;
+        }
+
+        static void SetLoopTime(AnimationClip clip)
+        {
+            var settings = AnimationUtility.GetAnimationClipSettings(clip);
+            settings.loopTime = true;
+            AnimationUtility.SetAnimationClipSettings(clip, settings);
         }
 
         static void Set(AnimationClip clip, string path, string axis, AnimationCurve curve)
