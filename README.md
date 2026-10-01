@@ -1,6 +1,6 @@
 # VATyakov
 
-Проект-разработка VAT-системы для Unity 6 и URP — пакета [`com.kefir.vat`](Packages/com.kefir.vat/README.md).
+Проект-разработка VAT-системы для Unity 6 и URP — пакета [`com.vatyakov`](Packages/com.vatyakov/README.md).
 План реализации: [`Assets/vat-plan-v2.md`](Assets/vat-plan-v2.md). Работа идёт по подверсиям §5 плана,
 каждая принимается по своему чек-листу «Как проверить».
 
@@ -14,12 +14,12 @@
 ## Структура
 
 ```
-Packages/com.kefir.vat/   пакет (встроенный): Runtime, Editor, Shaders, Tests, Samples
+Packages/com.vatyakov/   пакет (встроенный): Runtime, Editor, Shaders, Tests, Samples
 Assets/VatDev/            всё для разработки и проверки, в пакет не входит
   Content/Bow/            тестовый контент: лук (SMR 2079 и 4529 вертексов, legacy-клип Fire)
   Bakes/                  профили бейка и результаты (VatAsset, материалы-шаблоны, префабы)
   Scenes/Compare.unity    исходник и VAT бок о бок; эта же сцена собирается на устройства
-  Scripts/                Kefir.Vat.Dev: драйвер сцены Compare
+  Scripts/                VATyakov.Dev: драйвер сцены Compare
 Assets/Settings/          URP-ассеты
 ```
 
@@ -31,7 +31,7 @@ Play. Слева исходный SkinnedMeshRenderer, справа VAT. Реж�
 
 ## Тесты
 
-`Window → General → Test Runner → EditMode`, сборка `Kefir.Vat.Editor.Tests`. Тесты создают временные ассеты
+`Window → General → Test Runner → EditMode`, сборка `VATyakov.Editor.Tests`. Тесты создают временные ассеты
 в `Assets/__VatTestTemp` и удаляют их за собой.
 
 ## Управление редактором из CLI

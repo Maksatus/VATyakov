@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Kefir.Vat.Dev
+namespace VATyakov.Dev
 {
     /// <summary>
     /// On-screen controls for every VatCompare in the scene: Step/Play and the previous/next baked frame.

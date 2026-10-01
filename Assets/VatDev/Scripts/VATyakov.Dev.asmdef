@@ -1,0 +1,16 @@
+{
+    "name": "VATyakov.Dev",
+    "rootNamespace": "VATyakov.Dev",
+    "references": [
+        "VATyakov"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

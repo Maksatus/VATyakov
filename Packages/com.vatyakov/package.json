@@ -1,0 +1,21 @@
+{
+  "name": "com.vatyakov",
+  "version": "0.1.0",
+  "displayName": "VATyakov",
+  "description": "Vertex Animation Textures for URP: bakes SkinnedMeshRenderer animation into textures and plays it back in Shader Graph.",
+  "unity": "6000.3",
+  "author": {
+    "name": "Maksim Tretyakov"
+  },
+  "keywords": [
+    "vat",
+    "vertex animation",
+    "shader graph",
+    "urp"
+  ],
+  "dependencies": {
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.render-pipelines.universal": "17.3.0",
+    "com.unity.shadergraph": "17.3.0"
+  }
+}

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 50753a509abcb7043894051342400a6d, type: 3}
   m_Name: Bow_Default
-  m_EditorClassIdentifier: Kefir.Vat.Editor::Kefir.Vat.Editor.VatBakeProfile
+  m_EditorClassIdentifier: VATyakov.Editor::VATyakov.Editor.VatBakeProfile
   _source: {fileID: 5389600063670759662, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
   _clip: {fileID: 1578224647840042950, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
   _fps: 30

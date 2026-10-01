@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
 
-namespace Kefir.Vat.Dev
+namespace VATyakov.Dev
 {
     /// <summary>
     /// Compare scene driver (plan §5): the source SkinnedMeshRenderer and its VAT copy side by side.

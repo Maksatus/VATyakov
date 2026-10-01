@@ -1,7 +1,7 @@
 # VAT-система для Unity 6000.3+ URP — план реализации
 
 **Платформы:** iOS Metal (от iPhone 12), Android Vulkan и GLES 3.1+ (класс Adreno 650 / Mali-G78 и выше).
-**Пакет:** `com.kefir.vat` (имя — плейсхолдер), `"unity": "6000.3"`. Alembic 2.4.5 — необязательная зависимость (§4).
+**Пакет:** `com.vatyakov`, `"unity": "6000.3"`. Alembic 2.4.5 — необязательная зависимость (§4).
 **[проверить]** — факт, который подтверждается на устройстве в указанной подверсии (§5).
 
 ---
@@ -308,20 +308,20 @@ _VatBlend = (wFrom, wTo, tStart, invDur)               // вес B: w(t) = lerp(
 
 ## 4. Структура пакета
 ```
-Packages/com.kefir.vat/
+Packages/com.vatyakov/
   package.json    "unity": "6000.3"
-  Runtime/  Kefir.Vat.asmdef — VatAsset.cs (formatVersion, раскладка, клипы), VatClip.cs, VatAnimator.cs, VatShaderIds.cs
+  Runtime/  VATyakov.asmdef — VatAsset.cs (formatVersion, раскладка, клипы), VatClip.cs, VatAnimator.cs, VatShaderIds.cs
   Shaders/  VatCore.hlsl, VatShaderGraph.hlsl (обёртки _float, include guard)
             SubGraphs/ VAT_Vertex (1.1), VAT_Bone (1.11, он же для rigid)
-  Editor/   Kefir.Vat.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs, VatBuildValidator.cs
+  Editor/   VATyakov.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs, VatBuildValidator.cs
             Baking/  IVatFrameSource, SkinnedFrameSource, VatLayout, VatAssetWriter,
                      VertexEncoder (1.1), BoneEncoder (1.11, для кусков — 1.15)
-            Alembic/ Kefir.Vat.Editor.Alembic.asmdef — AlembicFrameSource (1.4), RigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch)
+            Alembic/ VATyakov.Editor.Alembic.asmdef — AlembicFrameSource (1.4), RigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch)
   Tests/Editor/
   Samples~/ VAT_Lit_Bone, VAT_Lit_Vertex, VAT_Lit_Vertex_Triplanar, VAT_Lit_Rigid; сцены Compare и Stress
 ```
 - **Конвейер бейка:** `VatBakeProfile` → `IVatFrameSource` → `VatLayout` → энкодер → `VatAssetWriter`. Результат — `VatAsset` с sub-assets (Mesh, Texture2D) и таблицей клипов; опционально материал-шаблон и префаб (MeshFilter + MeshRenderer + VatAnimator). `VatBakeProfile` лежит в Editor-сборке и в билд не попадает.
-- **Зависимость от Alembic.** У `Kefir.Vat.Editor.Alembic` стоят `defineConstraints: ["VAT_ALEMBIC"]` и `versionDefines`: `com.unity.formats.alembic` ≥ 2.4.5 → `VAT_ALEMBIC`. Без Alembic эта сборка не компилируется, остальной пакет работает.
+- **Зависимость от Alembic.** У `VATyakov.Editor.Alembic` стоят `defineConstraints: ["VAT_ALEMBIC"]` и `versionDefines`: `com.unity.formats.alembic` ≥ 2.4.5 → `VAT_ALEMBIC`. Без Alembic эта сборка не компилируется, остальной пакет работает.
 
 ---
 
@@ -396,7 +396,7 @@ Packages/com.kefir.vat/
 
 #### 1.4 Alembic → Vertex (постоянная топология)
 **Входит:**
-- asmdef `Kefir.Vat.Editor.Alembic` с defineConstraints (§4);
+- asmdef `VATyakov.Editor.Alembic` с defineConstraints (§4);
 - `AlembicFrameSource`: `UpdateImmediately(k / fps)`, корень плеера в identity, frameCount (§2.3);
 - проверки топологии и соответствия вершин (§2.2), подсказка периода loop;
 - пример `VAT_Lit_Vertex_Triplanar` для мешей без UV.

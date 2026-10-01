@@ -1,6 +1,6 @@
 # VATyakov — заметки для агента
 
-Проект-разработка пакета `Packages/com.kefir.vat` (VAT для Unity 6 и URP). План — `Assets/vat-plan-v2.md`.
+Проект-разработка пакета `Packages/com.vatyakov` (VAT для Unity 6 и URP). План — `Assets/vat-plan-v2.md`.
 Работа идёт по подверсиям §5 («реализуй подверсию 1.N, следующие не трогай»). Подверсия принимается по её
 разделам «Как проверить» и «Тесты».
 
@@ -11,7 +11,7 @@
   после `--` — параметр команды.
 - C#: `eval --code` (тело метода, без `using`), `eval_file --file`, `run_script --file X.cs --entry Type.Method`
   (компилирует файл целиком, без domain reload, файл может лежать вне Assets).
-- Тесты: `run_tests -- --mode editor --filter Kefir.Vat.Editor.Tests --filter_type assembly` (около 15 с).
+- Тесты: `run_tests -- --mode editor --filter VATyakov.Editor.Tests --filter_type assembly` (около 15 с).
 - Пакеты ставить через `package_add` / `package_remove` / `package_resolve`: после ручной правки
   `manifest.json` Unity ждёт фокуса окна.
 - Без фокуса редактор может не тикать — `set_autotick`. Play mode без фокуса стоит на месте, пока в рантайме
@@ -25,6 +25,13 @@
 
 ## Соглашения
 
+- Классы и методы максимально маленькие, логика разнесена по классам. XML-summary не пишем; комментарии — только
+  неочевидное «почему» и ссылки на план, нужные для следующих подверсий.
+- Редакторный UI — контроллеры по образцу `D:\client\Assets\Editor\AssetsIntegrations\Vehicle`: `IController`
+  (Activate/Deactivate) на каждую часть, `EditorContainer` только строит элементы, общее состояние — Context с
+  Model (`Property<T>`, `Trigger`), инспектор (`ControllerInspector.CreateControllers`) только регистрирует
+  контроллеры. Каркас свой, в `Editor/Framework`, без зависимостей от реестра Kefir. IMGUI `ShaderGUI` — реестр
+  секций `IVatMaterialSection`.
 - Комментарии в коде на английском, сообщения пользователю (ошибки бейка, инспектор, лог) на русском.
 - Приватные поля `_camelCase`, ссылки на план в комментариях — `§1.3`.
 - Культура редактора ru-RU: числа в строки только через `CultureInfo.InvariantCulture`.

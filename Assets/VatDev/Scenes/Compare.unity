@@ -147,7 +147,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48f59ddbf1a19864db1224b28351729f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Kefir.Vat.Dev::Kefir.Vat.Dev.VatCompare
+  m_EditorClassIdentifier: VATyakov.Dev::VATyakov.Dev.VatCompare
   _asset: {fileID: 11400000, guid: d93ac3c19c36fad4a8175e44b5d8e50e, type: 2}
   _source: {fileID: 1144797901}
   _clip: {fileID: 1578224647840042950, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
@@ -487,7 +487,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48f59ddbf1a19864db1224b28351729f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Kefir.Vat.Dev::Kefir.Vat.Dev.VatCompare
+  m_EditorClassIdentifier: VATyakov.Dev::VATyakov.Dev.VatCompare
   _asset: {fileID: 11400000, guid: 7a412248ba856b84990548a46bf43714, type: 2}
   _source: {fileID: 1397920549}
   _clip: {fileID: 1578224647840042950, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
@@ -732,7 +732,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 370d23bbcedc7aa4b96948397e04dcec, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Kefir.Vat.Dev::Kefir.Vat.Dev.VatCompareControls
+  m_EditorClassIdentifier: VATyakov.Dev::VATyakov.Dev.VatCompareControls
   _targets:
   - {fileID: 338188659}
   - {fileID: 1394879362}

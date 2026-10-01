@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.kefir.vat": {
-      "version": "file:com.kefir.vat",
+    "com.vatyakov": {
+      "version": "file:com.vatyakov",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
