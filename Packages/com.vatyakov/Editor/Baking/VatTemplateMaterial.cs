@@ -20,17 +20,20 @@ namespace VATyakov.Editor
         static Material Create(VatBakeProfile profile, string assetPath)
         {
             var material = new Material(ResolveShader(profile));
-            CopyBaseMap(profile, material);
+            CopyMaps(profile.Source.sharedMaterial, material);
             AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(assetPath, ".mat")));
             profile.Material = material;
             return material;
         }
 
-        static void CopyBaseMap(VatBakeProfile profile, Material material)
+        static void CopyMaps(Material source, Material material)
         {
-            var source = profile.Source.sharedMaterial;
-            if (source != null && source.mainTexture != null && material.HasTexture("_BaseMap"))
+            if (source == null)
+                return;
+            if (source.mainTexture != null && material.HasTexture("_BaseMap"))
                 material.SetTexture("_BaseMap", source.mainTexture);
+            if (source.HasTexture("_BumpMap") && material.HasTexture("_BumpMap"))
+                material.SetTexture("_BumpMap", source.GetTexture("_BumpMap"));
         }
     }
 }

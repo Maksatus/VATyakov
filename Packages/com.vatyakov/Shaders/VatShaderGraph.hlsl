@@ -18,4 +18,17 @@ void VatVertexPosition_float(float VertexId, float3 RestPosition,
     Position = RestPosition + lerp(d0, d1, Frame.z);
 }
 
+// Vertex mode: frame (T, N×T, N) from _VatRotTex, nlerp between the two rows (§2.2).
+void VatVertexNormalTangent_float(float VertexId,
+    UnityTexture2D RotTex, float4 Layout, float4 Frame,
+    out float3 Normal, out float3 Tangent)
+{
+    uint id = (uint)VertexId;
+    float4 q0 = VatDecodeRotation(LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0));
+    float4 q1 = VatDecodeRotation(LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0));
+    float4 q = VatNlerp(q0, q1, Frame.z);
+    Normal = VatFrameNormal(q);
+    Tangent = VatFrameTangent(q);
+}
+
 #endif // VATYAKOV_SHADERGRAPH_INCLUDED

@@ -29,6 +29,6 @@ namespace VATyakov.Editor
         public static string Size(VatLayoutInfo info) => string.Format(Invariant, "{0}×{1}", info.Width, info.Height);
 
         public static string Megabytes(VatLayoutInfo info) =>
-            string.Format(Invariant, "{0:0.##} МБ", VatMemory.PositionTextureBytes(info) / (1024.0 * 1024.0));
+            string.Format(Invariant, "{0:0.##} МБ", VatMemory.TextureBytes(info) / (1024.0 * 1024.0));
     }
 }

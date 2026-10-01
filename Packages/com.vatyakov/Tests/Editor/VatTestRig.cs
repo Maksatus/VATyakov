@@ -10,9 +10,12 @@ namespace VATyakov.Tests
     // Skinned strip with an analytic animation: references do not depend on the bake pipeline.
     // FBX-like hierarchy: Root → Model (−90° X, scale 0.01) → Mesh (SMR) and Bone0 → Bone1.
     // Two sub-meshes, the second with a non-zero baseVertex in the source.
+    // twist: Bone1 also turns around the strip axis, so normals and tangents change per frame (legacy clip only).
     sealed class VatTestRig
     {
         public const float Length = 1f;
+        const float TwistDegrees = 90f;
+        const int TwistKeysPerSecond = 60; // keys on every bake frame time at 30 fps: no curve interpolation there
 
         static readonly Vector3 Bone1Rest = new Vector3(0f, 100f, 0f);
 
@@ -21,10 +24,13 @@ namespace VATyakov.Tests
         public readonly AnimationClip Clip;
         readonly Transform _bone0;
         readonly Transform _bone1;
+        readonly bool _twist;
 
         // loopingClip: loopTime for Generic, WrapMode.Loop for legacy — both wrap t = L to the pose at 0.
-        public VatTestRig(Scene scene, int vertexCount, bool legacy, bool loopingClip = false)
+        public VatTestRig(Scene scene, int vertexCount, bool legacy, bool loopingClip = false, bool twist = false)
         {
+            Assert.That(!twist || legacy, "the twist is keyed for legacy clips only");
+            _twist = twist;
             Root = NewObject("RigRoot", scene, null);
             var model = NewObject("Model", scene, Root.transform).transform;
             model.localRotation = Quaternion.Euler(-90f, 0f, 0f);
@@ -50,19 +56,30 @@ namespace VATyakov.Tests
                 Root.AddComponent<Animator>();
         }
 
-        // Bone0 slides along Z, Bone1 along X, both linear.
+        // Bone0 slides along Z, Bone1 along X, both linear; with twist Bone1 also turns around its Y.
         void Pose(double t)
         {
             _bone0.localPosition = new Vector3(0f, 0f, (float)(20.0 * t));
             _bone1.localPosition = new Vector3((float)(50.0 * t), Bone1Rest.y, 0f);
+            _bone1.localRotation = Twist(t);
         }
 
+        Quaternion Twist(double t) => _twist ? Quaternion.Euler(0f, (float)(TwistDegrees * t), 0f) : Quaternion.identity;
+
         // Linear blend skinning of the analytic pose, root space.
-        public Vector3[] ReferencePositions(double t)
+        public Vector3[] ReferencePositions(double t) => Skin(t, Renderer.sharedMesh.vertices, (m, p) => m.MultiplyPoint3x4(p));
+
+        // Skinned like the GPU does it, then normalized (§2.2).
+        public Vector3[] ReferenceNormals(double t) =>
+            Normalized(Skin(t, Renderer.sharedMesh.normals, (m, n) => m.MultiplyVector(n)));
+
+        public Vector3[] ReferenceTangents(double t) =>
+            Normalized(Skin(t, System.Array.ConvertAll(Renderer.sharedMesh.tangents, x => (Vector3)x), (m, d) => m.MultiplyVector(d)));
+
+        Vector3[] Skin(double t, Vector3[] values, System.Func<Matrix4x4, Vector3, Vector3> transform)
         {
             Pose(t);
             var mesh = Renderer.sharedMesh;
-            var vertices = mesh.vertices;
             var weights = mesh.boneWeights;
             var bindposes = mesh.bindposes;
             var bones = Renderer.bones;
@@ -70,17 +87,18 @@ namespace VATyakov.Tests
             for (int i = 0; i < bones.Length; i++)
                 skin[i] = Root.transform.worldToLocalMatrix * bones[i].localToWorldMatrix * bindposes[i];
 
-            var result = new Vector3[vertices.Length];
-            for (int v = 0; v < vertices.Length; v++)
+            var result = new Vector3[values.Length];
+            for (int v = 0; v < values.Length; v++)
             {
                 var w = weights[v];
-                result[v] = w.weight0 * skin[w.boneIndex0].MultiplyPoint3x4(vertices[v])
-                            + w.weight1 * skin[w.boneIndex1].MultiplyPoint3x4(vertices[v]);
+                result[v] = w.weight0 * transform(skin[w.boneIndex0], values[v]) + w.weight1 * transform(skin[w.boneIndex1], values[v]);
             }
 
             Pose(0);
             return result;
         }
+
+        static Vector3[] Normalized(Vector3[] values) => System.Array.ConvertAll(values, v => v.normalized);
 
         static Mesh BuildStrip(int vertexCount)
         {
@@ -139,7 +157,25 @@ namespace VATyakov.Tests
             Set(clip, bone1, "z", AnimationCurve.Constant(0f, Length, 0f));
             if (!legacy && looping)
                 SetLoopTime(clip);
+            if (_twist)
+                SetTwist(clip, bone1);
             return clip;
+        }
+
+        void SetTwist(AnimationClip clip, string path)
+        {
+            int count = Mathf.RoundToInt(Length * TwistKeysPerSecond) + 1;
+            var curves = new[] { new AnimationCurve(), new AnimationCurve(), new AnimationCurve(), new AnimationCurve() };
+            for (int i = 0; i < count; i++)
+            {
+                float time = i / (float)TwistKeysPerSecond;
+                var q = Twist(time);
+                for (int c = 0; c < 4; c++)
+                    curves[c].AddKey(new Keyframe(time, q[c]));
+            }
+            string[] axes = { "x", "y", "z", "w" };
+            for (int c = 0; c < 4; c++)
+                AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve(path, typeof(Transform), "m_LocalRotation." + axes[c]), curves[c]);
         }
 
         static void SetLoopTime(AnimationClip clip)

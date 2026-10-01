@@ -45,6 +45,7 @@ namespace VATyakov.Editor
         static bool IsStaleFor(Material material, VatAsset asset, int clip) =>
             clip < 0 ||
             material.GetTexture(VatShaderIds.PosTex) != asset.PositionTexture ||
+            material.GetTexture(VatShaderIds.RotTex) != asset.RotationTexture ||
             material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout;
     }
 }

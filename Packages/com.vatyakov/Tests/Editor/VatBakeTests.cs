@@ -12,6 +12,7 @@ namespace VATyakov.Tests
         const string TempFolder = "Assets/__VatTestTemp";
         const float Fps = 30f;
         const float Tolerance = 5e-4f; // half quantization of offsets below 1 m, meters
+        const float AngleTolerance = 0.3f; // degrees: smallest-three plus Float32 skinning order
 
         Scene _scene;
         VatTestRig _rig;
@@ -60,7 +61,10 @@ namespace VATyakov.Tests
             CollectionAssert.AreEqual(VatVertexFormat.Attributes, bake.Mesh.GetVertexAttributes());
             Assert.AreEqual(VatVertexFormat.Strides[0], bake.Mesh.GetVertexBufferStride(0));
             Assert.AreEqual(VatVertexFormat.Strides[1], bake.Mesh.GetVertexBufferStride(1));
-            Assert.DoesNotThrow(() => VatLayoutVerifier.Verify(bake.Layout, bake.Mesh, bake.Position));
+            Assert.DoesNotThrow(() => VatLayoutVerifier.Verify(bake.Layout, bake.Mesh, bake.Position, bake.Rotation));
+            Assert.AreEqual(VatVertexFormat.Rotation, bake.Rotation.graphicsFormat);
+            Assert.AreEqual(bake.Position.width, bake.Rotation.width);
+            Assert.AreEqual(bake.Position.height, bake.Rotation.height);
         }
 
         static void AssertVertices(VatInMemoryBake bake, Vector2[] sourceUv)
@@ -98,12 +102,15 @@ namespace VATyakov.Tests
             _profile = CreateProfile(_rig);
             var asset = VatBaker.Bake(_profile, TempFolder + "/Reload.asset");
             byte[] before = VatTestUtil.ReadGpu(asset.PositionTexture);
+            byte[] rotationBefore = VatTestUtil.ReadGpu(asset.RotationTexture);
 
             var reloaded = Reload(asset);
             byte[] after = VatTestUtil.ReadGpu(reloaded.PositionTexture);
 
             CollectionAssert.AreEqual(before, after, "texture bytes after reload");
+            CollectionAssert.AreEqual(rotationBefore, VatTestUtil.ReadGpu(reloaded.RotationTexture), "rotation bytes after reload");
             Assert.IsFalse(reloaded.PositionTexture.isReadable);
+            Assert.IsFalse(reloaded.RotationTexture.isReadable);
             Assert.IsFalse(reloaded.Mesh.isReadable);
             Assert.AreEqual(VatAsset.CurrentFormatVersion, reloaded.FormatVersion);
             AssertDecodesToReference(reloaded, after);
@@ -125,6 +132,36 @@ namespace VATyakov.Tests
                 }
             }
             Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+        }
+
+        // §2.2: the frame decoded from _VatRotTex is the skinned, normalized normal and the Gram–Schmidt tangent.
+        [Test]
+        public void TwistedStrip_RotationTextureDecodesToSkinnedNormalsAndTangents()
+        {
+            _rig = new VatTestRig(_scene, 300, legacy: true, twist: true);
+            _profile = CreateProfile(_rig);
+            var asset = VatBaker.Bake(_profile, TempFolder + "/Twist.asset");
+            byte[] texels = VatTestUtil.ReadGpu(asset.RotationTexture);
+
+            var clip = asset.Clips[0];
+            float maxNormal = 0f, maxTangent = 0f;
+            for (int k = 0; k < clip.FrameCount; k++)
+            {
+                var normals = _rig.ReferenceNormals(clip.FrameTime(k));
+                var tangents = _rig.ReferenceTangents(clip.FrameTime(k));
+                for (int v = 0; v < normals.Length; v++)
+                {
+                    var q = VatTestUtil.DecodeRotation(texels, asset.Layout, v, clip.StartRow + k);
+                    var tangent = (tangents[v] - normals[v] * Vector3.Dot(normals[v], tangents[v])).normalized;
+                    maxNormal = Mathf.Max(maxNormal, Vector3.Angle(normals[v], VatMath.FrameNormal(q)));
+                    maxTangent = Mathf.Max(maxTangent, Vector3.Angle(tangent, VatMath.FrameTangent(q)));
+                }
+            }
+            Assert.Less(maxNormal, AngleTolerance, "normal, degrees");
+            Assert.Less(maxTangent, AngleTolerance, "tangent, degrees");
+            Assert.Greater(Vector3.Angle(_rig.ReferenceNormals(0.5)[_rig.Renderer.sharedMesh.vertexCount - 1], RestNormal), 30f,
+                "the twist turns the top of the strip");
+            Assert.IsTrue(System.Array.TrueForAll(asset.Mesh.tangents, t => t.w == 1f), "bitangent sign from the rest tangent");
         }
 
         // §1.3: F = round(L·fps) + 1, the last frame is the pose at t = L even when the source clip wraps there.
@@ -173,6 +210,7 @@ namespace VATyakov.Tests
             var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
             Assert.AreEqual(reloaded.PositionTexture, material.GetTexture(VatShaderIds.PosTex));
+            Assert.AreEqual(reloaded.RotationTexture, material.GetTexture(VatShaderIds.RotTex));
             Assert.AreEqual(reloaded.Mesh, prefab.GetComponent<MeshFilter>().sharedMesh);
             Assert.AreEqual(10, material.GetTexture(VatShaderIds.PosTex).height);
             Assert.AreEqual(reloaded.Layout.ShaderLayout, material.GetVector(VatShaderIds.Layout));
@@ -202,11 +240,12 @@ namespace VATyakov.Tests
         static VatAsset Reload(VatAsset asset)
         {
             Resources.UnloadAsset(asset.PositionTexture);
+            Resources.UnloadAsset(asset.RotationTexture);
             Resources.UnloadAsset(asset.Mesh);
             return AssetDatabase.LoadAssetAtPath<VatAsset>(AssetDatabase.GetAssetPath(asset));
         }
 
-        static long[] Ids(VatAsset asset) => new[] { Id(asset), Id(asset.Mesh), Id(asset.PositionTexture) };
+        static long[] Ids(VatAsset asset) => new[] { Id(asset), Id(asset.Mesh), Id(asset.PositionTexture), Id(asset.RotationTexture) };
 
         static long Id(Object target)
         {

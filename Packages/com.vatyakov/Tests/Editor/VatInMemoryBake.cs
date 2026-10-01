@@ -9,6 +9,7 @@ namespace VATyakov.Tests
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly Texture2D Position;
+        public readonly Texture2D Rotation;
         public Vector3[] Rest { get; private set; }
         public Vector3[] RestNormals { get; private set; }
 
@@ -20,12 +21,14 @@ namespace VATyakov.Tests
             EncodeAll(source, encoder);
             Mesh = encoder.BuildMesh("InMemory");
             Position = encoder.BuildPositionTexture("InMemory");
+            Rotation = encoder.BuildRotationTexture("InMemory");
         }
 
         public void Destroy()
         {
             Object.DestroyImmediate(Mesh);
             Object.DestroyImmediate(Position);
+            Object.DestroyImmediate(Rotation);
         }
 
         void EncodeAll(IVatFrameSource source, VertexEncoder encoder)

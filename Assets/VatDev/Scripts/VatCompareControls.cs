@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace VATyakov.Dev
 {
@@ -42,6 +43,9 @@ namespace VATyakov.Dev
             if (GUILayout.Button(">", button, width, height))
                 Advance(1);
             GUILayout.Label(first.Step ? $"  frame {first.Frame}" : "  playing", label, height);
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("RGBA8", button, width, height))
+                SceneManager.LoadScene("RotDecode"); // device check of 1.3
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }

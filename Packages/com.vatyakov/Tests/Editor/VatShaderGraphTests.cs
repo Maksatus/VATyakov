@@ -4,6 +4,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using VATyakov.Editor;
 using Object = UnityEngine.Object;
 
 namespace VATyakov.Tests
@@ -12,6 +13,7 @@ namespace VATyakov.Tests
     {
         const string HalfParent = "Packages/com.vatyakov/Tests/Editor/Fixtures/VAT_HalfParent.shadergraph";
         const string UnlitSample = "Packages/com.vatyakov/Samples/UnlitVertex/VAT_Unlit_Vertex.shadergraph";
+        const string LitSample = "Packages/com.vatyakov/Samples/LitVertex/VAT_Lit_Vertex.shadergraph";
 
         [Test]
         public void HalfPrecisionParent_CompilesAndCallsFloatWrapper()
@@ -31,6 +33,22 @@ namespace VATyakov.Tests
             StringAssert.DoesNotContain("half4 _VatFrame", code);
             StringAssert.DoesNotContain("half4 _VatLayout", code);
             StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatFrame, float4)", code, "state is Hybrid Per Instance");
+        }
+
+        [Test]
+        public void LitSample_CompilesAndTakesNormalAndTangentFromTheRotationTexture()
+        {
+            AssertCompiles(LitSample);
+            Assert.AreEqual(VatBaker.DefaultShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitSample).name, "default template shader");
+
+            string code = GeneratedCode(LitSample);
+            if (code == null)
+                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+
+            StringAssert.Contains("VatVertexNormalTangent_float(", code);
+            StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
+            StringAssert.Contains("TEXTURE2D(_VatRotTex)", code);
+            StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 
         [Test]

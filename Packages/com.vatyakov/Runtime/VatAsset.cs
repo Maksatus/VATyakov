@@ -10,12 +10,13 @@ namespace VATyakov
     public sealed class VatAsset : ScriptableObject
     {
         // Bump on any incompatible change of the channel map (§1.9).
-        public const int CurrentFormatVersion = 1;
+        public const int CurrentFormatVersion = 2; // 2: _VatRotTex (1.3)
 
         [SerializeField] int _formatVersion;
         [SerializeField] VatLayoutInfo _layout;
         [SerializeField] Mesh _mesh;
         [SerializeField] Texture2D _positionTexture;
+        [SerializeField] Texture2D _rotationTexture;
         [SerializeField] VatClip[] _clips = Array.Empty<VatClip>();
         [SerializeField] string _sourceHash = string.Empty;
 
@@ -27,13 +28,15 @@ namespace VATyakov
 
         public Texture2D PositionTexture => _positionTexture;
 
+        public Texture2D RotationTexture => _rotationTexture;
+
         public IReadOnlyList<VatClip> Clips => _clips;
 
         public string SourceHash => _sourceHash;
 
         public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
 
-        bool IsComplete => _mesh != null && _positionTexture != null && _clips.Length > 0;
+        bool IsComplete => _mesh != null && _positionTexture != null && _rotationTexture != null && _clips.Length > 0;
 
         public bool TryValidate(out string error)
         {
@@ -46,16 +49,19 @@ namespace VATyakov
         {
             RequireApplicable(material, clipIndex);
             material.SetTexture(VatShaderIds.PosTex, _positionTexture);
+            material.SetTexture(VatShaderIds.RotTex, _rotationTexture);
             material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
             material.SetVector(VatShaderIds.Frame, _clips[clipIndex].Frame(0.0));
         }
 
-        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, VatClip[] clips, string sourceHash)
+        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, Texture2D rotationTexture, VatClip[] clips,
+            string sourceHash)
         {
             _formatVersion = CurrentFormatVersion;
             _layout = layout;
             _mesh = mesh;
             _positionTexture = positionTexture;
+            _rotationTexture = rotationTexture;
             _clips = clips;
             _sourceHash = sourceHash;
         }
@@ -73,6 +79,6 @@ namespace VATyakov
         string FormatError() =>
             $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.";
 
-        string IncompleteError() => $"VAT asset '{name}' is incomplete (mesh, position texture or clips missing). Rebake it.";
+        string IncompleteError() => $"VAT asset '{name}' is incomplete (mesh, textures or clips missing). Rebake it.";
     }
 }

@@ -25,7 +25,8 @@
 - Пакеты ставить через `package_add` / `package_remove` / `package_resolve`: после ручной правки
   `manifest.json` Unity ждёт фокуса окна.
 - Без фокуса редактор может не тикать — `set_autotick`. Play mode без фокуса стоит на месте, пока в рантайме
-  не выставить `Application.runInBackground = true` (в настройки проекта не писать).
+  не выставить `Application.runInBackground = true` (в настройки проекта не писать: выставлять уже в Play mode,
+  в edit mode это `PlayerSettings.runInBackground`).
 - Перед прогоном тестов активная сцена должна быть сохранённым ассетом, иначе Test Runner падает на ReloadScene.
 - `capture_game_view --save_path` пишет относительно `Assets/`; снимки удалять за собой.
 - GPU-скиннинг SMR пересчитывается раз за кадр игрового цикла, не на каждый `Camera.Render()`: для сравнения
@@ -51,7 +52,7 @@
 - Шейдер максимально простой: без времени, ветвлений, клампов и проверок. Время, loop/one-shot, скорость и
   переходы считает CPU (`VatPlayback`, `VatClip.Frame`) и пишет готовые строки в `_VatFrame`; валидность
   данных обеспечивает бейкер.
-- Shader Graph ассеты (`VAT_Vertex`, `VAT_Unlit_Vertex`, фикстура `VAT_HalfParent`) сгенерированы скриптом,
+- Shader Graph ассеты (`VAT_Vertex`, `VAT_Unlit_Vertex`, `VAT_Lit_Vertex`, фикстура `VAT_HalfParent`) сгенерированы скриптом,
   дальше их правят в редакторе SG. Векторные свойства SubGraph — Precision Single: с Inherit в Half-графе они
   объявляются `half4` и портят строки и W > 2048 (это проверяет тест).
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
@@ -61,4 +62,4 @@
 - `Assets/VatDev/Content/Bow` — тестовый лук: `Bow_default_main` на 2079 вертексов, `Bow_upgrade_main` на 4529
   (два блока), legacy-клип.
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/Compare.unity` — сравнение SMR и VAT,
-  она же единственная сцена сборки.
+  она же первая сцена сборки; вторая — `RotDecode`, проверка RGBA8 на устройствах (1.3).

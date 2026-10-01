@@ -42,6 +42,14 @@ namespace VATyakov.Tests
             return new Vector3(Half(texels, offset), Half(texels, offset + 2), Half(texels, offset + 4));
         }
 
+        // RGBA8 bytes as the GPU returns them; decoded like VatCore.hlsl.
+        public static Vector4 DecodeRotation(byte[] texels, VatLayoutInfo layout, int element, int row)
+        {
+            var texel = VatMath.Texel(element, layout.Width, layout.TotalRows, row);
+            int offset = (texel.y * layout.Width + texel.x) * 4;
+            return VatMath.DecodeRotation((Color)new Color32(texels[offset], texels[offset + 1], texels[offset + 2], texels[offset + 3]));
+        }
+
         static float Half(byte[] bytes, int offset) => Mathf.HalfToFloat(BitConverter.ToUInt16(bytes, offset));
     }
 }

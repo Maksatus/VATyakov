@@ -14,10 +14,11 @@ namespace VATyakov.Editor
         {
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             asset.name = Path.GetFileNameWithoutExtension(path);
-            asset.SetData(result.Layout.Info, result.Mesh, result.Position, result.Layout.Clips, sourceHash);
+            asset.SetData(result.Layout.Info, result.Mesh, result.Position, result.Rotation, result.Layout.Clips, sourceHash);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.AddObjectToAsset(result.Mesh, asset);
             AssetDatabase.AddObjectToAsset(result.Position, asset);
+            AssetDatabase.AddObjectToAsset(result.Rotation, asset);
             Finish(asset);
             return asset;
         }
@@ -26,7 +27,8 @@ namespace VATyakov.Editor
         {
             var mesh = Adopt(asset, asset.Mesh, result.Mesh);
             var position = Adopt(asset, asset.PositionTexture, result.Position);
-            asset.SetData(result.Layout.Info, mesh, position, result.Layout.Clips, sourceHash);
+            var rotation = Adopt(asset, asset.RotationTexture, result.Rotation);
+            asset.SetData(result.Layout.Info, mesh, position, rotation, result.Layout.Clips, sourceHash);
             Finish(asset);
             return asset;
         }
@@ -49,6 +51,7 @@ namespace VATyakov.Editor
         {
             MakeNonReadable(asset.Mesh);
             MakeNonReadable(asset.PositionTexture);
+            MakeNonReadable(asset.RotationTexture);
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
         }

@@ -8,7 +8,7 @@ namespace VATyakov.Editor
     // §4: VatBakeProfile → IVatFrameSource → VatLayout → encoder → VatAssetWriter.
     public static class VatBaker
     {
-        public const string DefaultShaderName = "VATyakov/VAT_Unlit_Vertex";
+        public const string DefaultShaderName = "VATyakov/VAT_Lit_Vertex";
 
         public static List<string> Validate(VatBakeProfile profile) => VatBakeValidator.Validate(profile);
 

@@ -24,9 +24,10 @@ namespace VATyakov
         [SerializeField] bool _pivotRow;
         [SerializeField] bool _drift;
         [SerializeField] GraphicsFormat _positionFormat;
+        [SerializeField] GraphicsFormat _rotationFormat;
 
         public VatLayoutInfo(VatMode mode, int elements, int texelsPerItem, int width, int blocks, int totalRows,
-            bool pivotRow, bool drift, GraphicsFormat positionFormat)
+            bool pivotRow, bool drift, GraphicsFormat positionFormat, GraphicsFormat rotationFormat)
         {
             _mode = mode;
             _elements = elements;
@@ -37,6 +38,7 @@ namespace VATyakov
             _pivotRow = pivotRow;
             _drift = drift;
             _positionFormat = positionFormat;
+            _rotationFormat = rotationFormat;
         }
 
         public VatMode Mode => _mode;
@@ -58,6 +60,9 @@ namespace VATyakov
         public bool Drift => _drift;
 
         public GraphicsFormat PositionFormat => _positionFormat;
+
+        // Vertex mode: _VatRotTex, same size as _VatPosTex.
+        public GraphicsFormat RotationFormat => _rotationFormat;
 
         public int Height => _blocks * _totalRows;
 

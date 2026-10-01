@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace VATyakov.Editor
 {
@@ -38,16 +37,7 @@ namespace VATyakov.Editor
         public Texture2D Build(string name)
         {
             RequireComplete();
-            var texture = new Texture2D(_info.Width, _info.Height, VatVertexFormat.Position, TextureCreationFlags.None)
-            {
-                name = name,
-                filterMode = FilterMode.Point,
-                wrapMode = TextureWrapMode.Clamp,
-                anisoLevel = 0,
-            };
-            texture.SetPixelData(_texels, 0);
-            texture.Apply(false, false); // readable until VatAssetWriter stores it
-            return texture;
+            return VatTexture.Create(_info, VatVertexFormat.Position, name, _texels);
         }
 
         int Offset(int element, int row)

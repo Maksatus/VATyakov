@@ -41,17 +41,20 @@ namespace VATyakov.Editor
         {
             Mesh mesh = null;
             Texture2D position = null;
+            Texture2D rotation = null;
             try
             {
                 mesh = encoder.BuildMesh(name + "_Mesh");
                 position = encoder.BuildPositionTexture(name + "_Pos");
-                VatLayoutVerifier.Verify(layout, mesh, position);
-                return new VatBakeResult(layout, mesh, position, encoder.Stats);
+                rotation = encoder.BuildRotationTexture(name + "_Rot");
+                VatLayoutVerifier.Verify(layout, mesh, position, rotation);
+                return new VatBakeResult(layout, mesh, position, rotation, encoder.Stats, encoder.Chirality);
             }
             catch
             {
                 Destroy(mesh);
                 Destroy(position);
+                Destroy(rotation);
                 throw;
             }
         }

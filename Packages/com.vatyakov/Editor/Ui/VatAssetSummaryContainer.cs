@@ -24,7 +24,7 @@ namespace VATyakov.Editor
         {
             _vertices.Set(VatText.Number(info.Elements));
             _texture.Set(VatText.Size(info), VatText.Blocks(info));
-            _memory.Set(VatText.Megabytes(info), "Фактический размер текстуры в памяти, включая пустые тексели последнего блока.");
+            _memory.Set(VatText.Megabytes(info), "Фактический размер текстур позиций и поворотов в памяти, включая пустые тексели последнего блока.");
         }
 
         void ShowClips(VatAsset asset)

@@ -80,6 +80,6 @@ namespace VATyakov.Editor
 
         static VatLayoutInfo VertexInfo(int vertexCount, int blocks, int rows) =>
             new VatLayoutInfo(VatMode.Vertex, vertexCount, 1, VatMath.TextureWidth(vertexCount), blocks, rows,
-                pivotRow: false, drift: false, VatVertexFormat.Position);
+                pivotRow: false, drift: false, VatVertexFormat.Position, VatVertexFormat.Rotation);
     }
 }
