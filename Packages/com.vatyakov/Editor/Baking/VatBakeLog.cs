@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -17,12 +18,14 @@ namespace VATyakov.Editor
         static string Describe(VatAsset asset)
         {
             var info = asset.Layout;
-            var clip = asset.Clips[0];
             return string.Format(CultureInfo.InvariantCulture,
-                "VAT '{0}': {1} vertices, clip '{2}': {3} frames, {4:0.###} fps; textures {5}×{6} ({7} blocks), {8}",
-                asset.name, info.Elements, clip.Name, clip.FrameCount, clip.FrameRate, info.Width, info.Height, info.Blocks,
+                "VAT '{0}': {1} vertices, {2}; textures {3}×{4} ({5} blocks), {6}",
+                asset.name, info.Elements, string.Join(", ", asset.Clips.Select(Describe)), info.Width, info.Height, info.Blocks,
                 VatText.Megabytes(info));
         }
+
+        static string Describe(VatClip clip) => string.Format(CultureInfo.InvariantCulture,
+            "clip '{0}': rows {1}–{2}, {3:0.###} fps", clip.Name, clip.StartRow, clip.StartRow + clip.FrameCount - 1, clip.FrameRate);
 
         static string Positions(VatAsset asset, VatBakeResult result)
         {

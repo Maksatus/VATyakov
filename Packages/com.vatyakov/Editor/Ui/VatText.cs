@@ -10,7 +10,9 @@ namespace VATyakov.Editor
             clip.FrameCount, Frames(clip.FrameCount), clip.FrameRate, clip.Length, clip.Loop ? "loop" : "once");
 
         public static string Estimate(VatLayout layout) =>
-            $"Result: {Count(layout.Clips[0].FrameCount)} · texture {Size(layout.Info)} · {Megabytes(layout.Info)}";
+            $"Result: {Clips(layout.Clips.Length)}, {Count(layout.Info.TotalRows)} · texture {Size(layout.Info)} · {Megabytes(layout.Info)}";
+
+        public static string Clips(int count) => Number(count) + (count == 1 ? " clip" : " clips");
 
         public static string Blocks(VatLayoutInfo info) => info.Blocks > 1 ? $"The mesh is split into {info.Blocks} blocks across the width." : null;
 

@@ -13,7 +13,7 @@ namespace VATyakov.Editor
         {
             var material = profile.Material != null ? profile.Material : Create(profile, assetPath);
             material.enableInstancing = false; // §1.6
-            asset.ApplyTo(material, 0);
+            asset.ApplyTo(material, asset.DefaultClipIndex);
             EditorUtility.SetDirty(material);
         }
 

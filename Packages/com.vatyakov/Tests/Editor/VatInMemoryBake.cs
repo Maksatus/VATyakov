@@ -15,7 +15,11 @@ namespace VATyakov.Tests
         public Vector3[] RestNormals { get; private set; }
         public readonly string[] Warnings;
 
-        public VatInMemoryBake(VatTestRig rig, float fps) : this(new SkinnedFrameSource(rig.Renderer, new[] { rig.Clip }), fps)
+        public VatInMemoryBake(VatTestRig rig, float fps) : this(rig, fps, rig.Clip)
+        {
+        }
+
+        public VatInMemoryBake(VatTestRig rig, float fps, params AnimationClip[] clips) : this(new SkinnedFrameSource(rig.Renderer, clips), fps)
         {
         }
 
@@ -50,14 +54,14 @@ namespace VATyakov.Tests
         void EncodeAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
         {
             var frame = new VatFrame(source.Mesh.VertexCount);
-            var clip = layout.Clips[0];
-            for (int k = 0; k < clip.FrameCount; k++)
-            {
-                source.Sample(0, clip.FrameTime(k), frame);
-                Rest ??= (Vector3[])frame.Positions.Clone();
-                RestNormals ??= (Vector3[])frame.Normals.Clone();
-                encoder.AddFrame(0, k, frame);
-            }
+            for (int c = 0; c < layout.Clips.Length; c++)
+                for (int k = 0; k < layout.Clips[c].FrameCount; k++)
+                {
+                    source.Sample(c, layout.Clips[c].FrameTime(k), frame);
+                    Rest ??= (Vector3[])frame.Positions.Clone();
+                    RestNormals ??= (Vector3[])frame.Normals.Clone();
+                    encoder.AddFrame(c, k, frame);
+                }
         }
     }
 }

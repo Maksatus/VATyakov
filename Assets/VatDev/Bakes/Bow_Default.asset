@@ -14,7 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: VATyakov.Editor::VATyakov.Editor.VatBakeProfile
   _kind: 0
   _source: {fileID: 5389600063670759662, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
-  _clip: {fileID: 1578224647840042950, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
+  _clips:
+  - {fileID: 1578224647840042950, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
+  - {fileID: 8311010235695890986, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
+  - {fileID: 8894828519414019645, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
+  _clip: {fileID: 0}
   _alembic: {fileID: 0}
   _loop: 1
   _fps: 30

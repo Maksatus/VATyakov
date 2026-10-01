@@ -26,7 +26,7 @@ namespace VATyakov.Editor
         static void AddSkinned(List<string> problems, VatBakeProfile profile)
         {
             Add(problems, SourceProblem(profile));
-            Add(problems, ClipProblem(profile));
+            problems.AddRange(VatClipListProblems.Find(profile.Clips));
         }
 
         static void Add(List<string> problems, string problem)
@@ -40,13 +40,6 @@ namespace VATyakov.Editor
             if (profile.Source == null)
                 return "Skinned Mesh Renderer is not set: assign one from a prefab or model.";
             return profile.Source.sharedMesh == null ? $"'{profile.Source.name}' has no mesh." : null;
-        }
-
-        static string ClipProblem(VatBakeProfile profile)
-        {
-            if (profile.Clip == null)
-                return "Clip is not set.";
-            return IsPositive(profile.Clip.length) ? null : $"Clip '{profile.Clip.name}' has zero length.";
         }
 
         static string AlembicProblem(VatBakeProfile profile)

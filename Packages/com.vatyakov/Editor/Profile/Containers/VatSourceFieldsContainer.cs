@@ -12,7 +12,7 @@ namespace VATyakov.Editor
         {
             Skinned.WithElements(
                 new PropertyField { bindingPath = "_source", label = "Skinned Mesh Renderer" },
-                new PropertyField { bindingPath = "_clip", label = "Clip" });
+                new PropertyField { bindingPath = "_clips", label = "Clips" });
             Alembic.WithElements(new PropertyField { bindingPath = "_alembic", label = "Alembic" });
             Root.WithElements(
                 new PropertyField { bindingPath = "_kind", label = "Source" },

@@ -24,8 +24,12 @@ namespace VATyakov.Editor
         {
             hash.Append(DependencyHash(profile.Source));
             hash.Append(AnimationUtility.CalculateTransformPath(profile.Source.transform, profile.Source.transform.root));
-            hash.Append(DependencyHash(profile.Clip));
-            hash.Append(profile.Clip.name);
+            hash.Append(profile.Clips.Count);
+            foreach (var clip in profile.Clips) // the order matters: it sets the rows
+            {
+                hash.Append(DependencyHash(clip));
+                hash.Append(clip.name);
+            }
         }
 
         static string DependencyHash(Object target)

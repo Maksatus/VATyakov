@@ -4,6 +4,6 @@ namespace VATyakov.Editor
     {
         public static IVatFrameSource Open(VatBakeProfile profile) => profile.Kind == VatSourceKind.Alembic
             ? VatAlembic.Open(profile.Alembic)
-            : new SkinnedFrameSource(profile.Source, new[] { profile.Clip });
+            : new SkinnedFrameSource(profile.Source, profile.Clips);
     }
 }

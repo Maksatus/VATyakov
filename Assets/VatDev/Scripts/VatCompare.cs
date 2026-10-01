@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Animations;
 #if VAT_ALEMBIC
@@ -13,24 +14,28 @@ namespace VATyakov.Dev
     /// the time the VAT frames interpolate, so they match on baked frames and differ between them only by the
     /// interpolation error. _speed can be changed while playing. Works in Play mode and in player builds; the VAT material is a
     /// runtime copy, because MaterialPropertyBlock is not allowed (§1.6).
+    /// Several clips (1.6): _clipIndex picks the VAT clip, the source plays the clip of _clips with the same name.
     /// </summary>
     public sealed class VatCompare : MonoBehaviour
     {
         [SerializeField] VatAsset _asset;
         [Tooltip("Root of the source instance: the clip is sampled on it.")]
         [SerializeField] GameObject _source;
-        [SerializeField] AnimationClip _clip;
+        [Tooltip("Source clips; the one named like the current VAT clip is sampled.")]
+        [SerializeField] AnimationClip[] _clips = Array.Empty<AnimationClip>();
 #if VAT_ALEMBIC
-        [Tooltip("Alembic source instead of _source and _clip.")]
+        [Tooltip("Alembic source instead of _source and _clips.")]
         [SerializeField] AlembicStreamPlayer _alembic;
 #endif
         [SerializeField] MeshRenderer _vat;
+        [SerializeField, Min(0)] int _clipIndex;
         [SerializeField] bool _step = true;
         [SerializeField, Min(0)] int _frame;
         [SerializeField] float _speed = 1f;
 
         Material _shared;
         Material _material;
+        AnimationClip _clip;
         PlayableGraph _graph;
         AnimationClipPlayable _playable;
         VatPlayback _playback;
@@ -38,6 +43,10 @@ namespace VATyakov.Dev
         public int Frame => _frame;
 
         public bool Step => _step;
+
+        public string ClipName => _asset != null && _asset.Clips.Count > 0 ? Clip.Name : string.Empty;
+
+        VatClip Clip => _asset.Clips[Mathf.Clamp(_clipIndex, 0, _asset.Clips.Count - 1)];
 
         void OnEnable()
         {
@@ -56,7 +65,7 @@ namespace VATyakov.Dev
                 SetUpAnimation();
         }
 
-        bool HasSource() => HasAlembic() || _source != null && _clip != null;
+        bool HasSource() => HasAlembic() || _source != null && _clips.Length > 0;
 
 #if VAT_ALEMBIC
         bool HasAlembic() => _alembic != null;
@@ -66,6 +75,14 @@ namespace VATyakov.Dev
 
         void SetUpAnimation()
         {
+            DestroyGraph();
+            _clip = Array.Find(_clips, c => c != null && c.name == Clip.Name);
+            if (_clip == null)
+            {
+                Debug.LogError($"{name}: no source clip named '{Clip.Name}'.", this);
+                return;
+            }
+
             var legacy = _source.GetComponent<Animation>();
             if (legacy != null)
                 legacy.enabled = false; // the clip is sampled explicitly
@@ -82,10 +99,15 @@ namespace VATyakov.Dev
             }
         }
 
-        void OnDisable()
+        void DestroyGraph()
         {
             if (_graph.IsValid())
                 _graph.Destroy();
+        }
+
+        void OnDisable()
+        {
+            DestroyGraph();
             if (_vat != null && _shared != null)
                 _vat.sharedMaterial = _shared;
             if (_material != null)
@@ -95,7 +117,7 @@ namespace VATyakov.Dev
 
         void Update()
         {
-            var clip = _asset.Clips[0];
+            var clip = Clip;
             double time;
             if (_step)
             {
@@ -129,6 +151,9 @@ namespace VATyakov.Dev
             }
 #endif
 
+            if (_clip == null)
+                return;
+
             if (_clip.legacy)
             {
                 _clip.SampleAnimation(_source, (float)time);
@@ -149,8 +174,19 @@ namespace VATyakov.Dev
         {
             if (_asset == null || _asset.Clips.Count == 0)
                 return;
-            int count = _asset.Clips[0].FrameCount;
+            int count = Clip.FrameCount;
             _frame = ((_frame + frames) % count + count) % count;
+        }
+
+        public void NextClip()
+        {
+            if (_asset == null || _asset.Clips.Count == 0)
+                return;
+            _clipIndex = (_clipIndex + 1) % _asset.Clips.Count;
+            _frame = 0;
+            _playback = null;
+            if (enabled && !HasAlembic())
+                SetUpAnimation();
         }
     }
 }

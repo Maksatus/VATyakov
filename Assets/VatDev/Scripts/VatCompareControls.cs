@@ -4,8 +4,8 @@ using UnityEngine.SceneManagement;
 namespace VATyakov.Dev
 {
     /// <summary>
-    /// On-screen controls for every VatCompare in the scene: Step/Play and the previous/next baked frame.
-    /// Keyboard in the editor: Space, Left, Right. Sized for phones too.
+    /// On-screen controls for every VatCompare in the scene: Step/Play, the previous/next baked frame and the next clip.
+    /// Keyboard in the editor: Space, Left, Right, C. Sized for phones too.
     /// </summary>
     public sealed class VatCompareControls : MonoBehaviour
     {
@@ -25,6 +25,8 @@ namespace VATyakov.Dev
                     Advance(-1);
                 else if (e.keyCode == KeyCode.RightArrow)
                     Advance(1);
+                else if (e.keyCode == KeyCode.C)
+                    NextClip();
             }
 
             float scale = Mathf.Max(1f, Screen.dpi / 160f);
@@ -42,7 +44,9 @@ namespace VATyakov.Dev
                 Advance(-1);
             if (GUILayout.Button(">", button, width, height))
                 Advance(1);
-            GUILayout.Label(first.Step ? $"  frame {first.Frame}" : "  playing", label, height);
+            if (GUILayout.Button("Clip", button, width, height))
+                NextClip();
+            GUILayout.Label($"  {first.ClipName}, " + (first.Step ? $"frame {first.Frame}" : "playing"), label, height);
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("RGBA8", button, width, height))
                 SceneManager.LoadScene("RotDecode"); // device check of 1.3
@@ -65,6 +69,12 @@ namespace VATyakov.Dev
                     target.SetStep(true);
                 target.Advance(frames);
             }
+        }
+
+        void NextClip()
+        {
+            foreach (var target in _targets)
+                target.NextClip();
         }
     }
 }

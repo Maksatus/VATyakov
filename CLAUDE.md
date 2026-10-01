@@ -61,7 +61,7 @@
 ## Где что
 
 - `Assets/VatDev/Content/Bow` — тестовый лук: `Bow_default_main` на 2079 вертексов, `Bow_upgrade_main` на 4529
-  (два блока), legacy-клип.
+  (два блока), три legacy-клипа: VAT, Fire, BakeSave.
 - `Assets/VatDev/Content/Alembic/Water.abc` — жидкость с постоянной топологией (1.4), сравнение — сцена
   `CompareAlembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/Compare.unity` — сравнение SMR и VAT,

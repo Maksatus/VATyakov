@@ -35,22 +35,23 @@ namespace VATyakov.Editor
                 throw new VatBakeException("No clips to bake.");
         }
 
+        // §1.1: clips one under another in request order, no padding rows.
         static VatClip[] StackClips(IReadOnlyList<VatClipRequest> requests, int blocks)
         {
+            var frames = new int[requests.Count];
+            long rows = 0;
+            for (int i = 0; i < frames.Length; i++)
+                rows += frames[i] = FrameCount(requests[i]);
+            RequireHeight(blocks, rows, frames.Length);
+
             var clips = new VatClip[requests.Count];
-            long row = 0;
-            for (int i = 0; i < clips.Length; i++)
-            {
-                clips[i] = Clip(requests[i], (int)row);
-                row += clips[i].FrameCount;
-                RequireHeight(blocks, row);
-            }
+            for (int i = 0, row = 0; i < clips.Length; row += frames[i], i++)
+                clips[i] = Clip(requests[i], row, frames[i]);
             return clips;
         }
 
-        static VatClip Clip(VatClipRequest request, int startRow)
+        static VatClip Clip(VatClipRequest request, int startRow, int frames)
         {
-            int frames = FrameCount(request);
             float rate = VatTiming.FrameRate(frames, request.Length, request.Loop);
             return new VatClip(request.Name, startRow, frames, request.Length, rate, request.Loop);
         }
@@ -67,13 +68,16 @@ namespace VATyakov.Editor
             }
         }
 
-        static void RequireHeight(int blocks, long rows)
+        static void RequireHeight(int blocks, long rows, int clips)
         {
             if (blocks * rows > VatMath.MaxTextureSize)
                 throw new VatBakeException(
-                    $"VAT texture height {blocks} × {rows} = {blocks * rows} rows, the limit is {VatMath.MaxTextureSize}. " +
-                    "Lower the fps or the clip length, or split the clips into several VatAssets.");
+                    $"VAT texture height {Blocks(blocks)} × {rows} frames of {VatText.Clips(clips)} = {blocks * rows} rows, " +
+                    $"the limit is {VatMath.MaxTextureSize}. Lower the fps or the clip length, or split the clips into several " +
+                    "VatAssets (transitions work only between clips of one asset).");
         }
+
+        static string Blocks(int blocks) => blocks == 1 ? "1 block" : $"{blocks} blocks";
 
         static int RowCount(VatClip[] clips)
         {

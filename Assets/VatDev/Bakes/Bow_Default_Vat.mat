@@ -66,7 +66,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _VatClipA: {r: 25, g: 29.999998, b: 0, a: 0}
     - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
-    - _VatLayout: {r: 2079, g: 25, b: 0, a: 0}
+    - _VatLayout: {r: 2079, g: 200, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &2891201203790305976

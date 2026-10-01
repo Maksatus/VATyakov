@@ -6,7 +6,7 @@ using UnityEngine.Playables;
 namespace VATyakov.Editor
 {
     // §2.1: Generic and Humanoid through a manual PlayableGraph, legacy through SampleAnimation.
-    // 1.6 adds a pose and blend shape reset before each clip.
+    // The pose reset before each clip is the source's job (VatPoseSnapshot); Stop drops the graph first.
     // A looping clip (loopTime, legacy WrapMode.Loop) wraps t = L to the pose at 0, so the last one-shot frame
     // is sampled just before the end. The guard is far above the float ulp of clip time and far below visible motion.
     sealed class VatClipPlayer : IDisposable
@@ -31,6 +31,8 @@ namespace VATyakov.Editor
             else
                 Evaluate(clip, time);
         }
+
+        public void Stop() => DestroyGraph();
 
         public void Dispose() => DestroyGraph();
 

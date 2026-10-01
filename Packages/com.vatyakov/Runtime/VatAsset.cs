@@ -22,6 +22,9 @@ namespace VATyakov
         [SerializeField] VatPrecision _precision;
         [SerializeField] string _sourceHash = string.Empty;
 
+        // §1.6: chosen in the VatAsset inspector, not by the baker. By name, so it survives a rebake with other clips.
+        [SerializeField] string _defaultClip = string.Empty;
+
         public int FormatVersion => _formatVersion;
 
         public VatLayoutInfo Layout => _layout;
@@ -40,6 +43,9 @@ namespace VATyakov
 
         public string SourceHash => _sourceHash;
 
+        // The clip template materials show in edit mode; the first clip when none is chosen or it is gone.
+        public int DefaultClipIndex => Math.Max(FindClip(_defaultClip), 0);
+
         public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
 
         bool IsComplete =>
@@ -49,6 +55,15 @@ namespace VATyakov
         {
             error = !IsFormatSupported ? FormatError() : !IsComplete ? IncompleteError() : null;
             return error == null;
+        }
+
+        // −1 when the asset has no clip with this name.
+        public int FindClip(string clipName)
+        {
+            for (int i = 0; i < _clips.Length; i++)
+                if (_clips[i].Name == clipName)
+                    return i;
+            return -1;
         }
 
         // Template materials show the first frame of the clip; playback is the driver's job (§1.3).
@@ -75,6 +90,8 @@ namespace VATyakov
             _precision = precision;
             _sourceHash = sourceHash;
         }
+
+        internal void SetDefaultClip(int clipIndex) => _defaultClip = _clips[clipIndex].Name;
 
         void RequireApplicable(Material material, int clipIndex)
         {

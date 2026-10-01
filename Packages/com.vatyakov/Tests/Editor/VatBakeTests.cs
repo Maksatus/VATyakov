@@ -235,7 +235,7 @@ namespace VATyakov.Tests
         {
             var profile = ScriptableObject.CreateInstance<VatBakeProfile>();
             profile.Source = rig.Renderer;
-            profile.Clip = rig.Clip;
+            profile.SetClips(rig.Clip);
             profile.Fps = Fps;
             profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return profile;

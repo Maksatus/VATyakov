@@ -15,6 +15,8 @@ namespace VATyakov.Editor
 
             yield return valid ? new VatAssetOverviewController(asset, root) : new VatAssetErrorController(asset, root);
             if (valid)
+                yield return new VatAssetDefaultClipController(asset, root);
+            if (valid)
                 yield return new VatAssetPrecisionController(asset, root);
             yield return new VatAssetProfileController(asset, root);
             if (valid)

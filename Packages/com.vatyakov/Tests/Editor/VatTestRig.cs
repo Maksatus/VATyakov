@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -11,6 +12,7 @@ namespace VATyakov.Tests
     // FBX-like hierarchy: Root → Model (−90° X, scale 0.01) → Mesh (SMR) and Bone0 → Bone1.
     // Two sub-meshes, the second with a non-zero baseVertex in the source.
     // twist: Bone1 also turns around the strip axis, so normals and tangents change per frame (legacy clip only).
+    // blendShape: the mesh gets a "Bulge" shape and Clip keys its weight 0 → 100; references ignore it.
     sealed class VatTestRig
     {
         public const float Length = 1f;
@@ -25,12 +27,17 @@ namespace VATyakov.Tests
         readonly Transform _bone0;
         readonly Transform _bone1;
         readonly bool _twist;
+        readonly bool _blendShape;
+        readonly bool _legacy;
+        readonly List<AnimationClip> _partialClips = new List<AnimationClip>();
 
         // loopingClip: loopTime for Generic, WrapMode.Loop for legacy — both wrap t = L to the pose at 0.
-        public VatTestRig(Scene scene, int vertexCount, bool legacy, bool loopingClip = false, bool twist = false)
+        public VatTestRig(Scene scene, int vertexCount, bool legacy, bool loopingClip = false, bool twist = false, bool blendShape = false)
         {
             Assert.That(!twist || legacy, "the twist is keyed for legacy clips only");
             _twist = twist;
+            _blendShape = blendShape;
+            _legacy = legacy;
             Root = NewObject("RigRoot", scene, null);
             var model = NewObject("Model", scene, Root.transform).transform;
             model.localRotation = Quaternion.Euler(-90f, 0f, 0f);
@@ -41,6 +48,8 @@ namespace VATyakov.Tests
             var meshObject = NewObject("Mesh", scene, model);
 
             var mesh = BuildStrip(vertexCount);
+            if (blendShape)
+                AddBulge(mesh);
             mesh.bindposes = new[]
             {
                 _bone0.worldToLocalMatrix * meshObject.transform.localToWorldMatrix,
@@ -159,7 +168,38 @@ namespace VATyakov.Tests
                 SetLoopTime(clip);
             if (_twist)
                 SetTwist(clip, bone1);
+            if (_blendShape)
+                SetBulge(clip);
             return clip;
+        }
+
+        // Keys Bone0 only: Bone1 and the blend shape stay wherever the bake copy leaves them before this clip (§2.1).
+        public AnimationClip BuildPartialClip(string name)
+        {
+            var clip = new AnimationClip { name = name, legacy = _legacy };
+            string bone0 = AnimationUtility.CalculateTransformPath(_bone0, Root.transform);
+            Set(clip, bone0, "x", AnimationCurve.Linear(0f, 0f, Length, -30f * Length));
+            Set(clip, bone0, "y", AnimationCurve.Constant(0f, Length, 0f));
+            Set(clip, bone0, "z", AnimationCurve.Constant(0f, Length, 0f));
+            _partialClips.Add(clip);
+            return clip;
+        }
+
+        // Pushes the strip along −Z of the mesh, more towards its top.
+        static void AddBulge(Mesh mesh)
+        {
+            var vertices = mesh.vertices;
+            var deltas = new Vector3[vertices.Length];
+            for (int v = 0; v < deltas.Length; v++)
+                deltas[v] = new Vector3(0f, 0f, -30f * vertices[v].y / 200f);
+            mesh.AddBlendShapeFrame("Bulge", 100f, deltas, null, null);
+        }
+
+        void SetBulge(AnimationClip clip)
+        {
+            string path = AnimationUtility.CalculateTransformPath(Renderer.transform, Root.transform);
+            AnimationUtility.SetEditorCurve(clip, EditorCurveBinding.FloatCurve(path, typeof(SkinnedMeshRenderer), "blendShape.Bulge"),
+                AnimationCurve.Linear(0f, 0f, Length, 100f));
         }
 
         void SetTwist(AnimationClip clip, string path)
@@ -205,6 +245,8 @@ namespace VATyakov.Tests
         {
             Object.DestroyImmediate(Renderer.sharedMesh);
             Object.DestroyImmediate(Clip);
+            foreach (var clip in _partialClips)
+                Object.DestroyImmediate(clip);
             Object.DestroyImmediate(Root);
         }
     }

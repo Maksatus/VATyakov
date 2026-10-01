@@ -6,8 +6,6 @@ namespace VATyakov.Editor
     sealed class VatAnimationSection : IVatMaterialSection
     {
         static readonly GUIContent AnimationLabel = new GUIContent("Animation", "VAT asset the material takes its animation from. Click to ping it in Project.");
-        static readonly GUIContent ClipLabel = new GUIContent("Clip", "Clip the template material plays.");
-
         public string Key => "VATyakov.ShaderGUI.Animation";
 
         public string Title => "Animation";
@@ -41,25 +39,11 @@ namespace VATyakov.Editor
         static void DrawBound(Material material, VatMaterialBinding binding)
         {
             VatObjectLinkField.Draw(AnimationLabel, binding.Asset);
-            DrawClip(binding);
+            VatClipField.Draw(material, binding);
             if (binding.ClipIndex >= 0)
                 VatFrameField.Draw(material, binding.Asset.Clips[binding.ClipIndex]);
             if (binding.IsStale)
                 DrawStale(material, binding);
-        }
-
-        static void DrawClip(VatMaterialBinding binding)
-        {
-            var rect = EditorGUI.PrefixLabel(EditorGUILayout.GetControlRect(), ClipLabel);
-            EditorGUI.LabelField(rect, ClipText(binding));
-        }
-
-        static string ClipText(VatMaterialBinding binding)
-        {
-            if (binding.ClipIndex < 0)
-                return "—";
-            var clip = binding.Asset.Clips[binding.ClipIndex];
-            return clip.Name + "   " + VatText.ClipSummary(clip);
         }
 
         static void DrawStale(Material material, VatMaterialBinding binding)
