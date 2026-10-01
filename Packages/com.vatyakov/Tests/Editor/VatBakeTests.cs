@@ -61,7 +61,7 @@ namespace VATyakov.Tests
             CollectionAssert.AreEqual(VatVertexFormat.Attributes, bake.Mesh.GetVertexAttributes());
             Assert.AreEqual(VatVertexFormat.Strides[0], bake.Mesh.GetVertexBufferStride(0));
             Assert.AreEqual(VatVertexFormat.Strides[1], bake.Mesh.GetVertexBufferStride(1));
-            Assert.DoesNotThrow(() => VatLayoutVerifier.Verify(bake.Layout, bake.Mesh, bake.Position, bake.Rotation));
+            Assert.DoesNotThrow(() => VatLayoutVerifier.Verify(bake.Layout, bake.Mesh, bake.Textures));
             Assert.AreEqual(VatVertexFormat.Rotation, bake.Rotation.graphicsFormat);
             Assert.AreEqual(bake.Position.width, bake.Rotation.width);
             Assert.AreEqual(bake.Position.height, bake.Rotation.height);
@@ -112,6 +112,8 @@ namespace VATyakov.Tests
             Assert.IsFalse(reloaded.PositionTexture.isReadable);
             Assert.IsFalse(reloaded.RotationTexture.isReadable);
             Assert.IsFalse(reloaded.Mesh.isReadable);
+            Assert.IsFalse(reloaded.DriftTexture.isReadable);
+            Assert.AreEqual(reloaded.DriftTexture, _profile.Material.GetTexture(VatShaderIds.DriftTex), "template gets _VatDriftTex");
             Assert.AreEqual(VatAsset.CurrentFormatVersion, reloaded.FormatVersion);
             AssertDecodesToReference(reloaded, after);
         }
@@ -120,13 +122,15 @@ namespace VATyakov.Tests
         {
             var clip = asset.Clips[0];
             var rest = asset.Mesh.vertices;
+            var drift = VatTestUtil.ReadGpu(asset.DriftTexture);
             float maxError = 0f;
             for (int k = 0; k < clip.FrameCount; k++)
             {
                 var reference = _rig.ReferencePositions(clip.FrameTime(k));
+                var d = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
                 for (int v = 0; v < rest.Length; v++)
                 {
-                    var decoded = rest[v] + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
+                    var decoded = rest[v] + d + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
                     maxError = Mathf.Max(maxError, (decoded - reference[v]).magnitude);
                     Assert.IsTrue(Contains(asset.Mesh.bounds, decoded), $"vertex {v} of frame {k} outside bounds");
                 }

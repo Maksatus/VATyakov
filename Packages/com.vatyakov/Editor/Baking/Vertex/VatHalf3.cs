@@ -16,5 +16,14 @@ namespace VATyakov.Editor
         }
 
         public Vector3 ToVector3() => new Vector3(Mathf.HalfToFloat(X), Mathf.HalfToFloat(Y), Mathf.HalfToFloat(Z));
+
+        // RGBAHalf texel (x, y, z, 0).
+        public void WriteTo(ushort[] texels, int offset)
+        {
+            texels[offset] = X;
+            texels[offset + 1] = Y;
+            texels[offset + 2] = Z;
+            texels[offset + 3] = 0;
+        }
     }
 }

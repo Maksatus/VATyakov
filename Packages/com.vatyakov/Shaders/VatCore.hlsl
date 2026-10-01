@@ -11,6 +11,18 @@ int2 VatTexel(uint element, uint width, uint totalRows, uint row)
     return int2(element - block * width, block * totalRows + row);
 }
 
+// _VatDriftTex has no blocks (§1.9): x = 0 — hi, x = 1 — lo, y = row.
+int2 VatDriftTexel(uint part, uint row)
+{
+    return int2(part, row);
+}
+
+// d = hi + lo: a pair of halves keeps far-travelling bodies precise (§1.2).
+float3 VatDrift(float3 hi, float3 lo)
+{
+    return hi + lo;
+}
+
 // RGBA8 is read as bytes: round(v·255) is exact even through a mediump sampler (§1.2).
 uint4 VatRotationBytes(float4 texel)
 {

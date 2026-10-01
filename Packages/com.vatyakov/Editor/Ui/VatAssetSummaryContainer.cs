@@ -24,7 +24,8 @@ namespace VATyakov.Editor
         {
             _vertices.Set(VatText.Number(info.Elements));
             _texture.Set(VatText.Size(info), VatText.Blocks(info));
-            _memory.Set(VatText.Megabytes(info), "Actual memory of the position and rotation textures, including the empty texels of the last block.");
+            _memory.Set(VatText.Megabytes(info),
+                "Actual memory of the position, rotation and drift textures, including the empty texels of the last block.");
         }
 
         void ShowClips(VatAsset asset)

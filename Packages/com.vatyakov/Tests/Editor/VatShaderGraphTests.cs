@@ -49,6 +49,7 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
             StringAssert.Contains("TEXTURE2D(_VatRotTex)", code);
+            StringAssert.Contains("TEXTURE2D(_VatDriftTex)", code, "1.5: drift is always sampled");
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 

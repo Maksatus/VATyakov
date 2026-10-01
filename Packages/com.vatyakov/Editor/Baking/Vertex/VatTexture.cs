@@ -6,9 +6,12 @@ namespace VATyakov.Editor
     // §1.8: GraphicsFormat constructor (TextureFormat with linear = false gives sRGB), Point, Clamp, no mips.
     static class VatTexture
     {
-        public static Texture2D Create<T>(VatLayoutInfo info, GraphicsFormat format, string name, T[] data) where T : struct
+        public static Texture2D Create<T>(VatLayoutInfo info, GraphicsFormat format, string name, T[] data) where T : struct =>
+            Create(info.Width, info.Height, format, name, data);
+
+        public static Texture2D Create<T>(int width, int height, GraphicsFormat format, string name, T[] data) where T : struct
         {
-            var texture = new Texture2D(info.Width, info.Height, format, TextureCreationFlags.None)
+            var texture = new Texture2D(width, height, format, TextureCreationFlags.None)
             {
                 name = name,
                 filterMode = FilterMode.Point,

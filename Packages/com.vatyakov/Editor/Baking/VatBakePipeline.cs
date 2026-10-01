@@ -9,9 +9,9 @@ namespace VATyakov.Editor
         {
             using var source = VatFrameSources.Open(profile);
             var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.Loop));
-            var encoder = new VertexEncoder(layout, source.Mesh);
+            var encoder = new VertexEncoder(layout, source.Mesh, !profile.NoDrift);
             SampleAll(source, layout, encoder);
-            return Build(layout, encoder, name, source.Warnings);
+            return Build(encoder, name, source.Warnings);
         }
 
         static void SampleAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
@@ -38,32 +38,23 @@ namespace VATyakov.Editor
             }
         }
 
-        static VatBakeResult Build(VatLayout layout, VertexEncoder encoder, string name, IReadOnlyList<string> warnings)
+        static VatBakeResult Build(VertexEncoder encoder, string name, IReadOnlyList<string> warnings)
         {
-            Mesh mesh = null;
-            Texture2D position = null;
-            Texture2D rotation = null;
+            var layout = encoder.Layout;
+            var mesh = encoder.BuildMesh(name + "_Mesh");
+            VatBakeTextures textures = null;
             try
             {
-                mesh = encoder.BuildMesh(name + "_Mesh");
-                position = encoder.BuildPositionTexture(name + "_Pos");
-                rotation = encoder.BuildRotationTexture(name + "_Rot");
-                VatLayoutVerifier.Verify(layout, mesh, position, rotation);
-                return new VatBakeResult(layout, mesh, position, rotation, encoder.Stats, encoder.Chirality, warnings);
+                textures = VatBakeTextures.Build(encoder, name);
+                VatLayoutVerifier.Verify(layout, mesh, textures);
+                return new VatBakeResult(layout, mesh, textures, encoder, warnings);
             }
             catch
             {
-                Destroy(mesh);
-                Destroy(position);
-                Destroy(rotation);
+                Object.DestroyImmediate(mesh);
+                textures?.Destroy();
                 throw;
             }
-        }
-
-        static void Destroy(Object target)
-        {
-            if (target != null)
-                Object.DestroyImmediate(target);
         }
     }
 }

@@ -10,14 +10,16 @@ namespace VATyakov
     public sealed class VatAsset : ScriptableObject
     {
         // Bump on any incompatible change of the channel map (§1.9).
-        public const int CurrentFormatVersion = 2; // 2: _VatRotTex (1.3)
+        public const int CurrentFormatVersion = 3; // 2: _VatRotTex (1.3), 3: _VatDriftTex (1.5)
 
         [SerializeField] int _formatVersion;
         [SerializeField] VatLayoutInfo _layout;
         [SerializeField] Mesh _mesh;
         [SerializeField] Texture2D _positionTexture;
         [SerializeField] Texture2D _rotationTexture;
+        [SerializeField] Texture2D _driftTexture;
         [SerializeField] VatClip[] _clips = Array.Empty<VatClip>();
+        [SerializeField] VatPrecision _precision;
         [SerializeField] string _sourceHash = string.Empty;
 
         public int FormatVersion => _formatVersion;
@@ -30,13 +32,18 @@ namespace VATyakov
 
         public Texture2D RotationTexture => _rotationTexture;
 
+        public Texture2D DriftTexture => _driftTexture;
+
         public IReadOnlyList<VatClip> Clips => _clips;
+
+        public VatPrecision Precision => _precision;
 
         public string SourceHash => _sourceHash;
 
         public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
 
-        bool IsComplete => _mesh != null && _positionTexture != null && _rotationTexture != null && _clips.Length > 0;
+        bool IsComplete =>
+            _mesh != null && _positionTexture != null && _rotationTexture != null && _driftTexture != null && _clips.Length > 0;
 
         public bool TryValidate(out string error)
         {
@@ -50,19 +57,22 @@ namespace VATyakov
             RequireApplicable(material, clipIndex);
             material.SetTexture(VatShaderIds.PosTex, _positionTexture);
             material.SetTexture(VatShaderIds.RotTex, _rotationTexture);
+            material.SetTexture(VatShaderIds.DriftTex, _driftTexture);
             material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
             material.SetVector(VatShaderIds.Frame, _clips[clipIndex].Frame(0.0));
         }
 
-        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, Texture2D rotationTexture, VatClip[] clips,
-            string sourceHash)
+        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, Texture2D rotationTexture,
+            Texture2D driftTexture, VatClip[] clips, VatPrecision precision, string sourceHash)
         {
             _formatVersion = CurrentFormatVersion;
             _layout = layout;
             _mesh = mesh;
             _positionTexture = positionTexture;
             _rotationTexture = rotationTexture;
+            _driftTexture = driftTexture;
             _clips = clips;
+            _precision = precision;
             _sourceHash = sourceHash;
         }
 

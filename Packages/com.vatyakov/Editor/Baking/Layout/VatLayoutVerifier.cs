@@ -8,12 +8,14 @@ namespace VATyakov.Editor
     // Bake step 1 (§1.8): built data must match the layout before anything on disk is touched.
     static class VatLayoutVerifier
     {
-        public static void Verify(VatLayout layout, Mesh mesh, Texture2D position, Texture2D rotation)
+        public static void Verify(VatLayout layout, Mesh mesh, VatBakeTextures textures)
         {
+            var info = layout.Info;
             var problems = new List<string>();
-            AddMeshProblems(layout.Info, mesh, problems);
-            AddTextureProblems(layout.Info, position, layout.Info.PositionFormat, "_VatPosTex", problems);
-            AddTextureProblems(layout.Info, rotation, layout.Info.RotationFormat, "_VatRotTex", problems);
+            AddMeshProblems(info, mesh, problems);
+            AddTextureProblems(textures.Position, info.Width, info.Height, info.PositionFormat, "_VatPosTex", problems);
+            AddTextureProblems(textures.Rotation, info.Width, info.Height, info.RotationFormat, "_VatRotTex", problems);
+            AddTextureProblems(textures.Drift, VatMath.DriftWidth, info.TotalRows, info.DriftFormat, "_VatDriftTex", problems);
             if (problems.Count > 0)
                 throw new VatBakeException("Built data does not match the layout: " + string.Join(", ", problems) + ".");
         }
@@ -32,9 +34,9 @@ namespace VATyakov.Editor
                     problems.Add($"baseVertex of sub-mesh {i}");
         }
 
-        static void AddTextureProblems(VatLayoutInfo info, Texture2D texture, GraphicsFormat format, string name, List<string> problems)
+        static void AddTextureProblems(Texture2D texture, int width, int height, GraphicsFormat format, string name, List<string> problems)
         {
-            if (texture.width != info.Width || texture.height != info.Height)
+            if (texture.width != width || texture.height != height)
                 problems.Add("size of " + name);
             if (texture.graphicsFormat != format || texture.mipmapCount != 1)
                 problems.Add("format of " + name);

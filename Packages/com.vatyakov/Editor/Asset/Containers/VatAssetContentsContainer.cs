@@ -5,6 +5,7 @@ namespace VATyakov.Editor
         readonly VatObjectLink _mesh = new VatObjectLink("Mesh");
         readonly VatObjectLink _position = new VatObjectLink("Position Texture");
         readonly VatObjectLink _rotation = new VatObjectLink("Rotation Texture");
+        readonly VatObjectLink _drift = new VatObjectLink("Drift Texture");
 
         public VatAssetContentsContainer()
         {
@@ -12,7 +13,8 @@ namespace VATyakov.Editor
                 VatUi.Hint("Created by the baker. Do not edit or reimport the mesh and textures by hand."),
                 _mesh,
                 _position,
-                _rotation));
+                _rotation,
+                _drift));
         }
 
         public void Show(VatAsset asset)
@@ -20,6 +22,7 @@ namespace VATyakov.Editor
             _mesh.Set(asset.Mesh);
             _position.Set(asset.PositionTexture);
             _rotation.Set(asset.RotationTexture);
+            _drift.Set(asset.DriftTexture);
         }
     }
 }

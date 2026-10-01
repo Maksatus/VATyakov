@@ -12,28 +12,28 @@ namespace VATyakov.Dev
     static class VatAlembicFixtures
     {
         const string Folder = "Packages/com.vatyakov/Tests/Editor/Fixtures/";
-        const float Fps = 30f;
+        internal const float Fps = 30f;
         const int Side = 9;
 
         [MenuItem("VATyakov/Dev/Regenerate Alembic Fixtures")]
         static void Regenerate()
         {
-            Record("VatCloth.abc", 31, true, (mesh, k) => Wave(mesh, k, Side));
-            Record("VatTopology.abc", 21, true, (mesh, k) => Wave(mesh, k, k < 10 ? Side : Side + 1));
-            Record("VatShuffled.abc", 31, false, (mesh, k) => Shuffle(Wave(mesh, k, Side), k == 15));
+            Record(Folder + "VatCloth.abc", 31, true, (mesh, k) => Wave(mesh, k, Side));
+            Record(Folder + "VatTopology.abc", 21, true, (mesh, k) => Wave(mesh, k, k < 10 ? Side : Side + 1));
+            Record(Folder + "VatShuffled.abc", 31, false, (mesh, k) => Shuffle(Wave(mesh, k, Side), k == 15));
             AssetDatabase.Refresh();
         }
 
         // The importer keeps the time range of the first import in the .meta, so the old asset goes first.
-        static void Record(string file, int frames, bool uv, Func<Mesh, int, Mesh> frame)
+        internal static void Record(string path, int frames, bool uv, Func<Mesh, int, Mesh> frame)
         {
-            AssetDatabase.DeleteAsset(Folder + file);
-            var go = new GameObject(Path.GetFileNameWithoutExtension(file));
+            AssetDatabase.DeleteAsset(path);
+            var go = new GameObject(Path.GetFileNameWithoutExtension(path));
             var mesh = new Mesh { name = go.name };
             var filter = go.AddComponent<MeshFilter>();
             filter.sharedMesh = mesh;
             go.AddComponent<MeshRenderer>();
-            using var recorder = new AlembicRecorder { Settings = Settings(Path.GetFullPath(Folder + file), go, uv) };
+            using var recorder = new AlembicRecorder { Settings = Settings(Path.GetFullPath(path), go, uv) };
             try
             {
                 for (int k = 0; k < frames; k++)
@@ -91,20 +91,21 @@ namespace VATyakov.Dev
             mesh.Clear();
             mesh.vertices = vertices;
             mesh.uv = uv;
-            mesh.triangles = Triangles(side);
+            mesh.triangles = Triangles(side, side);
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             return mesh;
         }
 
-        static int[] Triangles(int side)
+        // Grid of columns × rows vertices, row-major.
+        internal static int[] Triangles(int columns, int rows)
         {
-            var triangles = new int[(side - 1) * (side - 1) * 6];
+            var triangles = new int[(columns - 1) * (rows - 1) * 6];
             int i = 0;
-            for (int z = 0; z < side - 1; z++)
-            for (int x = 0; x < side - 1; x++)
+            for (int z = 0; z < rows - 1; z++)
+            for (int x = 0; x < columns - 1; x++)
             {
-                int a = z * side + x, b = a + 1, c = a + side, d = c + 1;
+                int a = z * columns + x, b = a + 1, c = a + columns, d = c + 1;
                 triangles[i++] = a; triangles[i++] = c; triangles[i++] = b;
                 triangles[i++] = b; triangles[i++] = c; triangles[i++] = d;
             }

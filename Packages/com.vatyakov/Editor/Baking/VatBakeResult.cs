@@ -8,21 +8,22 @@ namespace VATyakov.Editor
     {
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
-        public readonly Texture2D Position;
-        public readonly Texture2D Rotation;
+        public readonly VatBakeTextures Textures;
+        public readonly VatPrecision Precision;
+        public readonly float MaxOffset;
         public readonly VatQuantizationStats Stats;
         public readonly VatChirality Chirality;
         public readonly IReadOnlyList<string> Warnings;
 
-        public VatBakeResult(VatLayout layout, Mesh mesh, Texture2D position, Texture2D rotation, VatQuantizationStats stats,
-            VatChirality chirality, IReadOnlyList<string> warnings)
+        public VatBakeResult(VatLayout layout, Mesh mesh, VatBakeTextures textures, VertexEncoder encoder, IReadOnlyList<string> warnings)
         {
             Layout = layout;
             Mesh = mesh;
-            Position = position;
-            Rotation = rotation;
-            Stats = stats;
-            Chirality = chirality;
+            Textures = textures;
+            Precision = encoder.Precision;
+            MaxOffset = encoder.MaxOffset;
+            Stats = encoder.Stats;
+            Chirality = encoder.Chirality;
             Warnings = warnings;
         }
     }

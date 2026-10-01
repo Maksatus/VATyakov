@@ -25,9 +25,10 @@ namespace VATyakov
         [SerializeField] bool _drift;
         [SerializeField] GraphicsFormat _positionFormat;
         [SerializeField] GraphicsFormat _rotationFormat;
+        [SerializeField] GraphicsFormat _driftFormat;
 
         public VatLayoutInfo(VatMode mode, int elements, int texelsPerItem, int width, int blocks, int totalRows,
-            bool pivotRow, bool drift, GraphicsFormat positionFormat, GraphicsFormat rotationFormat)
+            bool pivotRow, bool drift, GraphicsFormat positionFormat, GraphicsFormat rotationFormat, GraphicsFormat driftFormat)
         {
             _mode = mode;
             _elements = elements;
@@ -39,6 +40,7 @@ namespace VATyakov
             _drift = drift;
             _positionFormat = positionFormat;
             _rotationFormat = rotationFormat;
+            _driftFormat = driftFormat;
         }
 
         public VatMode Mode => _mode;
@@ -57,6 +59,7 @@ namespace VATyakov
 
         public bool PivotRow => _pivotRow;
 
+        // driftOn (§2.2): d is the centroid offset; off — _VatDriftTex holds zeros, the shader adds them anyway.
         public bool Drift => _drift;
 
         public GraphicsFormat PositionFormat => _positionFormat;
@@ -64,9 +67,19 @@ namespace VATyakov
         // Vertex mode: _VatRotTex, same size as _VatPosTex.
         public GraphicsFormat RotationFormat => _rotationFormat;
 
+        // Vertex mode: _VatDriftTex, VatMath.DriftWidth × TotalRows without blocks.
+        public GraphicsFormat DriftFormat => _driftFormat;
+
         public int Height => _blocks * _totalRows;
 
         // _VatLayout = (W, totalRows, driftOn, 0).
         public Vector4 ShaderLayout => new Vector4(_width, _totalRows, _drift ? 1f : 0f, 0f);
+
+        public VatLayoutInfo WithDrift(bool drift)
+        {
+            var info = this;
+            info._drift = drift;
+            return info;
+        }
     }
 }

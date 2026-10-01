@@ -11,8 +11,9 @@
 | 1.2 Интерполяция и правила времени | готово | 0.2.0 |
 | 1.3 Нормали и тангенты | готово в редакторе, устройства не проверены | 0.3.0 |
 | 1.4 Alembic | готово | 0.4.0 |
-| 1.5 Дрейф | следующая | — |
-| 1.6–1.19 | не начаты | — |
+| 1.5 Дрейф | готово | 0.5.0 |
+| 1.6 | следующая | — |
+| 1.7–1.19 | не начаты | — |
 
 Проверки на устройствах (iPhone 12, Adreno, Mali): результаты не записаны — дописать сюда при следующем прогоне.
 1.3 на устройствах: сцена `RotDecode` (кнопка RGBA8 в Compare) — «RGBA8: OK» или число неверных текселей и API.
@@ -28,11 +29,15 @@
   на каждом кадре `VatAlembicTopology` (ошибка «патч 2») и `VatVertexJumps` (предупреждение). Инспектор профиля
   берёт число вертексов, длину и разрыв петли из `VatAlembicProbe` (кэш до переимпорта .abc), подсказка loop —
   `VatLoopHintController`.
-  `VertexEncoder` за один проход пишет `_VatPosTex` (`VatPositionTexels`) и `_VatRotTex` (`VatRotationTexels`,
-  кодек `VatSmallestThree`); N и T кадра — `VatTangentFrames`, знак бинормали — `VatChirality`.
+  `VertexEncoder` за один проход пишет `_VatPosTex` (`VatPositionTexels`), `_VatRotTex` (`VatRotationTexels`,
+  кодек `VatSmallestThree`) и `_VatDriftTex` (`VatDriftTexels`, кодек `VatDriftCodec`); N и T кадра — `VatTangentFrames`,
+  знак бинормали — `VatChirality`. Позиции пишутся в два `VatPositionVariant` (d = 0 и d = центроид кадра − центроид
+  покоя); после последнего кадра `VatDriftPolicy` выбирает один, `encoder.Layout` — раскладка с решением о дрейфе.
+  Ошибки обоих вариантов — `VatPrecision` в ассете.
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер пока — `Assets/VatDev/Scripts/VatCompare`.
-- **Шейдер:** `VatCore.hlsl` — адрес тексела, декод smallest-three, nlerp и оси кадра; `VatMath.cs` — его CPU-зеркало.
+- **Шейдер:** `VatCore.hlsl` — адрес тексела, тексел и сумма дрейфа, декод smallest-three, nlerp и оси кадра;
+  `VatMath.cs` — его CPU-зеркало. Дрейф читается всегда (без него в текстуре нули).
   `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float`; SubGraph `VAT_Vertex` отдаёт
   Position, Normal, Tangent. Шаблон по умолчанию — `VAT_Lit_Vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
 - **Тестовый контент:** `Assets/VatDev/Content/Bow`, результаты бейка — `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/Compare.unity`.
@@ -42,26 +47,30 @@
   У лука нет своей normal map: `Bow_TestNormal.png` — процедурный рельеф (sin·sin, 24 периода), на SMR — `Bow_Source_Lit.mat`
   (URP Lit), на VAT — `VAT_Lit_Vertex` с той же картой и smoothness 0.6. Сцена `RotDecode` — проверка RGBA8 на устройстве
   (`VatRotDecodeCheck`, шейдер `Assets/VatDev/Shaders/VatRotDecodeTest.shader`), вторая сцена сборки.
+  Дрейф (1.5): `Content/Alembic/Jelly.abc` — желе 1225 вертексов, 121 кадр по 30 fps, за 1.5 с улетает на 40 м и потом
+  медленно колышется (генератор — меню VATyakov → Dev → Regenerate Drift Content, `VatJellyContent`). Профили
+  `Bakes/Jelly` (дрейф включился сам: ошибка 0.059 мм) и `Bakes/Jelly_NoDrift` (скрытое `_noDrift`, 15.6 мм), сцена
+  `Scenes/Drift.unity` (не в сборке): Alembic, VAT с дрейфом (x = 40) и без (x = 41.5), камера вплотную к их силуэтам.
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAsset, VatClip, VatLayoutInfo, VatMath, VatPlayback, VatShaderIds, VatTiming
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAsset, VatClip, VatLayoutInfo, VatMath, VatPlayback, VatPrecision, VatShaderIds, VatTiming
 - `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — VAT_Vertex.shadersubgraph
 - `Samples/UnlitVertex/` — VAT_Unlit_Vertex.shadergraph; `Samples/LitVertex/` — VAT_Lit_Vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexTriplanar/` — VAT_Lit_Vertex_Triplanar.shadergraph (меши без UV)
-- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeValidator, VatBaker, VatMemory, VatSourceHash, VatTemplateMaterial, VatTestPrefab
+- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatMemory, VatSourceHash, VatTemplateMaterial, VatTestPrefab
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatLayoutVerifier, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatAlembicSupport, IVatFrameSource, VatAlembic, VatAlembicProbe, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
 - `Editor/Alembic/` — VATyakov.Editor.Alembic.asmdef, AlembicFrameSource, VatAlembicCopy, VatAlembicReader, VatAlembicSupport, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — SkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatRootSpace
-- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatChirality, VatHalf3, VatIndexBuffer, VatPositionTexels, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VertexEncoder
+- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftCodec, VatDriftPolicy, VatDriftTexels, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositionVariant, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (источник — VatSourceFields*, подсказка loop — VatLoopHint*)
-- `Editor/Asset/` — VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset
+- `Editor/Asset/` — VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка с дрейфом и без — VatAssetPrecision*)
 - `Editor/Material/` — VatShaderGUI, IVatMaterialSection, VatClipLookup, VatFoldoutHeader, VatFrameField, VatMaterialBinding, VatObjectLinkField; `Sections/` — VatAdvancedSection, VatAnimationSection, VatSurfaceSection
 - `Editor/Framework/` — ControllerExtensions, ControllerInspector, EditorContainer, IController, Property, Trigger, VisualElementExtensions
 - `Editor/Ui/` — VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatInMemoryBake, VatMathTests, VatPlaybackTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — VAT_HalfParent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
-- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`)
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatDriftTests, VatInMemoryBake, VatMathTests, VatPlaybackTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — VAT_HalfParent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
+- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`)
 
 ## Заметки по подверсиям
 
@@ -88,3 +97,16 @@
   с ним — 164. `Water.abc` в редакторе: ошибка half 0.5 мм, сплит-скрин на кадре 40 совпадает с плеером.
   Сравнение с одной камерой на разнесённых объектах обманчиво: разная перспектива прячет разные дыры за гребнем.
   Весь UI, ошибки и лог пакета переведены на английский по просьбе пользователя (правило в CLAUDE.md); тесты проверяют английские строки.
+- **1.5:** продуктовые решения (вопросы к пользователю): `_VatDriftTex` есть в каждом Vertex-ассете (без дрейфа — нули,
+  16 Б на кадр), шейдер всегда прибавляет d — без driftOn-ветки, умножения и keyword; ручного поля в профиле нет, только
+  авто. Записано в §1.9 и §2.2. `formatVersion` 3, лук и вода перезапечены (дрейф у них не включился: центроид уходит
+  на 0.03–0.29 м, ошибка 0.2–0.5 мм). Цена: 4 лишние выборки на вертекс у всех Vertex-ассетов — если упрёмся в
+  вертексную стадию на мобилках, вариант на будущее — keyword `_VAT_DRIFT`.
+  d — центроид кадра (среднее вертексов в double) минус центроид покоя. Решение принимается после сэмплинга по
+  фактической ошибке без дрейфа, а не по прогнозу: энкодер пишет оба варианта позиций за один проход (×2 буфер
+  позиций на время бейка), поэтому инспектор знает обе ошибки. Δ считается от уже декодированного d, ошибки не
+  складываются. Скрытое поле профиля `_noDrift` (в хэше) — только для сравнения в VatDev.
+  Видно ли на глаз: без дрейфа у желе на 40 м ошибка до 15.6 мм, но нормали берутся из `_VatRotTex` и квантование
+  позиций не трогают — свет одинаковый, отличается только силуэт. С 5.5 м это 1–2 пикселя и почти не видно, поэтому
+  камера сцены Drift стоит в 1.2 м от силуэтов. На лука дрейф дал бы 0.12 мм вместо 0.21, но по правилу он выключен.
+  У `Jelly.abc` 21 вертекс на полюсе меняет знак бинормали (вырожденные треугольники полюса) — предупреждение бейка ожидаемое.

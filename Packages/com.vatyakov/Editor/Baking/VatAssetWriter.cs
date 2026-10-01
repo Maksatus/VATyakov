@@ -14,11 +14,14 @@ namespace VATyakov.Editor
         {
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             asset.name = Path.GetFileNameWithoutExtension(path);
-            asset.SetData(result.Layout.Info, result.Mesh, result.Position, result.Rotation, result.Layout.Clips, sourceHash);
+            var textures = result.Textures;
+            asset.SetData(result.Layout.Info, result.Mesh, textures.Position, textures.Rotation, textures.Drift, result.Layout.Clips,
+                result.Precision, sourceHash);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.AddObjectToAsset(result.Mesh, asset);
-            AssetDatabase.AddObjectToAsset(result.Position, asset);
-            AssetDatabase.AddObjectToAsset(result.Rotation, asset);
+            AssetDatabase.AddObjectToAsset(textures.Position, asset);
+            AssetDatabase.AddObjectToAsset(textures.Rotation, asset);
+            AssetDatabase.AddObjectToAsset(textures.Drift, asset);
             Finish(asset);
             return asset;
         }
@@ -26,9 +29,10 @@ namespace VATyakov.Editor
         static VatAsset Update(VatAsset asset, VatBakeResult result, string sourceHash)
         {
             var mesh = Adopt(asset, asset.Mesh, result.Mesh);
-            var position = Adopt(asset, asset.PositionTexture, result.Position);
-            var rotation = Adopt(asset, asset.RotationTexture, result.Rotation);
-            asset.SetData(result.Layout.Info, mesh, position, rotation, result.Layout.Clips, sourceHash);
+            var position = Adopt(asset, asset.PositionTexture, result.Textures.Position);
+            var rotation = Adopt(asset, asset.RotationTexture, result.Textures.Rotation);
+            var drift = Adopt(asset, asset.DriftTexture, result.Textures.Drift); // null in assets older than 1.5
+            asset.SetData(result.Layout.Info, mesh, position, rotation, drift, result.Layout.Clips, result.Precision, sourceHash);
             Finish(asset);
             return asset;
         }
@@ -52,6 +56,7 @@ namespace VATyakov.Editor
             MakeNonReadable(asset.Mesh);
             MakeNonReadable(asset.PositionTexture);
             MakeNonReadable(asset.RotationTexture);
+            MakeNonReadable(asset.DriftTexture);
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
         }

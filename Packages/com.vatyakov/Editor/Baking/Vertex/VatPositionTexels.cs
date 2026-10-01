@@ -21,7 +21,7 @@ namespace VATyakov.Editor
         public Vector3 Write(int element, int row, Vector3 delta)
         {
             var half = new VatHalf3(delta);
-            Store(Offset(element, row), half);
+            half.WriteTo(_texels, Offset(element, row));
             return half.ToVector3();
         }
 
@@ -44,14 +44,6 @@ namespace VATyakov.Editor
         {
             var texel = VatMath.Texel(element, _info.Width, _info.TotalRows, row);
             return (texel.y * _info.Width + texel.x) * 4;
-        }
-
-        void Store(int offset, VatHalf3 half)
-        {
-            _texels[offset] = half.X;
-            _texels[offset + 1] = half.Y;
-            _texels[offset + 2] = half.Z;
-            _texels[offset + 3] = 0;
         }
     }
 }

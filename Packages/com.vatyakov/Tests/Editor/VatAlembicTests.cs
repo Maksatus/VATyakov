@@ -51,6 +51,7 @@ namespace VATyakov.Tests
 
             var positions = VatTestUtil.ReadGpu(_bake.Position);
             var rotations = VatTestUtil.ReadGpu(_bake.Rotation);
+            var drift = VatTestUtil.ReadGpu(_bake.Drift);
             var rest = _bake.Mesh.vertices;
             var reference = new AlembicReference(cloth, _scene);
             float maxError = 0f, maxAngle = 0f;
@@ -59,9 +60,10 @@ namespace VATyakov.Tests
                 var mesh = reference.Sample(clip.FrameTime(k));
                 var vertices = mesh.vertices;
                 var normals = mesh.normals;
+                var d = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
                 for (int v = 0; v < rest.Length; v++)
                 {
-                    var decoded = rest[v] + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);
+                    var decoded = rest[v] + d + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);
                     var q = VatTestUtil.DecodeRotation(rotations, _bake.Layout.Info, v, clip.StartRow + k);
                     maxError = Mathf.Max(maxError, (decoded - vertices[v]).magnitude);
                     maxAngle = Mathf.Max(maxAngle, Vector3.Angle(normals[v], VatMath.FrameNormal(q)));

@@ -24,6 +24,9 @@ namespace VATyakov.Editor
             return new VatLayout(VertexInfo(vertexCount, blocks, RowCount(clips)), clips);
         }
 
+        // Drift is decided after sampling (§2.2); rows and sizes stay the same.
+        public VatLayout WithDrift(bool drift) => new VatLayout(Info.WithDrift(drift), Clips);
+
         static void RequireInput(int vertexCount, IReadOnlyList<VatClipRequest> requests)
         {
             if (vertexCount < 1)
@@ -80,6 +83,7 @@ namespace VATyakov.Editor
 
         static VatLayoutInfo VertexInfo(int vertexCount, int blocks, int rows) =>
             new VatLayoutInfo(VatMode.Vertex, vertexCount, 1, VatMath.TextureWidth(vertexCount), blocks, rows,
-                pivotRow: false, drift: false, VatVertexFormat.Position, VatVertexFormat.Rotation);
+                pivotRow: false, drift: false, VatVertexFormat.Position, VatVertexFormat.Rotation,
+                VatVertexFormat.Drift);
     }
 }

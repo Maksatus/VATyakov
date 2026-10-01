@@ -31,6 +31,14 @@ namespace VATyakov
             return new Vector2Int(element - block * width, block * totalRows + row);
         }
 
+        // §1.9: _VatDriftTex has no blocks; x = 0 — hi, x = 1 — lo, y = row.
+        public const int DriftWidth = 2;
+
+        public static Vector2Int DriftTexel(int part, int row) => new Vector2Int(part, row);
+
+        // §1.2: d = hi + lo, a pair of halves.
+        public static Vector3 Drift(Vector3 hi, Vector3 lo) => hi + lo;
+
         // §1.9: RGBA8 texel (0..1 per channel) → bytes.
         public static Color32 RotationBytes(Vector4 texel) => new Color32(Byte(texel.x), Byte(texel.y), Byte(texel.z), Byte(texel.w));
 

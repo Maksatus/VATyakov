@@ -34,6 +34,15 @@ namespace VATyakov.Editor
                 : $"The end differs from the start by {distance}: not a loop.";
         }
 
+        public static string Millimeters(float meters) => string.Format(Invariant, "{0:0.###} mm", meters * 1000f);
+
+        public static string DriftTravel(float meters) =>
+            string.Format(Invariant, "The centroid travels up to {0:0.##} m from the rest pose.", meters);
+
+        public static string DriftRule() => string.Format(Invariant,
+            "Drift is turned on by the baker when the centroid travels farther than {0:0.#} m or the error without it exceeds {1}.",
+            VatDriftPolicy.Distance, Millimeters(VatDriftPolicy.Error));
+
         public static string Megabytes(VatLayoutInfo info) =>
             string.Format(Invariant, "{0:0.##} MB", VatMemory.TextureBytes(info) / (1024.0 * 1024.0));
     }

@@ -45,6 +45,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 721c4c947baf0b848806ea79ee3ec407, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _VatDriftTex:
+        m_Texture: {fileID: -5167855649152618371, guid: 7a412248ba856b84990548a46bf43714, type: 2}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _VatPosTex:
         m_Texture: {fileID: -2717900918973463357, guid: 7a412248ba856b84990548a46bf43714, type: 2}
         m_Scale: {x: 1, y: 1}

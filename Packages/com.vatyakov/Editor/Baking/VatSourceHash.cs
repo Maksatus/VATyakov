@@ -16,6 +16,7 @@ namespace VATyakov.Editor
                 AppendSkinned(ref hash, profile);
             hash.Append(profile.Fps);
             hash.Append(profile.Loop ? 1 : 0);
+            hash.Append(profile.NoDrift ? 1 : 0);
             return hash.ToString();
         }
 

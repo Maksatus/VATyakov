@@ -7,15 +7,24 @@
 
 #include "Packages/com.vatyakov/Shaders/VatCore.hlsl"
 
-// Vertex mode: pos = rest + lerp(Δ0, Δ1, frac). Frame = (row0, row1, frac, 0) from the CPU (§1.4).
+float3 VatLoadDrift(UnityTexture2D DriftTex, uint row)
+{
+    return VatDrift(LOAD_TEXTURE2D_LOD(DriftTex.tex, VatDriftTexel(0u, row), 0).xyz,
+        LOAD_TEXTURE2D_LOD(DriftTex.tex, VatDriftTexel(1u, row), 0).xyz);
+}
+
+// Vertex mode: pos = rest + lerp(d0, d1, frac) + lerp(Δ0, Δ1, frac), §1.9. Frame = (row0, row1, frac, 0) from the CPU (§1.4).
+// Without drift _VatDriftTex holds zeros: the baker always writes it, so there is no driftOn branch.
+// DriftTex is the last input: it is the newest slot of the Custom Function, last by id and in the slot list.
 void VatVertexPosition_float(float VertexId, float3 RestPosition,
-    UnityTexture2D PosTex, float4 Layout, float4 Frame,
+    UnityTexture2D PosTex, float4 Layout, float4 Frame, UnityTexture2D DriftTex,
     out float3 Position)
 {
     uint id = (uint)VertexId;
-    float3 d0 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0).xyz;
-    float3 d1 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0).xyz;
-    Position = RestPosition + lerp(d0, d1, Frame.z);
+    float3 delta0 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0).xyz;
+    float3 delta1 = LOAD_TEXTURE2D_LOD(PosTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0).xyz;
+    float3 drift = lerp(VatLoadDrift(DriftTex, (uint)Frame.x), VatLoadDrift(DriftTex, (uint)Frame.y), Frame.z);
+    Position = RestPosition + drift + lerp(delta0, delta1, Frame.z);
 }
 
 // Vertex mode: frame (T, N×T, N) from _VatRotTex, nlerp between the two rows (§2.2).

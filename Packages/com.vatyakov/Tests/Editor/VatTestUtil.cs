@@ -42,6 +42,17 @@ namespace VATyakov.Tests
             return new Vector3(Half(texels, offset), Half(texels, offset + 2), Half(texels, offset + 4));
         }
 
+        // _VatDriftTex as the GPU returns it: hi + lo (§1.9).
+        public static Vector3 DecodeDrift(byte[] texels, int row) =>
+            VatMath.Drift(DriftPart(texels, 0, row), DriftPart(texels, 1, row));
+
+        static Vector3 DriftPart(byte[] texels, int part, int row)
+        {
+            var texel = VatMath.DriftTexel(part, row);
+            int offset = (texel.y * VatMath.DriftWidth + texel.x) * 8;
+            return new Vector3(Half(texels, offset), Half(texels, offset + 2), Half(texels, offset + 4));
+        }
+
         // RGBA8 bytes as the GPU returns them; decoded like VatCore.hlsl.
         public static Vector4 DecodeRotation(byte[] texels, VatLayoutInfo layout, int element, int row)
         {

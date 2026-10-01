@@ -46,6 +46,7 @@ namespace VATyakov.Editor
             clip < 0 ||
             material.GetTexture(VatShaderIds.PosTex) != asset.PositionTexture ||
             material.GetTexture(VatShaderIds.RotTex) != asset.RotationTexture ||
+            material.GetTexture(VatShaderIds.DriftTex) != asset.DriftTexture ||
             material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout;
     }
 }

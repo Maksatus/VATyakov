@@ -7,7 +7,7 @@ namespace VATyakov.Editor
     {
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
-            Debug.Log(Describe(asset) + Stats(result.Stats), asset);
+            Debug.Log(Describe(asset) + Positions(asset, result) + Stats(result.Stats), asset);
             if (result.Chirality.Count > 0)
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
             foreach (string warning in result.Warnings)
@@ -24,9 +24,17 @@ namespace VATyakov.Editor
                 VatText.Megabytes(info));
         }
 
+        static string Positions(VatAsset asset, VatBakeResult result)
+        {
+            var precision = result.Precision;
+            return string.Format(CultureInfo.InvariantCulture,
+                "; drift {0} (centroid travels {1:0.###} m), max |Δ| {2:0.###} m, max half error {3:0.###} mm with drift, {4:0.###} mm without",
+                asset.Layout.Drift ? "on" : "off", precision.MaxDrift, result.MaxOffset, precision.ErrorWithDrift * 1000f,
+                precision.ErrorWithoutDrift * 1000f);
+        }
+
         static string Stats(VatQuantizationStats stats) => string.Format(CultureInfo.InvariantCulture,
-            "; max |Δ| {0:0.###} m, max half error {1:0.###} mm, max rotation error {2:0.###}°, degenerate tangents {3}",
-            stats.MaxOffset, stats.MaxError * 1000f, stats.MaxRotationError, stats.DegenerateTangents);
+            ", max rotation error {0:0.###}°, degenerate tangents {1}", stats.MaxRotationError, stats.DegenerateTangents);
 
         static string Chirality(VatAsset asset, VatChirality chirality) =>
             $"VAT '{asset.name}': {chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First}). " +

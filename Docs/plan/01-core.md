@@ -122,14 +122,14 @@ _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перех�
 |---|---|---|---|---|---|---|---|
 | `_VatPosTex` | Vertex | RGBAHalf | вертекс | Δ.x | Δ.y | Δ.z | 0 |
 | `_VatRotTex` | Vertex | RGBA8 | вертекс | байт a | байт b | байт c | старшие биты и индекс (ниже) |
-| `_VatDriftTex` | Vertex с дрейфом | RGBAHalf | 0 — hi, 1 — lo | d.x | d.y | d.z | 0 |
+| `_VatDriftTex` | Vertex | RGBAHalf | 0 — hi, 1 — lo | d.x | d.y | d.z | 0 |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i | p̃.x | p̃.y | p̃.z | 0 |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i + 1 | 0 | 0 | 0 | 0 |
 | `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i | Δ.x | Δ.y | Δ.z | s |
 | `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i + 1 | q.x | q.y | q.z | q.w |
 
 - **Vertex:** `Δ = pos − rest − d` (без дрейфа `d = 0`). Строки — только кадры: `totalRows = ΣF`, первый клип с `startRow = 0`.
-- **Дрейф:** `_VatDriftTex` без блоков — ширина 2, высота ΣF, строка `startRow + frame`. `d = hi + lo`, в шейдере `pos = rest + lerp(d0, d1) + lerp(Δ0, Δ1)`.
+- **Дрейф:** `_VatDriftTex` без блоков — ширина 2, высота ΣF, строка `startRow + frame`. `d = hi + lo`, в шейдере `pos = rest + lerp(d0, d1) + lerp(Δ0, Δ1)`. Текстура есть в каждом Vertex-ассете: с выключенным дрейфом в ней нули, шейдер прибавляет d всегда — без ветки и умножения на driftOn (1.5). `driftOn` в `_VatLayout.z` — для инспектора и CPU.
 - **Bone и Rigid:** `i` — индекс кости или куска, элементов `E = 2·N`. Строка 0 каждого блока — пивоты, `totalRows = 1 + ΣF`, клипы начинаются со `startRow = 1`. `p̃` — пивот, округлённый до half; `Δ = p_pose − p̃`; `s` — равномерный масштаб, `s = 0` — кусок скрыт.
 - **Кватернион** — (x, y, z, w), w — скалярная часть. В Vertex он задаёт кадр (T, N×T, N): `N = rot(q, (0,0,1))`, `T = rot(q, (1,0,0))`, знак бинормали — `tangent.w` меша.
 - **`_VatRotTex`, smallest-three:**

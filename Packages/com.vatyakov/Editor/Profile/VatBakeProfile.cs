@@ -37,6 +37,9 @@ namespace VATyakov.Editor
         [Tooltip("Test prefab for the Compare scene. Created by its button, never by a bake.")]
         [SerializeField] GameObject _prefab;
 
+        // Dev comparison only (1.5): bakes without drift even when the policy turns it on. Drift is automatic (§2.2).
+        [HideInInspector, SerializeField] bool _noDrift;
+
         public VatSourceKind Kind { get => _kind; set => _kind = value; }
 
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
@@ -56,6 +59,8 @@ namespace VATyakov.Editor
         public Shader Shader { get => _shader; set => _shader = value; }
 
         public GameObject Prefab { get => _prefab; set => _prefab = value; }
+
+        internal bool NoDrift { get => _noDrift; set => _noDrift = value; }
 
         public bool IsBaked => _asset != null && _asset.TryValidate(out _) && _material != null;
 

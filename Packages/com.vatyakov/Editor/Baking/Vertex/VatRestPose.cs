@@ -10,11 +10,13 @@ namespace VATyakov.Editor
         public readonly Vector3[] Positions;
         public readonly Vector3[] Normals;
         public readonly Vector4[] Tangents;
+        public readonly Vector3 Centroid; // drift d = frame centroid − rest centroid (§2.2)
 
         VatRestPose(VatFrame frame, VatTangentFrames basis)
         {
             Positions = (Vector3[])frame.Positions.Clone();
             Normals = (Vector3[])basis.Normals.Clone();
+            Centroid = VatCentroid.Of(Positions);
             Tangents = new Vector4[Positions.Length];
             for (int v = 0; v < Tangents.Length; v++)
                 Tangents[v] = new Vector4(basis.Tangents[v].x, basis.Tangents[v].y, basis.Tangents[v].z, frame.Tangents[v].w);
