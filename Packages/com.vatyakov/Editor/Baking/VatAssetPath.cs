@@ -16,7 +16,7 @@ namespace VATyakov.Editor
         {
             string profilePath = AssetDatabase.GetAssetPath(profile);
             if (string.IsNullOrEmpty(profilePath))
-                throw new VatBakeException("Профиль не сохранён как ассет — передайте путь для VatAsset.");
+                throw new VatBakeException("The profile is not saved as an asset: pass a path for the VatAsset.");
             string folder = Path.GetDirectoryName(profilePath)?.Replace('\\', '/');
             return AssetDatabase.GenerateUniqueAssetPath($"{folder}/{profile.name}_Vat.asset");
         }

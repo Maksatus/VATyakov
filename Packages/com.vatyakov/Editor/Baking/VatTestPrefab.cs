@@ -23,11 +23,11 @@ namespace VATyakov.Editor
         static void RequireBaked(VatBakeProfile profile)
         {
             if (profile.Asset == null)
-                throw new VatBakeException("Сначала запеките профиль.");
+                throw new VatBakeException("Bake the profile first.");
             if (!profile.Asset.TryValidate(out var error))
                 throw new VatBakeException(error);
             if (profile.Material == null)
-                throw new VatBakeException("Нет материала-шаблона — запеките профиль заново.");
+                throw new VatBakeException("No template material: bake the profile again.");
         }
 
         static GameObject Update(VatBakeProfile profile)

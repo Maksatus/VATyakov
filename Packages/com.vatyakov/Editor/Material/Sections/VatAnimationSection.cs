@@ -5,17 +5,17 @@ namespace VATyakov.Editor
 {
     sealed class VatAnimationSection : IVatMaterialSection
     {
-        static readonly GUIContent AnimationLabel = new GUIContent("Анимация", "VAT-ассет, из которого материал берёт анимацию. Клик — показать в Project.");
-        static readonly GUIContent ClipLabel = new GUIContent("Клип", "Клип, который играет материал-шаблон.");
+        static readonly GUIContent AnimationLabel = new GUIContent("Animation", "VAT asset the material takes its animation from. Click to ping it in Project.");
+        static readonly GUIContent ClipLabel = new GUIContent("Clip", "Clip the template material plays.");
 
         public string Key => "VATyakov.ShaderGUI.Animation";
 
-        public string Title => "Анимация";
+        public string Title => "Animation";
 
         public void Draw(MaterialEditor editor, MaterialProperty[] properties)
         {
             if (editor.targets.Length > 1)
-                EditorGUILayout.HelpBox("Выбрано несколько материалов — анимация показывается для одного.", MessageType.Info);
+                EditorGUILayout.HelpBox("Several materials are selected: the animation is shown for one.", MessageType.Info);
             else
                 Draw((Material)editor.target);
         }
@@ -26,11 +26,11 @@ namespace VATyakov.Editor
             switch (binding.Status)
             {
                 case VatMaterialStatus.NotAssigned:
-                    EditorGUILayout.HelpBox("Анимация не назначена. Укажите этот материал как «Материал-шаблон» в профиле бейка и нажмите «Запечь».",
+                    EditorGUILayout.HelpBox("No animation assigned. Set this material as the Template Material of a bake profile and press Bake.",
                         MessageType.Info);
                     break;
                 case VatMaterialStatus.Foreign:
-                    EditorGUILayout.HelpBox("Текстура анимации не из VAT-ассета или ассет повреждён. Перезапеките профиль.", MessageType.Warning);
+                    EditorGUILayout.HelpBox("The animation texture is not from a VAT asset or the asset is broken. Rebake the profile.", MessageType.Warning);
                     break;
                 default:
                     DrawBound(material, binding);
@@ -64,14 +64,14 @@ namespace VATyakov.Editor
 
         static void DrawStale(Material material, VatMaterialBinding binding)
         {
-            EditorGUILayout.HelpBox("Данные анимации в материале не совпадают с ассетом.", MessageType.Warning);
-            if (GUILayout.Button("Обновить из ассета"))
+            EditorGUILayout.HelpBox("Animation data in the material does not match the asset.", MessageType.Warning);
+            if (GUILayout.Button("Update from Asset"))
                 Reapply(material, binding);
         }
 
         static void Reapply(Material material, VatMaterialBinding binding)
         {
-            Undo.RecordObject(material, "Обновить VAT-материал");
+            Undo.RecordObject(material, "Update VAT Material");
             binding.Asset.ApplyTo(material, Mathf.Max(binding.ClipIndex, 0));
             EditorUtility.SetDirty(material);
         }

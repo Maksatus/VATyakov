@@ -1,0 +1,28 @@
+{
+    "name": "VATyakov.Editor.Alembic",
+    "rootNamespace": "VATyakov.Editor",
+    "references": [
+        "VATyakov",
+        "VATyakov.Editor",
+        "Unity.Formats.Alembic.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "VAT_ALEMBIC"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.formats.alembic",
+            "expression": "2.4.5",
+            "define": "VAT_ALEMBIC"
+        }
+    ],
+    "noEngineReferences": false
+}

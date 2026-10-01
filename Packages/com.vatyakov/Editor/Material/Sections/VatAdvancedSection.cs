@@ -6,7 +6,7 @@ namespace VATyakov.Editor
     {
         public string Key => "VATyakov.ShaderGUI.Advanced";
 
-        public string Title => "Дополнительно";
+        public string Title => "Advanced";
 
         public void Draw(MaterialEditor editor, MaterialProperty[] properties) => editor.RenderQueueField();
     }

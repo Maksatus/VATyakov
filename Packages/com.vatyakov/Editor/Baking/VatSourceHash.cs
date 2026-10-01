@@ -10,13 +10,21 @@ namespace VATyakov.Editor
         {
             var hash = new Hash128();
             hash.Append(VatAsset.CurrentFormatVersion);
+            if (profile.Kind == VatSourceKind.Alembic)
+                hash.Append(DependencyHash(profile.Alembic));
+            else
+                AppendSkinned(ref hash, profile);
+            hash.Append(profile.Fps);
+            hash.Append(profile.Loop ? 1 : 0);
+            return hash.ToString();
+        }
+
+        static void AppendSkinned(ref Hash128 hash, VatBakeProfile profile)
+        {
             hash.Append(DependencyHash(profile.Source));
             hash.Append(AnimationUtility.CalculateTransformPath(profile.Source.transform, profile.Source.transform.root));
             hash.Append(DependencyHash(profile.Clip));
             hash.Append(profile.Clip.name);
-            hash.Append(profile.Fps);
-            hash.Append(profile.Loop ? 1 : 0);
-            return hash.ToString();
         }
 
         static string DependencyHash(Object target)

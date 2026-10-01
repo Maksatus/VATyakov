@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.Animations;
+#if VAT_ALEMBIC
+using UnityEngine.Formats.Alembic.Importer;
+#endif
 using UnityEngine.Playables;
 
 namespace VATyakov.Dev
 {
     /// <summary>
-    /// Compare scene driver (plan §5): the source SkinnedMeshRenderer and its VAT copy side by side.
+    /// Compare scene driver (plan §5): the source SkinnedMeshRenderer or AlembicStreamPlayer (1.4) and its VAT copy side by side.
     /// Step mode shows baked frame k on both. Play mode runs a VatPlayback from Time.time: the source is sampled at
     /// the time the VAT frames interpolate, so they match on baked frames and differ between them only by the
     /// interpolation error. _speed can be changed while playing. Works in Play mode and in player builds; the VAT material is a
@@ -17,6 +20,10 @@ namespace VATyakov.Dev
         [Tooltip("Root of the source instance: the clip is sampled on it.")]
         [SerializeField] GameObject _source;
         [SerializeField] AnimationClip _clip;
+#if VAT_ALEMBIC
+        [Tooltip("Alembic source instead of _source and _clip.")]
+        [SerializeField] AlembicStreamPlayer _alembic;
+#endif
         [SerializeField] MeshRenderer _vat;
         [SerializeField] bool _step = true;
         [SerializeField, Min(0)] int _frame;
@@ -34,7 +41,7 @@ namespace VATyakov.Dev
 
         void OnEnable()
         {
-            if (_asset == null || _source == null || _clip == null || _vat == null || !_asset.TryValidate(out _))
+            if (_asset == null || !HasSource() || _vat == null || !_asset.TryValidate(out _))
             {
                 Debug.LogError($"{name}: VatCompare is not set up.", this);
                 enabled = false;
@@ -44,7 +51,21 @@ namespace VATyakov.Dev
             _shared = _vat.sharedMaterial;
             _material = new Material(_shared) { name = _shared.name + " (Compare)", hideFlags = HideFlags.DontSave };
             _vat.sharedMaterial = _material;
+            _playback = null;
+            if (!HasAlembic())
+                SetUpAnimation();
+        }
 
+        bool HasSource() => HasAlembic() || _source != null && _clip != null;
+
+#if VAT_ALEMBIC
+        bool HasAlembic() => _alembic != null;
+#else
+        bool HasAlembic() => false;
+#endif
+
+        void SetUpAnimation()
+        {
             var legacy = _source.GetComponent<Animation>();
             if (legacy != null)
                 legacy.enabled = false; // the clip is sampled explicitly
@@ -59,8 +80,6 @@ namespace VATyakov.Dev
                 _playable.SetApplyFootIK(false);
                 AnimationPlayableOutput.Create(_graph, "out", animator).SetSourcePlayable(_playable);
             }
-
-            _playback = null;
         }
 
         void OnDisable()
@@ -102,6 +121,14 @@ namespace VATyakov.Dev
 
         void Sample(double time)
         {
+#if VAT_ALEMBIC
+            if (_alembic != null)
+            {
+                _alembic.UpdateImmediately((float)time); // counts from StartTime, like the bake
+                return;
+            }
+#endif
+
             if (_clip.legacy)
             {
                 _clip.SampleAnimation(_source, (float)time);

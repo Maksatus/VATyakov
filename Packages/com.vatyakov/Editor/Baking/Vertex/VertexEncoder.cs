@@ -84,7 +84,7 @@ namespace VATyakov.Editor
         void RequireFinite(Vector3 delta, int vertex, int clip, int frame)
         {
             if (!float.IsFinite(delta.x) || !float.IsFinite(delta.y) || !float.IsFinite(delta.z))
-                throw new VatBakeException($"Нечисловая позиция вертекса {vertex}: клип '{_layout.Clips[clip].Name}', кадр {frame}.");
+                throw new VatBakeException($"Non-finite position of vertex {vertex}: clip '{_layout.Clips[clip].Name}', frame {frame}.");
         }
 
         static void RequireMatch(VatLayout layout, VatSourceMesh source)

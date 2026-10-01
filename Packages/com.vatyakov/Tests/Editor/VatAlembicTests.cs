@@ -1,0 +1,162 @@
+#if VAT_ALEMBIC
+using System.Linq;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+using UnityEngine.Formats.Alembic.Importer;
+using UnityEngine.SceneManagement;
+using VATyakov.Editor;
+
+namespace VATyakov.Tests
+{
+    // Fixtures: a 9×9 grid with a wave, 30 fps, recorded by Assets/VatDev/Editor/VatAlembicFixtures.
+    // VatCloth — 1 s, the end repeats the start; VatTopology — 10×10 from frame 10; VatShuffled — no UV,
+    // point order reversed on frame 15 with the indices kept.
+    public class VatAlembicTests
+    {
+        const string Fixtures = "Packages/com.vatyakov/Tests/Editor/Fixtures/";
+        const float Fps = 30f;
+        const float Tolerance = 5e-4f; // half quantization of offsets below 1 m, meters
+        const float AngleTolerance = 0.3f; // degrees, smallest-three
+
+        Scene _scene;
+        VatInMemoryBake _bake;
+        VatBakeProfile _profile;
+
+        [SetUp]
+        public void SetUp() => _scene = EditorSceneManager.NewPreviewScene();
+
+        [TearDown]
+        public void TearDown()
+        {
+            _bake?.Destroy();
+            _bake = null;
+            if (_profile != null)
+                Object.DestroyImmediate(_profile);
+            _profile = null;
+            EditorSceneManager.ClosePreviewScene(_scene);
+        }
+
+        // A trimmed start checks that the sample time counts from StartTime, not from the file start.
+        [Test]
+        public void ClothBake_MatchesAlembicFrames_WithinQuantization([Values(0f, 0.2f)] float start)
+        {
+            var cloth = Instance("VatCloth");
+            cloth.GetComponent<AlembicStreamPlayer>().StartTime = start;
+            _bake = new VatInMemoryBake(VatAlembic.Open(cloth), Fps, loop: false);
+            var clip = _bake.Layout.Clips[0];
+            Assert.AreEqual(Mathf.RoundToInt((1f - start) * Fps) + 1, clip.FrameCount, "round(Duration·fps) + 1");
+            CollectionAssert.IsEmpty(_bake.Warnings);
+
+            var positions = VatTestUtil.ReadGpu(_bake.Position);
+            var rotations = VatTestUtil.ReadGpu(_bake.Rotation);
+            var rest = _bake.Mesh.vertices;
+            var reference = new AlembicReference(cloth, _scene);
+            float maxError = 0f, maxAngle = 0f;
+            for (int k = 0; k < clip.FrameCount; k++)
+            {
+                var mesh = reference.Sample(clip.FrameTime(k));
+                var vertices = mesh.vertices;
+                var normals = mesh.normals;
+                for (int v = 0; v < rest.Length; v++)
+                {
+                    var decoded = rest[v] + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);
+                    var q = VatTestUtil.DecodeRotation(rotations, _bake.Layout.Info, v, clip.StartRow + k);
+                    maxError = Mathf.Max(maxError, (decoded - vertices[v]).magnitude);
+                    maxAngle = Mathf.Max(maxAngle, Vector3.Angle(normals[v], VatMath.FrameNormal(q)));
+                }
+            }
+            Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+            Assert.Less(maxAngle, AngleTolerance, "normal, degrees");
+        }
+
+        [Test]
+        public void ShuffledPoints_GiveAWarning()
+        {
+            _bake = new VatInMemoryBake(VatAlembic.Open(Load("VatShuffled")), Fps, loop: false);
+            Assert.IsTrue(_bake.Warnings.Any(w => w.Contains("point order")), string.Join("\n", _bake.Warnings));
+            Assert.IsTrue(_bake.Warnings.Any(w => w.Contains(VatBaker.TriplanarShaderName)), "no UV — triplanar hint");
+        }
+
+        [Test]
+        public void ZeroDuration_FailsTheBake()
+        {
+            var instance = Instance("VatCloth");
+            var player = instance.GetComponent<AlembicStreamPlayer>();
+            player.EndTime = player.StartTime;
+            Assert.LessOrEqual(player.Duration, 0f);
+            _profile = AlembicProfile(instance);
+
+            var error = Assert.Throws<VatBakeException>(() => VatBaker.Bake(_profile, "Assets/__VatTestTemp/Zero.asset"));
+            StringAssert.Contains("duration", error.Message);
+            Assert.IsNull(_profile.Asset);
+        }
+
+        [Test]
+        public void ChangingTopology_FailsTheBake_WithPatch2Message()
+        {
+            var error = Assert.Throws<VatBakeException>(() => _bake = new VatInMemoryBake(VatAlembic.Open(Load("VatTopology")), Fps, loop: false));
+            StringAssert.Contains("vertices 81 → 100", error.Message);
+            StringAssert.Contains("patch 2", error.Message);
+            Assert.IsNotEmpty(VatBaker.Validate(AlembicProfile(Load("VatTopology"))), "the inspector sees it too");
+        }
+
+        [Test]
+        public void LoopHint_SeesTheClosedCloth()
+        {
+            var probe = VatAlembicProbe.For(Load("VatCloth"));
+            Assert.IsNull(probe.Problem);
+            Assert.AreEqual(81, probe.VertexCount);
+            Assert.AreEqual(1f, probe.Clip.Length, 1e-5f);
+            Assert.Less(probe.LoopGap, VatLoopGap.MaxLoopGap);
+        }
+
+        VatBakeProfile AlembicProfile(GameObject alembic)
+        {
+            _profile = ScriptableObject.CreateInstance<VatBakeProfile>();
+            _profile.Kind = VatSourceKind.Alembic;
+            _profile.Alembic = alembic;
+            _profile.Fps = Fps;
+            _profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
+            return _profile;
+        }
+
+        GameObject Instance(string name)
+        {
+            var instance = Object.Instantiate(Load(name));
+            SceneManager.MoveGameObjectToScene(instance, _scene);
+            return instance;
+        }
+
+        static GameObject Load(string name)
+        {
+            var alembic = AssetDatabase.LoadAssetAtPath<GameObject>(Fixtures + name + ".abc");
+            Assert.IsNotNull(alembic, name);
+            return alembic;
+        }
+
+        // The importer's own playback: what AlembicStreamPlayer shows at the time.
+        sealed class AlembicReference
+        {
+            readonly AlembicStreamPlayer _player;
+            readonly MeshFilter _mesh;
+
+            public AlembicReference(GameObject alembic, Scene scene)
+            {
+                var instance = Object.Instantiate(alembic);
+                SceneManager.MoveGameObjectToScene(instance, scene);
+                _player = instance.GetComponent<AlembicStreamPlayer>();
+                _player.UpdateImmediately(0f);
+                _mesh = instance.GetComponentInChildren<MeshFilter>();
+            }
+
+            public Mesh Sample(double time)
+            {
+                _player.UpdateImmediately((float)time);
+                return _mesh.sharedMesh;
+            }
+        }
+    }
+}
+#endif

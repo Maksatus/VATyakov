@@ -4,8 +4,8 @@ namespace VATyakov.Editor
 {
     sealed class VatAssetProfileContainer : EditorContainer
     {
-        readonly VatObjectLink _link = new VatObjectLink("Профиль бейка", "Здесь меняются настройки и запускается повторный бейк.");
-        readonly Label _missing = VatUi.Hint("Профиль, который запекает этот ассет, не найден.");
+        readonly VatObjectLink _link = new VatObjectLink("Bake Profile", "Change the settings and rebake here.");
+        readonly Label _missing = VatUi.Hint("No profile bakes this asset.");
 
         public VatAssetProfileContainer()
         {

@@ -2,37 +2,48 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // One SkinnedMeshRenderer, one clip, Vertex mode; several clips arrive in 1.6. Tooltips are for artists, hence in Russian.
+    // One SkinnedMeshRenderer with one clip or one Alembic (1.4), Vertex mode; several clips arrive in 1.6.
     [CreateAssetMenu(menuName = "VATyakov/VAT Bake Profile", fileName = "VatBakeProfile", order = 400)]
     public sealed class VatBakeProfile : ScriptableObject
     {
-        [Tooltip("SkinnedMeshRenderer из префаба или модели. Позиции запекаются в пространстве корня префаба.")]
+        [Tooltip("Skinned Mesh Renderer: a SkinnedMeshRenderer with a clip. Alembic: an .abc with constant topology (cloth, soft body, liquid).")]
+        [SerializeField] VatSourceKind _kind;
+
+        [Tooltip("SkinnedMeshRenderer of a prefab or model. Positions are baked in the prefab root space.")]
         [SerializeField] SkinnedMeshRenderer _source;
 
-        [Tooltip("Анимация, которая запекается в текстуру.")]
+        [Tooltip("Animation clip baked into the textures.")]
         [SerializeField] AnimationClip _clip;
 
-        [Tooltip("Включено — клип играет по кругу, последний кадр не повторяет первый. " +
-                 "Выключено — клип играет один раз и останавливается на последнем кадре.")]
+        [Tooltip(".abc from the project. The whole importer Time Range is baked; positions are in the .abc root space. " +
+                 "Requires com.unity.formats.alembic 2.4.5 or newer.")]
+        [SerializeField] GameObject _alembic;
+
+        [Tooltip("On: the clip loops, the last frame does not repeat the first. " +
+                 "Off: the clip plays once and stops on the last frame.")]
         [SerializeField] bool _loop = true;
 
-        [Tooltip("Сколько кадров в секунду анимации сохранить. Больше — плавнее и тяжелее по памяти.")]
+        [Tooltip("Baked frames per second of animation. Higher is smoother and costs more memory.")]
         [SerializeField, Min(0.001f)] float _fps = 30f;
 
         [HideInInspector, SerializeField] VatAsset _asset;
 
-        [Tooltip("Материал, в который бейкер пишет текстуру и клип. Если пусто — создаётся рядом с профилем.")]
+        [Tooltip("Material the baker writes the textures and clip into. Created next to the profile when empty.")]
         [SerializeField] Material _material;
 
-        [Tooltip("Шейдер для нового материала-шаблона.")]
+        [Tooltip("Shader of a new template material.")]
         [SerializeField] Shader _shader;
 
-        [Tooltip("Тестовый префаб для сцены Compare. Создаётся кнопкой, бейк его не создаёт.")]
+        [Tooltip("Test prefab for the Compare scene. Created by its button, never by a bake.")]
         [SerializeField] GameObject _prefab;
+
+        public VatSourceKind Kind { get => _kind; set => _kind = value; }
 
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
 
         public AnimationClip Clip { get => _clip; set => _clip = value; }
+
+        public GameObject Alembic { get => _alembic; set => _alembic = value; }
 
         public bool Loop { get => _loop; set => _loop = value; }
 

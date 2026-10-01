@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -11,9 +12,10 @@ namespace VATyakov.Editor
         public readonly Texture2D Rotation;
         public readonly VatQuantizationStats Stats;
         public readonly VatChirality Chirality;
+        public readonly IReadOnlyList<string> Warnings;
 
         public VatBakeResult(VatLayout layout, Mesh mesh, Texture2D position, Texture2D rotation, VatQuantizationStats stats,
-            VatChirality chirality)
+            VatChirality chirality, IReadOnlyList<string> warnings)
         {
             Layout = layout;
             Mesh = mesh;
@@ -21,6 +23,7 @@ namespace VATyakov.Editor
             Rotation = rotation;
             Stats = stats;
             Chirality = chirality;
+            Warnings = warnings;
         }
     }
 }

@@ -27,9 +27,9 @@ namespace VATyakov.Editor
         static void RequireInput(int vertexCount, IReadOnlyList<VatClipRequest> requests)
         {
             if (vertexCount < 1)
-                throw new VatBakeException("У меша нет вертексов.");
+                throw new VatBakeException("The mesh has no vertices.");
             if (requests.Count == 0)
-                throw new VatBakeException("Нет клипов для бейка.");
+                throw new VatBakeException("No clips to bake.");
         }
 
         static VatClip[] StackClips(IReadOnlyList<VatClipRequest> requests, int blocks)
@@ -60,7 +60,7 @@ namespace VATyakov.Editor
             }
             catch (ArgumentOutOfRangeException e)
             {
-                throw new VatBakeException($"Клип '{request.Name}': {e.Message}");
+                throw new VatBakeException($"Clip '{request.Name}': {e.Message}");
             }
         }
 
@@ -68,8 +68,8 @@ namespace VATyakov.Editor
         {
             if (blocks * rows > VatMath.MaxTextureSize)
                 throw new VatBakeException(
-                    $"Высота VAT-текстуры {blocks} × {rows} = {blocks * rows} строк, лимит {VatMath.MaxTextureSize}. " +
-                    "Уменьшите fps или длину клипов либо разнесите клипы по разным VatAsset.");
+                    $"VAT texture height {blocks} × {rows} = {blocks * rows} rows, the limit is {VatMath.MaxTextureSize}. " +
+                    "Lower the fps or the clip length, or split the clips into several VatAssets.");
         }
 
         static int RowCount(VatClip[] clips)

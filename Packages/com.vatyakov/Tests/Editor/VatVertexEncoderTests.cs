@@ -38,7 +38,7 @@ namespace VATyakov.Tests
                 Assert.AreEqual(frames.Sum(DegenerateCount), encoder.Stats.DegenerateTangents);
                 Assert.Less(encoder.Stats.MaxRotationError, MaxAngle);
                 Assert.AreEqual(Flipped, encoder.Chirality.Count, "vertices whose bitangent sign flips");
-                StringAssert.Contains("вертекс 1,", encoder.Chirality.First);
+                StringAssert.Contains("vertex 1,", encoder.Chirality.First);
             }
             finally
             {

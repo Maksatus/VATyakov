@@ -6,7 +6,7 @@ namespace VATyakov.Editor
 
         public VatAssetOverviewContainer()
         {
-            Root.Add(VatUi.Card("Анимация").WithElements(Summary.Root));
+            Root.Add(VatUi.Card("Animation").WithElements(Summary.Root));
         }
     }
 }

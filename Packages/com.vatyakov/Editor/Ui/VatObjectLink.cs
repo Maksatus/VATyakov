@@ -14,7 +14,7 @@ namespace VATyakov.Editor
         public VatObjectLink(string label, string hint = null)
         {
             tooltip = hint;
-            _button = new Button(Ping) { tooltip = "Показать в Project" }.WithClass("vat-link__button").WithElements(_icon, _name);
+            _button = new Button(Ping) { tooltip = "Ping in Project" }.WithClass("vat-link__button").WithElements(_icon, _name);
             this.WithClass("vat-link").WithElements(new Label(label).WithClass("vat-link__label"), _button);
             Set(null);
         }

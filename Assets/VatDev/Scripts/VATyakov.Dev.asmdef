@@ -2,7 +2,8 @@
     "name": "VATyakov.Dev",
     "rootNamespace": "VATyakov.Dev",
     "references": [
-        "VATyakov"
+        "VATyakov",
+        "Unity.Formats.Alembic.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,6 +12,12 @@
     "precompiledReferences": [],
     "autoReferenced": false,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.formats.alembic",
+            "expression": "2.4.5",
+            "define": "VAT_ALEMBIC"
+        }
+    ],
     "noEngineReferences": false
 }

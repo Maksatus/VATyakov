@@ -7,10 +7,10 @@ namespace VATyakov.Editor
         public VatMaterialFieldsContainer()
         {
             Root.WithElements(
-                VatUi.Hint("Материал-шаблон получает текстуру и клип при каждом бейке. " +
-                    "Если он не задан, первый бейк создаст его рядом с профилем из выбранного шейдера."),
-                new PropertyField { bindingPath = "_material", label = "Материал-шаблон" },
-                new PropertyField { bindingPath = "_shader", label = "Шейдер" });
+                VatUi.Hint("The template material receives the textures and clip on every bake. " +
+                    "When empty, the first bake creates it next to the profile from the selected shader."),
+                new PropertyField { bindingPath = "_material", label = "Template Material" },
+                new PropertyField { bindingPath = "_shader", label = "Shader" });
         }
     }
 }

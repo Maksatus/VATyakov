@@ -2,14 +2,14 @@ namespace VATyakov.Editor
 {
     sealed class VatAssetContentsContainer : EditorContainer
     {
-        readonly VatObjectLink _mesh = new VatObjectLink("Меш");
-        readonly VatObjectLink _position = new VatObjectLink("Текстура позиций");
-        readonly VatObjectLink _rotation = new VatObjectLink("Текстура поворотов");
+        readonly VatObjectLink _mesh = new VatObjectLink("Mesh");
+        readonly VatObjectLink _position = new VatObjectLink("Position Texture");
+        readonly VatObjectLink _rotation = new VatObjectLink("Rotation Texture");
 
         public VatAssetContentsContainer()
         {
-            Root.Add(VatUi.Foldout("Состав", "VatAsset.ContentsFoldout").WithElements(
-                VatUi.Hint("Создаётся бейкером. Меш и текстуры не редактировать и не переимпортировать вручную."),
+            Root.Add(VatUi.Foldout("Contents", "VatAsset.ContentsFoldout").WithElements(
+                VatUi.Hint("Created by the baker. Do not edit or reimport the mesh and textures by hand."),
                 _mesh,
                 _position,
                 _rotation));

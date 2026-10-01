@@ -35,6 +35,8 @@ namespace VATyakov.Editor
 
         public IReadOnlyList<VatSourceClip> Clips => _clipInfos;
 
+        public IReadOnlyList<string> Warnings => Array.Empty<string>();
+
         public void Sample(int clip, double time, VatFrame frame)
         {
             _player.Sample(_clips[clip], time);

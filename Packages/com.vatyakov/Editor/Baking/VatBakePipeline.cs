@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -6,11 +7,11 @@ namespace VATyakov.Editor
     {
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
-            using var source = new SkinnedFrameSource(profile.Source, new[] { profile.Clip });
+            using var source = VatFrameSources.Open(profile);
             var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.Loop));
             var encoder = new VertexEncoder(layout, source.Mesh);
             SampleAll(source, layout, encoder);
-            return Build(layout, encoder, name);
+            return Build(layout, encoder, name, source.Warnings);
         }
 
         static void SampleAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
@@ -37,7 +38,7 @@ namespace VATyakov.Editor
             }
         }
 
-        static VatBakeResult Build(VatLayout layout, VertexEncoder encoder, string name)
+        static VatBakeResult Build(VatLayout layout, VertexEncoder encoder, string name, IReadOnlyList<string> warnings)
         {
             Mesh mesh = null;
             Texture2D position = null;
@@ -48,7 +49,7 @@ namespace VATyakov.Editor
                 position = encoder.BuildPositionTexture(name + "_Pos");
                 rotation = encoder.BuildRotationTexture(name + "_Rot");
                 VatLayoutVerifier.Verify(layout, mesh, position, rotation);
-                return new VatBakeResult(layout, mesh, position, rotation, encoder.Stats, encoder.Chirality);
+                return new VatBakeResult(layout, mesh, position, rotation, encoder.Stats, encoder.Chirality, warnings);
             }
             catch
             {

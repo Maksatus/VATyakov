@@ -4,9 +4,9 @@ namespace VATyakov.Editor
 {
     sealed class VatAssetSummaryContainer : EditorContainer
     {
-        readonly VatStat _vertices = new VatStat("Вертексы");
-        readonly VatStat _texture = new VatStat("Текстура");
-        readonly VatStat _memory = new VatStat("Память");
+        readonly VatStat _vertices = new VatStat("Vertices");
+        readonly VatStat _texture = new VatStat("Texture");
+        readonly VatStat _memory = new VatStat("Memory");
         readonly VisualElement _clips = new VisualElement();
 
         public VatAssetSummaryContainer()
@@ -24,7 +24,7 @@ namespace VATyakov.Editor
         {
             _vertices.Set(VatText.Number(info.Elements));
             _texture.Set(VatText.Size(info), VatText.Blocks(info));
-            _memory.Set(VatText.Megabytes(info), "Фактический размер текстур позиций и поворотов в памяти, включая пустые тексели последнего блока.");
+            _memory.Set(VatText.Megabytes(info), "Actual memory of the position and rotation textures, including the empty texels of the last block.");
         }
 
         void ShowClips(VatAsset asset)

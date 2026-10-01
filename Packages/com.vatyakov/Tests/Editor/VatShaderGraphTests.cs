@@ -14,6 +14,7 @@ namespace VATyakov.Tests
         const string HalfParent = "Packages/com.vatyakov/Tests/Editor/Fixtures/VAT_HalfParent.shadergraph";
         const string UnlitSample = "Packages/com.vatyakov/Samples/UnlitVertex/VAT_Unlit_Vertex.shadergraph";
         const string LitSample = "Packages/com.vatyakov/Samples/LitVertex/VAT_Lit_Vertex.shadergraph";
+        const string TriplanarSample = "Packages/com.vatyakov/Samples/LitVertexTriplanar/VAT_Lit_Vertex_Triplanar.shadergraph";
 
         [Test]
         public void HalfPrecisionParent_CompilesAndCallsFloatWrapper()
@@ -49,6 +50,23 @@ namespace VATyakov.Tests
             StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
             StringAssert.Contains("TEXTURE2D(_VatRotTex)", code);
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
+        }
+
+        // 1.4: meshes without UV (Alembic liquids); the triplanar normal map also needs the VAT tangent frame.
+        [Test]
+        public void TriplanarSample_CompilesWithoutUv()
+        {
+            AssertCompiles(TriplanarSample);
+            Assert.AreEqual(VatBaker.TriplanarShaderName, AssetDatabase.LoadAssetAtPath<Shader>(TriplanarSample).name);
+
+            string code = GeneratedCode(TriplanarSample);
+            if (code == null)
+                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+
+            StringAssert.Contains("VatVertexNormalTangent_float(", code);
+            StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
+            StringAssert.Contains("Triplanar", code);
+            StringAssert.DoesNotContain("IN.uv0", code, "no UV sampling");
         }
 
         [Test]

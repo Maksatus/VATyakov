@@ -20,10 +20,18 @@ namespace VATyakov.Editor
         static Material Create(VatBakeProfile profile, string assetPath)
         {
             var material = new Material(ResolveShader(profile));
-            CopyMaps(profile.Source.sharedMaterial, material);
+            CopyMaps(SourceMaterial(profile), material);
             AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(assetPath, ".mat")));
             profile.Material = material;
             return material;
+        }
+
+        static Material SourceMaterial(VatBakeProfile profile)
+        {
+            if (profile.Kind == VatSourceKind.Skinned)
+                return profile.Source.sharedMaterial;
+            var renderer = profile.Alembic.GetComponentInChildren<MeshRenderer>(true);
+            return renderer != null ? renderer.sharedMaterial : null;
         }
 
         static void CopyMaps(Material source, Material material)

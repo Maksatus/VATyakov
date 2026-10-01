@@ -5,9 +5,9 @@ namespace VATyakov.Editor
 {
     sealed class VatResultContainer : EditorContainer
     {
-        readonly Label _notBaked = VatUi.Hint("Ещё не запечено.");
-        readonly VatObjectLink _asset = new VatObjectLink("Анимация", "VAT-ассет: меш и текстура анимации.");
-        readonly VatObjectLink _material = new VatObjectLink("Материал", "Материал-шаблон с этой анимацией.");
+        readonly Label _notBaked = VatUi.Hint("Not baked yet.");
+        readonly VatObjectLink _asset = new VatObjectLink("Animation", "VAT asset: mesh and animation textures.");
+        readonly VatObjectLink _material = new VatObjectLink("Material", "Template material with this animation.");
         readonly HelpBox _invalid = VatUi.HelpBox(HelpBoxMessageType.Warning);
         readonly VatAssetSummaryContainer _summary = new VatAssetSummaryContainer();
 

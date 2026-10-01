@@ -9,6 +9,7 @@ namespace VATyakov.Editor
     public static class VatBaker
     {
         public const string DefaultShaderName = "VATyakov/VAT_Lit_Vertex";
+        public const string TriplanarShaderName = "VATyakov/VAT_Lit_Vertex_Triplanar"; // for meshes without UV
 
         public static List<string> Validate(VatBakeProfile profile) => VatBakeValidator.Validate(profile);
 

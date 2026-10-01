@@ -43,7 +43,8 @@
   Model (`Property<T>`, `Trigger`), инспектор (`ControllerInspector.CreateControllers`) только регистрирует
   контроллеры. Каркас свой, в `Editor/Framework`, без зависимостей от реестра Kefir. IMGUI `ShaderGUI` — реестр
   секций `IVatMaterialSection`.
-- Комментарии в коде на английском, сообщения пользователю (ошибки бейка, инспектор, лог) на русском.
+- Весь текст в пакете только на английском: комментарии, инспекторы, тултипы, ошибки бейка, лог. Подписи — термины Unity
+  (Skinned Mesh Renderer, Clip, Loop), а не пересказ («Персонаж»). Документация в `Docs/` — на русском.
 - Приватные поля `_camelCase`, ссылки на план в комментариях — `§1.3`.
 - Культура редактора ru-RU: числа в строки только через `CultureInfo.InvariantCulture`.
 - Пакет обязан компилироваться на 6000.3: не использовать API из 6000.4+ (например `GetEntityId`,
@@ -61,5 +62,7 @@
 
 - `Assets/VatDev/Content/Bow` — тестовый лук: `Bow_default_main` на 2079 вертексов, `Bow_upgrade_main` на 4529
   (два блока), legacy-клип.
+- `Assets/VatDev/Content/Alembic/Water.abc` — жидкость с постоянной топологией (1.4), сравнение — сцена
+  `CompareAlembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/Compare.unity` — сравнение SMR и VAT,
   она же первая сцена сборки; вторая — `RotDecode`, проверка RGBA8 на устройствах (1.3).

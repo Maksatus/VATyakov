@@ -6,9 +6,9 @@ namespace VATyakov.Editor
     {
         public static void Report(VatClip clip, int frame)
         {
-            string info = $"{clip.Name}: кадр {frame + 1}/{clip.FrameCount}";
+            string info = $"{clip.Name}: frame {frame + 1}/{clip.FrameCount}";
             if (EditorUtility.DisplayCancelableProgressBar("VAT bake", info, (float)frame / clip.FrameCount))
-                throw new VatBakeException("Бейк отменён.");
+                throw new VatBakeException("Bake cancelled.");
         }
 
         public static void Clear() => EditorUtility.ClearProgressBar();

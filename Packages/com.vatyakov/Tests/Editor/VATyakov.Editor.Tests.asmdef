@@ -4,6 +4,8 @@
     "references": [
         "VATyakov",
         "VATyakov.Editor",
+        "VATyakov.Editor.Alembic",
+        "Unity.Formats.Alembic.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],
@@ -20,6 +22,12 @@
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.formats.alembic",
+            "expression": "2.4.5",
+            "define": "VAT_ALEMBIC"
+        }
+    ],
     "noEngineReferences": false
 }

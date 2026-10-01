@@ -8,11 +8,11 @@ namespace VATyakov.Editor
     // VAT properties are baker data and stay hidden.
     sealed class VatSurfaceSection : IVatMaterialSection
     {
-        static readonly GUIContent BaseMapLabel = new GUIContent("Текстура", "Основная текстура и цвет, на который она умножается.");
+        static readonly GUIContent BaseMapLabel = new GUIContent("Base Map", "Base texture and the color it is multiplied by.");
 
         public string Key => "VATyakov.ShaderGUI.Surface";
 
-        public string Title => "Поверхность";
+        public string Title => "Surface";
 
         public void Draw(MaterialEditor editor, MaterialProperty[] properties)
         {
@@ -27,7 +27,7 @@ namespace VATyakov.Editor
             if (baseMap != null)
                 editor.TexturePropertySingleLine(BaseMapLabel, baseMap, baseColor);
             else if (baseColor != null)
-                editor.ShaderProperty(baseColor, "Цвет");
+                editor.ShaderProperty(baseColor, "Color");
         }
 
         static void DrawOthers(MaterialEditor editor, MaterialProperty[] properties, MaterialProperty baseMap, MaterialProperty baseColor)

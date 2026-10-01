@@ -25,7 +25,7 @@ namespace VATyakov.Editor
         {
             _flipped[vertex] = true;
             Count++;
-            First ??= $"вертекс {vertex}, клип '{clip}', кадр {frame}";
+            First ??= $"vertex {vertex}, clip '{clip}', frame {frame}";
         }
     }
 }

@@ -6,9 +6,9 @@ namespace VATyakov.Editor
     // Edit mode shows a static frame of the template (§1.6); playback in Play mode is the driver's job.
     static class VatFrameField
     {
-        static readonly GUIContent Label = new GUIContent("Кадр",
-            "Какой кадр показывает материал-шаблон. Дробное значение — смесь двух соседних кадров. " +
-            "В Play mode кадр выставляет скрипт.");
+        static readonly GUIContent Label = new GUIContent("Frame",
+            "Frame the template material shows. A fractional value blends two neighbouring frames. " +
+            "In Play mode a script sets the frame.");
 
         public static void Draw(Material material, VatClip clip)
         {
@@ -22,7 +22,7 @@ namespace VATyakov.Editor
 
         static void Write(Material material, Vector4 frame)
         {
-            Undo.RecordObject(material, "VAT: кадр");
+            Undo.RecordObject(material, "VAT: Frame");
             material.SetVector(VatShaderIds.Frame, frame);
             EditorUtility.SetDirty(material);
         }

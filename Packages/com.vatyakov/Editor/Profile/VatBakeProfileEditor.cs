@@ -13,8 +13,9 @@ namespace VATyakov.Editor
             var layout = root.CreateContainer<VatProfileLayoutContainer>();
 
             yield return new VatProfileChangeController(context, root);
-            yield return new VatBoundFieldsController<VatSourceFieldsContainer>(context, layout.Source);
+            yield return new VatSourceFieldsController(context, layout.Source);
             yield return new VatEstimateController(context, layout.Source);
+            yield return new VatLoopHintController(context, layout.Source);
             yield return new VatProblemsController(context, layout.Actions);
             yield return new VatBakeButtonController(context, layout.Actions);
             yield return new VatResultController(context, layout.Result);
