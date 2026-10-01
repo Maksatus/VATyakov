@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./Library/**)",
+      "Read(./Temp/**)",
+      "Read(./Logs/**)",
+      "Read(./obj/**)",
+      "Read(./UserSettings/**)",
+      "Read(./ProfilerCaptures/**)",
+      "Read(./.idea/**)",
+      "Read(./*.csproj)",
+      "Read(./*.sln)"
+    ]
+  }
+}
