@@ -9,6 +9,7 @@ namespace VATyakov.Editor
         private readonly Button _button;
         private readonly Image _icon = new Image().WithClass("vat-link__icon");
         private readonly Label _name = new Label().WithClass("vat-link__name");
+
         private Object _target;
 
         public VatObjectLink(string label, string hint = null)

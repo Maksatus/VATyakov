@@ -16,25 +16,25 @@ namespace VATyakov
             return RoundFrames(length, fps) + 1;
         }
 
-        public static int FrameCount(float length, float fps, bool loop)
+        public static int FrameCount(float length, float fps, bool isLooping)
         {
-            return loop ? LoopFrameCount(length, fps) : OneShotFrameCount(length, fps);
+            return isLooping ? LoopFrameCount(length, fps) : OneShotFrameCount(length, fps);
         }
 
-        public static float FrameRate(int frameCount, float length, bool loop)
+        public static float FrameRate(int frameCount, float length, bool isLooping)
         {
-            return (float)(Intervals(frameCount, loop) / (double)length);
+            return (float)(Intervals(frameCount, isLooping) / (double)length);
         }
 
-        public static double FrameTime(int frame, int frameCount, float length, bool loop)
+        public static double FrameTime(int frame, int frameCount, float length, bool isLooping)
         {
-            var intervals = Intervals(frameCount, loop);
+            var intervals = Intervals(frameCount, isLooping);
             return intervals > 0 ? frame * (double)length / intervals : 0.0;
         }
 
-        private static int Intervals(int frameCount, bool loop)
+        private static int Intervals(int frameCount, bool isLooping)
         {
-            return loop ? frameCount : frameCount - 1;
+            return isLooping ? frameCount : frameCount - 1;
         }
 
         private static int RoundFrames(float length, float fps)

@@ -441,7 +441,7 @@ MonoBehaviour:
   _alembic: {fileID: 503713711}
   _vat: {fileID: 1445227753}
   _clipIndex: 0
-  _step: 1
+  _isStepping: 1
   _frame: 0
   _speed: 1
 --- !u!4 &1123490751

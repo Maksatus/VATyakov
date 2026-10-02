@@ -10,12 +10,7 @@ namespace VATyakov.Editor
         public static VisualElement Root()
         {
             var root = new VisualElement().WithClass("vat-root");
-            var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(StyleSheetPath);
-            if (styleSheet != null)
-            {
-                root.styleSheets.Add(styleSheet);
-            }
-
+            root.styleSheets.Add(AssetDatabase.LoadAssetAtPath<StyleSheet>(StyleSheetPath));
             return root;
         }
 

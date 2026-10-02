@@ -24,7 +24,7 @@
 - ключи `_VAT_BONES_1` и `_VAT_BONES_2`; 1 influence — ещё и для дальних LOD;
 - `_VAT_BONES_4` — только desktop: на Mali 4 influences спиллят регистры. На мобильных сборках вырезается.
 
-**Бейкер `SkinnedFrameSource`:**
+**Бейкер `VatSkinnedFrameSource`:**
 - **Копия для бейка, один раз перед всеми клипами:** `animator.enabled = true`, `runtimeAnimatorController = null`, `AnimatorUtility.DeoptimizeTransformHierarchy`.
 - **Перед каждым клипом — сброс:** все трансформы из снимка позы по умолчанию и веса блендшейпов, иначе результат зависит от порядка клипов.
 - **Generic и Humanoid:** PlayableGraph, `applyRootMotion = false`, `SetApplyFootIK(false)` явно (у нового playable foot IK включён):

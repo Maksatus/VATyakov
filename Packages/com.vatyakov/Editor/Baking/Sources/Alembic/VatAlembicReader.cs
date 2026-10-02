@@ -6,8 +6,6 @@ namespace VATyakov.Editor
 {
     internal sealed class VatAlembicReader
     {
-        private static readonly Vector4 _missingTangent = new(0f, 0f, 0f, 1f);
-
         private readonly MeshFilter[] _nodes;
         private readonly List<Vector3> _positions = new();
         private readonly List<Vector3> _normals = new();
@@ -44,13 +42,13 @@ namespace VATyakov.Editor
 
         private void Write(VatRootSpace space, VatFrame frame, int offset)
         {
-            var normals = _normals.Count == _positions.Count;
-            var tangents = _tangents.Count == _positions.Count;
+            var hasNormals = _normals.Count == _positions.Count;
+            var hasTangents = _tangents.Count == _positions.Count;
             for (var i = 0; i < _positions.Count; i++)
             {
                 frame.Positions[offset + i] = space.Point(_positions[i]);
-                frame.Normals[offset + i] = normals ? space.Normal(_normals[i]) : Vector3.zero;
-                frame.Tangents[offset + i] = tangents ? space.Tangent(_tangents[i]) : _missingTangent;
+                frame.Normals[offset + i] = hasNormals ? space.Normal(_normals[i]) : VatFrame.MissingNormal;
+                frame.Tangents[offset + i] = hasTangents ? space.Tangent(_tangents[i]) : VatFrame.MissingTangent;
             }
         }
     }

@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatBakeButtonController : IController
+    internal sealed class VatBakeButtonController : IVatController
     {
         private readonly VatProfileContext _context;
         private readonly VatBakeButtonContainer _container;
@@ -18,16 +18,16 @@ namespace VATyakov.Editor
         public void Deactivate()
         {
             Model.HasProblems.Changed -= OnStateChanged;
-            Model.EstimateFits.Changed -= OnStateChanged;
-            _container.Button.clicked -= Bake;
+            Model.IsEstimateWithinLimits.Changed -= OnStateChanged;
+            _container.Button.clicked -= OnBakeClicked;
             _container.DestroyView();
         }
 
         public void Activate()
         {
             Model.HasProblems.Changed += OnStateChanged;
-            Model.EstimateFits.Changed += OnStateChanged;
-            _container.Button.clicked += Bake;
+            Model.IsEstimateWithinLimits.Changed += OnStateChanged;
+            _container.Button.clicked += OnBakeClicked;
             Refresh();
         }
 
@@ -38,10 +38,10 @@ namespace VATyakov.Editor
 
         private void Refresh()
         {
-            _container.Button.SetEnabled(!Model.HasProblems.Value && Model.EstimateFits.Value);
+            _container.Button.SetEnabled(!Model.HasProblems.Value && Model.IsEstimateWithinLimits.Value);
         }
 
-        private void Bake()
+        private void OnBakeClicked()
         {
             VatBakeDialog.Run(() => VatBaker.Bake(_context.Profile));
             _context.Refresh();

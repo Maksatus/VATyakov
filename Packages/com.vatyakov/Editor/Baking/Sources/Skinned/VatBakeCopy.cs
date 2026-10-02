@@ -9,6 +9,8 @@ namespace VATyakov.Editor
 {
     internal sealed class VatBakeCopy : IDisposable
     {
+        public const string BakeName = "VatBake";
+
         private Scene _scene;
 
         public GameObject Root { get; private set; }
@@ -70,7 +72,7 @@ namespace VATyakov.Editor
 
         private Transform NewHolder()
         {
-            var holder = EditorUtility.CreateGameObjectWithHideFlags("VatBake", HideFlags.HideAndDontSave);
+            var holder = EditorUtility.CreateGameObjectWithHideFlags(BakeName, HideFlags.HideAndDontSave);
             SceneManager.MoveGameObjectToScene(holder, _scene);
             return holder.transform;
         }

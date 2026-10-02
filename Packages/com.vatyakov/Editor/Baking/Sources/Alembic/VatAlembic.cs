@@ -11,7 +11,7 @@ namespace VATyakov.Editor
 
         public static IVatFrameSource Open(GameObject alembic)
         {
-            return new AlembicFrameSource(alembic);
+            return new VatAlembicFrameSource(alembic);
         }
 #else
         public static bool IsInstalled => false;

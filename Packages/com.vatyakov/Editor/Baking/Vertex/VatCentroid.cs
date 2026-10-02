@@ -9,15 +9,15 @@ namespace VATyakov.Editor
             var x = 0.0;
             var y = 0.0;
             var z = 0.0;
-            foreach (var p in positions)
+            foreach (var position in positions)
             {
-                x += p.x;
-                y += p.y;
-                z += p.z;
+                x += position.x;
+                y += position.y;
+                z += position.z;
             }
 
-            var n = positions.Length;
-            return new Vector3((float)(x / n), (float)(y / n), (float)(z / n));
+            var count = positions.Length;
+            return new Vector3((float)(x / count), (float)(y / count), (float)(z / count));
         }
     }
 }

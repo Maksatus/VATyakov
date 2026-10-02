@@ -5,6 +5,12 @@ namespace VATyakov.Editor
 {
     internal static class VatAssetPath
     {
+        public const string AssetSuffix = "_vat";
+        public const string MeshSuffix = "_mesh";
+        public const string PositionSuffix = "_pos";
+        public const string RotationSuffix = "_rot";
+        public const string DriftSuffix = "_drift";
+
         public static string Resolve(VatBakeProfile profile, string requested)
         {
             if (profile.Asset != null)
@@ -24,7 +30,7 @@ namespace VATyakov.Editor
             }
 
             var folder = Path.GetDirectoryName(profilePath)?.Replace('\\', '/');
-            return AssetDatabase.GenerateUniqueAssetPath($"{folder}/{profile.name}_vat.asset");
+            return AssetDatabase.GenerateUniqueAssetPath($"{folder}/{profile.name}{AssetSuffix}.asset");
         }
     }
 }

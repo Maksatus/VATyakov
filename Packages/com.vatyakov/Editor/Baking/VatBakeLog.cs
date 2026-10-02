@@ -1,4 +1,4 @@
-using System.Globalization;
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -6,9 +6,13 @@ namespace VATyakov.Editor
 {
     internal static class VatBakeLog
     {
+        private const float MillimetersPerMeter = 1000f;
+        private const string ChiralityHint =
+            "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
+
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
-            Debug.Log(Describe(asset) + Positions(result) + Stats(result.Stats), asset);
+            Debug.Log($"{Describe(asset)}{Positions(result)}{Stats(result.Stats)}", asset);
             if (result.Chirality.Count > 0)
             {
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
@@ -23,35 +27,33 @@ namespace VATyakov.Editor
         private static string Describe(VatAsset asset)
         {
             var info = asset.Layout;
-            return string.Format(CultureInfo.InvariantCulture,
-                "VAT '{0}': {1} vertices, {2}; textures {3}×{4} ({5} blocks), {6}",
-                asset.name, info.Elements, string.Join(", ", asset.Clips.Select(Describe)), info.Width, info.Height, info.Blocks,
-                VatText.Megabytes(info));
+            var clips = string.Join(", ", asset.Clips.Select(Describe));
+            var textures = FormattableString.Invariant($"textures {info.Width}×{info.Height} ({info.Blocks} blocks), {VatText.Megabytes(info)}");
+            return FormattableString.Invariant($"VAT '{asset.name}': {info.Elements} vertices, {clips}; {textures}");
         }
 
         private static string Describe(VatClip clip)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                "clip '{0}': rows {1}–{2}, {3:0.###} fps", clip.Name, clip.StartRow, clip.StartRow + clip.FrameCount - 1, clip.FrameRate);
+            var lastRow = clip.StartRow + clip.FrameCount - 1;
+            return FormattableString.Invariant($"clip '{clip.Name}': rows {clip.StartRow}–{lastRow}, {clip.FrameRate:0.###} fps");
         }
 
         private static string Positions(VatBakeResult result)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                "; centroid travels {0:0.###} m, max |Δ| {1:0.###} m, max half error {2:0.###} mm",
-                result.Precision.MaxDrift, result.MaxOffset, result.Precision.Error * 1000f);
+            var error = result.Precision.Error * MillimetersPerMeter;
+            return FormattableString.Invariant(
+                $"; centroid travels {result.Precision.MaxDrift:0.###} m, max |Δ| {result.MaxOffset:0.###} m, max half error {error:0.###} mm");
         }
 
         private static string Stats(VatQuantizationStats stats)
         {
-            return string.Format(CultureInfo.InvariantCulture,
-                ", max rotation error {0:0.###}°, degenerate tangents {1}", stats.MaxRotationError, stats.DegenerateTangents);
+            return FormattableString.Invariant($", max rotation error {stats.MaxRotationError:0.###}°, degenerate tangents {stats.DegenerateTangents}");
         }
 
         private static string Chirality(VatAsset asset, VatChirality chirality)
         {
-            return $"VAT '{asset.name}': {chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First}). " +
-            "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
+            var flipped = FormattableString.Invariant($"{chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First})");
+            return $"VAT '{asset.name}': {flipped}. {ChiralityHint}";
         }
     }
 }

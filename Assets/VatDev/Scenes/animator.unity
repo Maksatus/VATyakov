@@ -370,7 +370,7 @@ MonoBehaviour:
   _prefab: {fileID: 1578773009419586523, guid: 1e76e7c417c321d4badaae6a7880388e, type: 3}
   _count: 100
   _spacing: 1.5
-  _flash: {r: 1, g: 0.15, b: 0.1, a: 1}
+  _flashColor: {r: 1, g: 0.15, b: 0.1, a: 1}
   _flashTime: 0.15
 --- !u!4 &1637088389
 Transform:

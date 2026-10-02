@@ -6,10 +6,10 @@ namespace VATyakov.Editor
     {
         public static VatBakeProfile Find(VatAsset asset)
         {
-            foreach (var guid in AssetDatabase.FindAssets("t:" + nameof(VatBakeProfile)))
+            foreach (var guid in AssetDatabase.FindAssets($"t:{nameof(VatBakeProfile)}"))
             {
                 var profile = Load(guid);
-                if (profile != null && profile.Asset == asset)
+                if (profile.Asset == asset)
                 {
                     return profile;
                 }

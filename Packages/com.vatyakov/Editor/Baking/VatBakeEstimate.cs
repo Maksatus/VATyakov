@@ -10,7 +10,7 @@ namespace VATyakov.Editor
         public readonly string Error;
 
         public bool IsEmpty => Layout == null && Error == null;
-        public bool Fits => Error == null;
+        public bool IsWithinLimits => Error == null;
 
         private VatBakeEstimate(VatLayout layout, string error)
         {
@@ -41,25 +41,25 @@ namespace VATyakov.Editor
                 }
             }
 
-            var has = profile.Source != null && profile.Source.sharedMesh != null && clips.Count > 0;
-            vertexCount = has ? profile.Source.sharedMesh.vertexCount : 0;
-            return has;
+            var hasSource = profile.Source != null && profile.Source.sharedMesh != null && clips.Count > 0;
+            vertexCount = hasSource ? profile.Source.sharedMesh.vertexCount : 0;
+            return hasSource;
         }
 
         private static bool TryGetAlembic(VatBakeProfile profile, out int vertexCount, out List<VatSourceClip> clips)
         {
             var probe = VatAlembic.IsInstalled && profile.Alembic != null ? VatAlembicProbe.For(profile.Alembic) : null;
-            var has = probe != null && probe.Problem == null;
-            vertexCount = has ? probe.VertexCount : 0;
-            clips = has ? new List<VatSourceClip> { probe.Clip } : null;
-            return has;
+            var hasSource = probe != null && probe.Problem == null;
+            vertexCount = hasSource ? probe.VertexCount : 0;
+            clips = hasSource ? new List<VatSourceClip> { probe.Clip } : null;
+            return hasSource;
         }
 
         private static VatBakeEstimate Compute(VatBakeProfile profile, int vertexCount, List<VatSourceClip> clips)
         {
             try
             {
-                return new VatBakeEstimate(VatLayout.ForVertex(vertexCount, VatClipRequest.From(clips, profile.Fps, profile.Loop)), null);
+                return new VatBakeEstimate(VatLayout.ForVertex(vertexCount, VatClipRequest.From(clips, profile.Fps, profile.IsLooping)), null);
             }
             catch (VatBakeException e)
             {

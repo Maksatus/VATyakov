@@ -6,28 +6,41 @@ namespace VATyakov.Editor
     [StructLayout(LayoutKind.Sequential)]
     internal struct VatVertexStream1
     {
-        public ushort NormalX, NormalY, NormalZ, NormalW;
-        public ushort TangentX, TangentY, TangentZ, TangentW;
-        public ushort U, V;
+        public ushort NormalX;
+        public ushort NormalY;
+        public ushort NormalZ;
+        public ushort NormalW;
+        public ushort TangentX;
+        public ushort TangentY;
+        public ushort TangentZ;
+        public ushort TangentW;
+        public ushort U;
+        public ushort V;
 
         public static VatVertexStream1[] Build(VatRestPose rest, Vector2[] uv)
         {
             var data = new VatVertexStream1[rest.Positions.Length];
-            for (var v = 0; v < data.Length; v++)
+            for (var vertex = 0; vertex < data.Length; vertex++)
             {
-                data[v] = From(rest.Normals[v], rest.Tangents[v], uv != null ? uv[v] : Vector2.zero);
+                data[vertex] = From(rest.Normals[vertex], rest.Tangents[vertex], uv != null ? uv[vertex] : Vector2.zero);
             }
 
             return data;
         }
 
-        private static VatVertexStream1 From(Vector3 n, Vector4 t, Vector2 uv)
+        private static VatVertexStream1 From(Vector3 normal, Vector4 tangent, Vector2 uv)
         {
             return new VatVertexStream1
             {
-                NormalX = Half(n.x), NormalY = Half(n.y), NormalZ = Half(n.z),
-                TangentX = Half(t.x), TangentY = Half(t.y), TangentZ = Half(t.z), TangentW = Half(t.w < 0f ? -1f : 1f),
-                U = Half(uv.x), V = Half(uv.y),
+                NormalX = Half(normal.x),
+                NormalY = Half(normal.y),
+                NormalZ = Half(normal.z),
+                TangentX = Half(tangent.x),
+                TangentY = Half(tangent.y),
+                TangentZ = Half(tangent.z),
+                TangentW = Half(tangent.w < 0f ? -1f : 1f),
+                U = Half(uv.x),
+                V = Half(uv.y),
             };
         }
 

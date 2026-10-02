@@ -89,7 +89,7 @@ namespace VATyakov.Editor
 
         private static Material[] Slots(Material material, int subMeshCount)
         {
-            var slots = new Material[Mathf.Max(1, subMeshCount)];
+            var slots = new Material[subMeshCount];
             for (var i = 0; i < slots.Length; i++)
             {
                 slots[i] = material;

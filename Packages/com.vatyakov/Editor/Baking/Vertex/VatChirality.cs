@@ -1,3 +1,5 @@
+using System;
+
 namespace VATyakov.Editor
 {
     internal sealed class VatChirality
@@ -14,11 +16,11 @@ namespace VATyakov.Editor
 
         public void Check(VatRestPose rest, VatFrame data, string clip, int frame)
         {
-            for (var v = 0; v < _flipped.Length; v++)
+            for (var vertex = 0; vertex < _flipped.Length; vertex++)
             {
-                if (!_flipped[v] && (data.Tangents[v].w < 0f) != (rest.Tangents[v].w < 0f))
+                if (!_flipped[vertex] && (data.Tangents[vertex].w < 0f) != (rest.Tangents[vertex].w < 0f))
                 {
-                    Flip(v, clip, frame);
+                    Flip(vertex, clip, frame);
                 }
             }
         }
@@ -27,7 +29,7 @@ namespace VATyakov.Editor
         {
             _flipped[vertex] = true;
             Count++;
-            First ??= $"vertex {vertex}, clip '{clip}', frame {frame}";
+            First ??= FormattableString.Invariant($"vertex {vertex}, clip '{clip}', frame {frame}");
         }
     }
 }

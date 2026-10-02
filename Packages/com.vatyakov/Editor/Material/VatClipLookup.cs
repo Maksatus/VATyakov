@@ -4,11 +4,12 @@ namespace VATyakov.Editor
 {
     internal static class VatClipLookup
     {
-        public static int Find(VatAsset asset, Vector4 frame)
+        public static bool TryFind(VatAsset asset, Vector4 frame, out int clipIndex)
         {
+            clipIndex = default;
             if (!float.IsFinite(frame.x))
             {
-                return -1;
+                return false;
             }
 
             var row = (int)frame.x;
@@ -16,11 +17,12 @@ namespace VATyakov.Editor
             {
                 if (row >= asset.Clips[i].StartRow && row < asset.Clips[i].StartRow + asset.Clips[i].FrameCount)
                 {
-                    return i;
+                    clipIndex = i;
+                    return true;
                 }
             }
 
-            return -1;
+            return false;
         }
     }
 }

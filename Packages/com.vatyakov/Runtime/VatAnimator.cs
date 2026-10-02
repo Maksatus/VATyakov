@@ -199,8 +199,8 @@ namespace VATyakov
                 return;
             }
 
-            var index = string.IsNullOrEmpty(_clip) ? 0 : _asset.FindClip(_clip);
-            if (index < 0)
+            var index = 0;
+            if (!string.IsNullOrEmpty(_clip) && !_asset.TryFindClip(_clip, out index))
             {
                 LogMissingClip(_clip);
                 index = 0;
@@ -236,8 +236,7 @@ namespace VATyakov
                 return false;
             }
 
-            var index = _asset.FindClip(clipName);
-            if (index < 0)
+            if (!_asset.TryFindClip(clipName, out var index))
             {
                 LogMissingClip(clipName);
                 return false;
@@ -257,7 +256,7 @@ namespace VATyakov
 
             if ((uint)clipIndex >= (uint)_asset.Clips.Count)
             {
-                Debug.LogError($"{name}: VAT asset '{_asset.name}' has {_asset.Clips.Count} clip(s), no clip {clipIndex}.", this);
+                Debug.LogError(FormattableString.Invariant($"{name}: VAT asset '{_asset.name}' has {_asset.Clips.Count} clip(s), no clip {clipIndex}."), this);
                 return false;
             }
 

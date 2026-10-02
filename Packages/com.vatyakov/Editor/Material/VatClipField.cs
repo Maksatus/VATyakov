@@ -6,6 +6,8 @@ namespace VATyakov.Editor
 {
     internal static class VatClipField
     {
+        private const int NoSelection = -1;
+
         private static readonly GUIContent _label = new("Clip",
             "Clip the material shows in edit mode. A rebake keeps it while a clip with this name exists. " +
             "In Play mode a script chooses the clip.");
@@ -13,14 +15,15 @@ namespace VATyakov.Editor
         public static void Draw(Material material, VatMaterialBinding binding)
         {
             var clips = binding.Asset.Clips;
+            var selected = binding.HasClip ? binding.ClipIndex : NoSelection;
             EditorGUI.BeginChangeCheck();
-            var index = EditorGUILayout.Popup(_label, binding.ClipIndex, clips.Select(c => new GUIContent(c.Name)).ToArray());
-            if (EditorGUI.EndChangeCheck() && index >= 0)
+            var clipIndex = EditorGUILayout.Popup(_label, selected, clips.Select(clip => new GUIContent(clip.Name)).ToArray());
+            if (EditorGUI.EndChangeCheck())
             {
-                Write(material, binding.Asset, index);
+                Write(material, binding.Asset, clipIndex);
             }
 
-            if (binding.ClipIndex >= 0)
+            if (binding.HasClip)
             {
                 EditorGUILayout.LabelField(" ", VatText.ClipSummary(clips[binding.ClipIndex]), EditorStyles.miniLabel);
             }
@@ -28,7 +31,7 @@ namespace VATyakov.Editor
 
         private static void Write(Material material, VatAsset asset, int clipIndex)
         {
-            Undo.RecordObject(material, "VAT: Clip");
+            Undo.RecordObject(material, VatUndo.Clip);
             asset.ApplyTo(material, clipIndex);
             EditorUtility.SetDirty(material);
         }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace VATyakov
 {
@@ -16,65 +17,66 @@ namespace VATyakov
         private float _length;
         [SerializeField]
         private float _frameRate;
+        [FormerlySerializedAs("_loop")]
         [SerializeField]
-        private bool _loop;
+        private bool _isLooping;
 
         public string Name => _name;
         public int StartRow => _startRow;
         public int FrameCount => _frameCount;
         public float Length => _length;
         public float FrameRate => _frameRate;
-        public bool Loop => _loop;
+        public bool IsLooping => _isLooping;
 
-        public VatClip(string name, int startRow, int frameCount, float length, float frameRate, bool loop)
+        public VatClip(string name, int startRow, int frameCount, float length, float frameRate, bool isLooping)
         {
             _name = name;
             _startRow = startRow;
             _frameCount = frameCount;
             _length = length;
             _frameRate = frameRate;
-            _loop = loop;
+            _isLooping = isLooping;
         }
 
         public double FrameTime(int frame)
         {
-            return VatTiming.FrameTime(frame, _frameCount, _length, _loop);
+            return VatTiming.FrameTime(frame, _frameCount, _length, _isLooping);
         }
 
         public double Wrap(double position)
         {
-            if (!_loop)
+            if (!_isLooping)
             {
                 return Math.Min(Math.Max(position, 0.0), _frameCount - 1);
             }
 
-            var u = position - _frameCount * Math.Floor(position / _frameCount);
-            return u < _frameCount ? u : 0.0;
+            var wrapped = position - _frameCount * Math.Floor(position / _frameCount);
+            return wrapped < _frameCount ? wrapped : 0.0;
         }
 
         public float NormalizedTime(double position)
         {
-            var u = Wrap(position);
-            if (!_loop)
+            var wrapped = Wrap(position);
+            if (!_isLooping)
             {
-                return _frameCount > 1 ? (float)(u / (_frameCount - 1)) : 1f;
+                return _frameCount > 1 ? (float)(wrapped / (_frameCount - 1)) : 1f;
             }
 
-            var phase = (float)(u / _frameCount);
+            var phase = (float)(wrapped / _frameCount);
             return phase < 1f ? phase : 0f;
         }
 
         public double Position(float normalizedTime)
         {
-            return normalizedTime * (double)(_loop ? _frameCount : _frameCount - 1);
+            return normalizedTime * (double)(_isLooping ? _frameCount : _frameCount - 1);
         }
 
         public Vector4 Frame(double position)
         {
-            var u = Wrap(position);
-            var f0 = Math.Min((int)u, _loop ? _frameCount - 1 : Math.Max(_frameCount - 2, 0));
-            var f1 = f0 + 1 < _frameCount ? f0 + 1 : _loop ? 0 : f0;
-            return new Vector4(_startRow + f0, _startRow + f1, (float)(u - f0), 0f);
+            var wrapped = Wrap(position);
+            var frame0 = Math.Min((int)wrapped, _isLooping ? _frameCount - 1 : Math.Max(_frameCount - 2, 0));
+            var frame1 = frame0 + 1 < _frameCount ? frame0 + 1 : _isLooping ? 0 : frame0;
+            return new Vector4(_startRow + frame0, _startRow + frame1, (float)(wrapped - frame0), 0f);
         }
     }
 }

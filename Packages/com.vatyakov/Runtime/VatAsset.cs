@@ -48,25 +48,27 @@ namespace VATyakov
             return error == null;
         }
 
-        public int FindClip(string clipName)
+        public bool TryFindClip(string clipName, out int clipIndex)
         {
             for (var i = 0; i < _clips.Length; i++)
             {
                 if (_clips[i].Name == clipName)
                 {
-                    return i;
+                    clipIndex = i;
+                    return true;
                 }
             }
 
-            return -1;
+            clipIndex = default;
+            return false;
         }
 
         public void ApplyTo(Material material, int clipIndex)
         {
             RequireApplicable(material, clipIndex);
-            material.SetTexture(VatShaderIds.PosTex, _positionTexture);
-            material.SetTexture(VatShaderIds.RotTex, _rotationTexture);
-            material.SetTexture(VatShaderIds.DriftTex, _driftTexture);
+            material.SetTexture(VatShaderIds.PositionTexture, _positionTexture);
+            material.SetTexture(VatShaderIds.RotationTexture, _rotationTexture);
+            material.SetTexture(VatShaderIds.DriftTexture, _driftTexture);
             material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
             material.SetVector(VatShaderIds.Frame, _clips[clipIndex].Frame(0.0));
         }
@@ -99,13 +101,15 @@ namespace VATyakov
 
             if ((uint)clipIndex >= (uint)_clips.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(clipIndex), clipIndex, $"VAT asset '{name}' has {_clips.Length} clip(s).");
+                throw new ArgumentOutOfRangeException(nameof(clipIndex), clipIndex,
+                    FormattableString.Invariant($"VAT asset '{name}' has {_clips.Length} clip(s)."));
             }
         }
 
         private string FormatError()
         {
-            return $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.";
+            return FormattableString.Invariant(
+                $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.");
         }
 
         private string IncompleteError()

@@ -4,7 +4,7 @@ namespace VATyakov.Editor
 {
     internal static class VatLoopGap
     {
-        public const float MaxLoopGap = 1e-3f;
+        public const float Max = 1e-3f;
 
         public static float Measure(IVatFrameSource source, int clip)
         {
@@ -13,9 +13,9 @@ namespace VATyakov.Editor
             source.Sample(clip, 0.0, start);
             source.Sample(clip, source.Clips[clip].Length, end);
             var gap = 0f;
-            for (var v = 0; v < start.Positions.Length; v++)
+            for (var vertex = 0; vertex < start.Positions.Length; vertex++)
             {
-                gap = Mathf.Max(gap, Vector3.Distance(start.Positions[v], end.Positions[v]));
+                gap = Mathf.Max(gap, Vector3.Distance(start.Positions[vertex], end.Positions[vertex]));
             }
 
             return gap;

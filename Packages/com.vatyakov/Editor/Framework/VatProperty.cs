@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace VATyakov.Editor
 {
-    internal sealed class Property<T>
+    internal sealed class VatProperty<T>
     {
         private T _value;
 
@@ -24,7 +24,7 @@ namespace VATyakov.Editor
             }
         }
 
-        public Property(T value = default)
+        public VatProperty(T value = default)
         {
             _value = value;
         }

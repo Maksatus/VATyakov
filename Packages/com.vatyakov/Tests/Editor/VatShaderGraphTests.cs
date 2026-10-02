@@ -22,12 +22,7 @@ namespace VATyakov.Tests
         {
             AssertCompiles(HalfParent);
 
-            var code = GeneratedCode(HalfParent);
-            if (code == null)
-            {
-                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
-            }
-
+            var code = RequireGeneratedCode(HalfParent);
             StringAssert.Contains("VatVertexPosition_float(", code);
             StringAssert.DoesNotContain("VatVertexPosition_half", code);
             StringAssert.Contains("float4 _VatFrame;", code);
@@ -43,16 +38,11 @@ namespace VATyakov.Tests
             AssertCompiles(LitSample);
             Assert.AreEqual(VatBaker.DefaultShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitSample).name, "default template shader");
 
-            var code = GeneratedCode(LitSample);
-            if (code == null)
-            {
-                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
-            }
-
+            var code = RequireGeneratedCode(LitSample);
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
             StringAssert.Contains("TEXTURE2D(_VatRotTex)", code);
-            StringAssert.Contains("TEXTURE2D(_VatDriftTex)", code, "1.5: drift is always sampled");
+            StringAssert.Contains("TEXTURE2D(_VatDriftTex)", code, "drift is always sampled");
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 
@@ -60,14 +50,9 @@ namespace VATyakov.Tests
         public void TriplanarSample_CompilesWithoutUv()
         {
             AssertCompiles(TriplanarSample);
-            Assert.AreEqual(VatBaker.TriplanarShaderName, AssetDatabase.LoadAssetAtPath<Shader>(TriplanarSample).name);
+            Assert.AreEqual(VatBaker.TriplanarShaderName, AssetDatabase.LoadAssetAtPath<Shader>(TriplanarSample).name, "triplanar template shader");
 
-            var code = GeneratedCode(TriplanarSample);
-            if (code == null)
-            {
-                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
-            }
-
+            var code = RequireGeneratedCode(TriplanarSample);
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
             StringAssert.Contains("Triplanar", code);
@@ -94,10 +79,10 @@ namespace VATyakov.Tests
                 }
 
                 var errors = ShaderUtil.GetShaderMessages(shader)
-                    .Where(m => m.severity == ShaderCompilerMessageSeverity.Error)
-                    .Select(m => $"{m.message} (line {m.line})").ToArray();
+                    .Where(message => message.severity == ShaderCompilerMessageSeverity.Error)
+                    .Select(message => $"{message.message} (line {message.line})").ToArray();
                 Assert.IsEmpty(errors, string.Join("\n", errors));
-                Assert.IsFalse(ShaderUtil.ShaderHasError(shader));
+                Assert.IsFalse(ShaderUtil.ShaderHasError(shader), $"{path} has errors");
             }
             finally
             {
@@ -105,13 +90,24 @@ namespace VATyakov.Tests
             }
         }
 
+        private static string RequireGeneratedCode(string path)
+        {
+            var code = GeneratedCode(path);
+            if (code == null)
+            {
+                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+            }
+
+            return code;
+        }
+
         private static string GeneratedCode(string path)
         {
             var importer = AppDomain.CurrentDomain.GetAssemblies()
-                .Select(a => a.GetType("UnityEditor.ShaderGraph.ShaderGraphImporter"))
-                .FirstOrDefault(t => t != null);
+                .Select(assembly => assembly.GetType("UnityEditor.ShaderGraph.ShaderGraphImporter"))
+                .FirstOrDefault(type => type != null);
             var method = importer?.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
-                .FirstOrDefault(m => m.Name == "GetShaderText" && m.GetParameters().Length == 4);
+                .FirstOrDefault(candidate => candidate.Name == "GetShaderText" && candidate.GetParameters().Length == 4);
             if (method == null)
             {
                 return null;

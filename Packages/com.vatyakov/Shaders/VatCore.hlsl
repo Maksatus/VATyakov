@@ -1,6 +1,16 @@
 #ifndef VATYAKOV_CORE_INCLUDED
 #define VATYAKOV_CORE_INCLUDED
 
+#define VAT_BYTE_MAX 255.0
+#define VAT_FIELD_MAX 1023.0
+#define VAT_MAX_COMPONENT 0.70710678
+#define VAT_FIELD_LOW_BITS 8u
+#define VAT_HIGH_BITS_MASK 3u
+#define VAT_HIGH_BITS_A_SHIFT 0u
+#define VAT_HIGH_BITS_B_SHIFT 2u
+#define VAT_HIGH_BITS_C_SHIFT 4u
+#define VAT_INDEX_SHIFT 6u
+
 int2 VatTexel(uint element, uint width, uint totalRows, uint row)
 {
     uint block = element / width;
@@ -19,20 +29,29 @@ float3 VatDrift(float3 hi, float3 lo)
 
 uint4 VatRotationBytes(float4 texel)
 {
-    return (uint4)round(texel * 255.0);
+    return (uint4)round(texel * VAT_BYTE_MAX);
 }
 
-uint4 VatRotationFields(uint4 b)
+uint VatRotationField(uint low, uint highBits, uint shift)
 {
-    return uint4(b.r | (b.a & 3u) << 8, b.g | (b.a >> 2 & 3u) << 8, b.b | (b.a >> 4 & 3u) << 8, b.a >> 6);
+    return low | (highBits >> shift & VAT_HIGH_BITS_MASK) << VAT_FIELD_LOW_BITS;
+}
+
+uint4 VatRotationFields(uint4 bytes)
+{
+    return uint4(VatRotationField(bytes.r, bytes.a, VAT_HIGH_BITS_A_SHIFT), VatRotationField(bytes.g, bytes.a, VAT_HIGH_BITS_B_SHIFT),
+        VatRotationField(bytes.b, bytes.a, VAT_HIGH_BITS_C_SHIFT), bytes.a >> VAT_INDEX_SHIFT);
 }
 
 float4 VatDecodeRotation(float4 texel)
 {
-    uint4 f = VatRotationFields(VatRotationBytes(texel));
-    float3 abc = ((float3)f.xyz * (2.0 / 1023.0) - 1.0) * 0.70710678;
-    float m = sqrt(saturate(1.0 - dot(abc, abc)));
-    return f.w == 0u ? float4(m, abc) : f.w == 1u ? float4(abc.x, m, abc.yz) : f.w == 2u ? float4(abc.xy, m, abc.z) : float4(abc, m);
+    uint4 fields = VatRotationFields(VatRotationBytes(texel));
+    float3 smallest = ((float3)fields.xyz * (2.0 / VAT_FIELD_MAX) - 1.0) * VAT_MAX_COMPONENT;
+    float largest = sqrt(1.0 - dot(smallest, smallest));
+    return fields.w == 0u ? float4(largest, smallest)
+        : fields.w == 1u ? float4(smallest.x, largest, smallest.yz)
+        : fields.w == 2u ? float4(smallest.xy, largest, smallest.z)
+        : float4(smallest, largest);
 }
 
 float4 VatNlerp(float4 q0, float4 q1, float t)

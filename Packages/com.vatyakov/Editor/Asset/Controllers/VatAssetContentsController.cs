@@ -2,14 +2,14 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAssetContentsController : IController
+    internal sealed class VatAssetContentsController : IVatController
     {
-        private readonly VatAsset _asset;
+        private readonly VatAssetContext _context;
         private readonly VatAssetContentsContainer _container;
 
-        public VatAssetContentsController(VatAsset asset, VisualElement parent)
+        public VatAssetContentsController(VatAssetContext context, VisualElement parent)
         {
-            _asset = asset;
+            _context = context;
             _container = parent.CreateContainer<VatAssetContentsContainer>();
         }
 
@@ -20,7 +20,11 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            _container.Show(_asset);
+            var asset = _context.Asset;
+            _container.Mesh.Set(asset.Mesh);
+            _container.PositionTexture.Set(asset.PositionTexture);
+            _container.RotationTexture.Set(asset.RotationTexture);
+            _container.DriftTexture.Set(asset.DriftTexture);
         }
     }
 }

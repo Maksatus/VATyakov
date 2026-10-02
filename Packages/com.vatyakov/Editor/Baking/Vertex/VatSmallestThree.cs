@@ -5,32 +5,45 @@ namespace VATyakov.Editor
     internal static class VatSmallestThree
     {
         private const float HalfSqrt2 = 0.70710678f;
+        private const float Center = 0.5f;
+        private const int ComponentCount = 4;
+        private const int MaxQuantized = 1023;
+        private const int LowByteBits = 8;
+        private const int LowByteMask = 255;
+        private const int IndexShift = 6;
+        private const int ThirdHighShift = 4;
+        private const int SecondHighShift = 2;
 
         public static Color32 Encode(Vector4 rotation)
         {
-            var q = rotation.normalized;
-            var index = LargestIndex(q);
-            if (q[index] < 0f)
+            var unit = rotation.normalized;
+            var index = LargestIndex(unit);
+            if (unit[index] < 0f)
             {
-                q = -q;
+                unit = -unit;
             }
 
-            var (a, b, c) = Others(q, index);
-            return Pack(Quantize(a), Quantize(b), Quantize(c), index);
+            var (first, second, third) = Others(unit, index);
+            return Pack(Quantize(first), Quantize(second), Quantize(third), index);
         }
 
-        public static Color32 Pack(int a, int b, int c, int index)
+        public static Color32 Pack(int first, int second, int third, int index)
         {
-            return new Color32(
-                (byte)(a & 255), (byte)(b & 255), (byte)(c & 255), (byte)(index << 6 | (c >> 8) << 4 | (b >> 8) << 2 | a >> 8));
+            var high = index << IndexShift | (third >> LowByteBits) << ThirdHighShift | (second >> LowByteBits) << SecondHighShift | first >> LowByteBits;
+            return new Color32(LowByte(first), LowByte(second), LowByte(third), (byte)high);
         }
 
-        private static int LargestIndex(Vector4 q)
+        private static byte LowByte(int value)
+        {
+            return (byte)(value & LowByteMask);
+        }
+
+        private static int LargestIndex(Vector4 rotation)
         {
             var index = 0;
-            for (var i = 1; i < 4; i++)
+            for (var i = 1; i < ComponentCount; i++)
             {
-                if (Mathf.Abs(q[i]) > Mathf.Abs(q[index]))
+                if (Mathf.Abs(rotation[i]) > Mathf.Abs(rotation[index]))
                 {
                     index = i;
                 }
@@ -39,20 +52,20 @@ namespace VATyakov.Editor
             return index;
         }
 
-        private static (float, float, float) Others(Vector4 q, int index)
+        private static (float, float, float) Others(Vector4 rotation, int index)
         {
             return index switch
             {
-                0 => (q.y, q.z, q.w),
-                1 => (q.x, q.z, q.w),
-                2 => (q.x, q.y, q.w),
-                _ => (q.x, q.y, q.z),
+                0 => (rotation.y, rotation.z, rotation.w),
+                1 => (rotation.x, rotation.z, rotation.w),
+                2 => (rotation.x, rotation.y, rotation.w),
+                _ => (rotation.x, rotation.y, rotation.z),
             };
         }
 
-        private static int Quantize(float c)
+        private static int Quantize(float component)
         {
-            return Mathf.Clamp(Mathf.RoundToInt((c * HalfSqrt2 + 0.5f) * 1023f), 0, 1023);
+            return Mathf.Clamp(Mathf.RoundToInt((component * HalfSqrt2 + Center) * MaxQuantized), 0, MaxQuantized);
         }
     }
 }

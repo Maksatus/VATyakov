@@ -28,7 +28,7 @@ namespace VATyakov.Editor
         private static void Set16(Mesh mesh, int[] indices, MeshUpdateFlags flags)
         {
             mesh.SetIndexBufferParams(indices.Length, IndexFormat.UInt16);
-            mesh.SetIndexBufferData(Array.ConvertAll(indices, i => (ushort)i), 0, 0, indices.Length, flags);
+            mesh.SetIndexBufferData(Array.ConvertAll(indices, index => (ushort)index), 0, 0, indices.Length, flags);
         }
 
         private static int[] Concat(VatSourceSubMesh[] subMeshes)

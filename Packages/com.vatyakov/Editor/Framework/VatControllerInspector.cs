@@ -5,9 +5,9 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal abstract class ControllerInspector : UnityEditor.Editor
+    internal abstract class VatControllerInspector : UnityEditor.Editor
     {
-        private IController[] _controllers = Array.Empty<IController>();
+        private IVatController[] _controllers = Array.Empty<IVatController>();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -18,9 +18,9 @@ namespace VATyakov.Editor
             return root;
         }
 
-        protected abstract IEnumerable<IController> CreateControllers(VisualElement root);
+        protected abstract IEnumerable<IVatController> CreateControllers(VisualElement root);
 
-        protected virtual void OnDisable()
+        private void OnDisable()
         {
             DeactivateControllers();
         }
@@ -28,7 +28,7 @@ namespace VATyakov.Editor
         private void DeactivateControllers()
         {
             _controllers.Deactivate();
-            _controllers = Array.Empty<IController>();
+            _controllers = Array.Empty<IVatController>();
         }
     }
 }

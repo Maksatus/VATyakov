@@ -14,7 +14,7 @@ namespace VATyakov.Editor
         public readonly VatChirality Chirality;
         public readonly IReadOnlyList<string> Warnings;
 
-        public VatBakeResult(VatLayout layout, Mesh mesh, VatBakeTextures textures, VertexEncoder encoder, IReadOnlyList<string> warnings)
+        public VatBakeResult(VatLayout layout, Mesh mesh, VatBakeTextures textures, VatVertexEncoder encoder, IReadOnlyList<string> warnings)
         {
             Layout = layout;
             Mesh = mesh;

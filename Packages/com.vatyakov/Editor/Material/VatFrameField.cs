@@ -23,7 +23,7 @@ namespace VATyakov.Editor
 
         private static void Write(Material material, Vector4 frame)
         {
-            Undo.RecordObject(material, "VAT: Frame");
+            Undo.RecordObject(material, VatUndo.Frame);
             material.SetVector(VatShaderIds.Frame, frame);
             EditorUtility.SetDirty(material);
         }

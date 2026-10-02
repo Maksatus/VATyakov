@@ -6,6 +6,8 @@ namespace VATyakov.Editor
 {
     internal static class VatAssetWriter
     {
+        private const string IsReadableProperty = "m_IsReadable";
+
         public static VatAsset Write(VatAsset existing, string path, VatBakeResult result, string sourceHash)
         {
             return existing == null ? Create(path, result, sourceHash) : Update(existing, result, sourceHash);
@@ -64,7 +66,7 @@ namespace VATyakov.Editor
         private static void MakeNonReadable(Object target)
         {
             using var serialized = new SerializedObject(target);
-            serialized.FindProperty("m_IsReadable").boolValue = false;
+            serialized.FindProperty(IsReadableProperty).boolValue = false;
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(target);
         }

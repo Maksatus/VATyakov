@@ -7,12 +7,16 @@ namespace VATyakov.Editor
 {
     internal static class VatSurfaceFields
     {
+        private const string BaseMapName = "_BaseMap";
+        private const string BaseColorName = "_BaseColor";
+        private const string VatPropertyPrefix = "_Vat";
+
         private static readonly GUIContent _baseMapLabel = new("Base Map", "Base texture and the color it is multiplied by.");
 
         public static void Draw(MaterialEditor editor, MaterialProperty[] properties)
         {
-            var baseMap = Find("_BaseMap", properties);
-            var baseColor = Find("_BaseColor", properties);
+            var baseMap = Find(BaseMapName, properties);
+            var baseColor = Find(BaseColorName, properties);
             DrawBase(editor, baseMap, baseColor);
             DrawOthers(editor, properties, baseMap, baseColor);
         }
@@ -42,13 +46,13 @@ namespace VATyakov.Editor
 
         private static MaterialProperty Find(string name, MaterialProperty[] properties)
         {
-            return Array.Find(properties, p => p.name == name);
+            return Array.Find(properties, property => property.name == name);
         }
 
         private static bool IsArtistFacing(MaterialProperty property)
         {
-            return !property.name.StartsWith("_Vat", StringComparison.Ordinal) &&
-            (property.propertyFlags & ShaderPropertyFlags.HideInInspector) == 0;
+            return !property.name.StartsWith(VatPropertyPrefix, StringComparison.Ordinal) &&
+                (property.propertyFlags & ShaderPropertyFlags.HideInInspector) == 0;
         }
     }
 }

@@ -302,10 +302,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: VATyakov.Dev::VATyakov.Dev.VatCompare
   _asset: {fileID: 11400000, guid: 546e8085c037ac442a92e5e151f5e90c, type: 2}
   _source: {fileID: 0}
-  _clip: {fileID: 0}
+  _clips: []
   _alembic: {fileID: 1679889417}
   _vat: {fileID: 1992304556}
-  _step: 1
+  _clipIndex: 0
+  _isStepping: 1
   _frame: 0
   _speed: 1
 --- !u!4 &1445599410

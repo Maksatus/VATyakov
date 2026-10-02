@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatProblemsController : IController
+    internal sealed class VatProblemsController : IVatController
     {
         private readonly VatProfileContext _context;
         private readonly VatProblemsContainer _container;

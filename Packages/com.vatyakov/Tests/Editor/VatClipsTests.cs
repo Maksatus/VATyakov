@@ -13,10 +13,16 @@ namespace VATyakov.Tests
         private const string TempFolder = "Assets/__VatClipsTemp";
         private const float Fps = 30f;
         private const float Tolerance = 5e-4f;
+        private const float TooHighFps = 1100f;
+        private const int TwoBlockVertexCount = 5000;
+        private const int OneBlockVertexCount = 300;
+        private const int TwoBlocks = 2;
 
         private Scene _scene;
         private VatTestRig _rig;
         private VatBakeProfile _profile;
+
+        private static int ClipRows => Mathf.RoundToInt(VatTestRig.Length * Fps);
 
         [SetUp]
         public void SetUp()
@@ -44,9 +50,9 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void Source_ClipsInTwoOrders_SampleTheSameFrames([Values] bool legacy)
+        public void Source_ClipsInTwoOrders_SampleTheSameFrames([Values] bool isLegacy)
         {
-            _rig = new VatTestRig(_scene, 300, legacy, blendShape: true);
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy, hasBlendShape: true);
             var partial = _rig.BuildPartialClip("Partial");
             var forward = SampleAll(_rig.Clip, partial);
             var backward = SampleAll(partial, _rig.Clip);
@@ -65,17 +71,17 @@ namespace VATyakov.Tests
         [Test]
         public void Bake_ClipsInTwoOrders_DecodeToTheSamePositions()
         {
-            _rig = new VatTestRig(_scene, 5000, legacy: true, blendShape: true);
+            _rig = new VatTestRig(_scene, TwoBlockVertexCount, isLegacy: true, hasBlendShape: true);
             var partial = _rig.BuildPartialClip("Partial");
             var forward = new VatInMemoryBake(_rig, Fps, _rig.Clip, partial);
             var backward = new VatInMemoryBake(_rig, Fps, partial, _rig.Clip);
             try
             {
-                Assert.AreEqual(2, forward.Layout.Info.Blocks);
-                Assert.AreEqual(60, forward.Layout.Info.TotalRows, "two clips of 30 rows, no padding");
-                CollectionAssert.AreEqual(new[] { 0, 30 }, forward.Layout.Clips.Select(c => c.StartRow));
-                CollectionAssert.AreEqual(new[] { _rig.Clip.name, "Partial" }, forward.Layout.Clips.Select(c => c.Name));
-                CollectionAssert.AreEqual(new[] { "Partial", _rig.Clip.name }, backward.Layout.Clips.Select(c => c.Name));
+                Assert.AreEqual(TwoBlocks, forward.Layout.Info.Blocks, "block count");
+                Assert.AreEqual(2 * ClipRows, forward.Layout.Info.TotalRows, "two clips, no padding");
+                CollectionAssert.AreEqual(new[] { 0, ClipRows }, forward.Layout.Clips.Select(clip => clip.StartRow), "clips follow each other");
+                CollectionAssert.AreEqual(new[] { _rig.Clip.name, "Partial" }, forward.Layout.Clips.Select(clip => clip.Name), "forward clip order");
+                CollectionAssert.AreEqual(new[] { "Partial", _rig.Clip.name }, backward.Layout.Clips.Select(clip => clip.Name), "backward clip order");
 
                 var error = Mathf.Max(MaxDifference(forward, 0, backward, 1), MaxDifference(forward, 1, backward, 0));
                 Assert.Less(error, Tolerance, $"max difference {error * 1000f:0.###} mm");
@@ -90,27 +96,27 @@ namespace VATyakov.Tests
         [Test]
         public void Bake_ClipsTallerThan4096Rows_FailsWithAClearMessage()
         {
-            _rig = new VatTestRig(_scene, 5000, legacy: true);
+            _rig = new VatTestRig(_scene, TwoBlockVertexCount, isLegacy: true);
             _profile = CreateProfile(_rig.Clip, _rig.BuildPartialClip("Partial"));
-            var asset = VatBaker.Bake(_profile, TempFolder + "/Tall.asset");
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Tall.asset");
 
-            _profile.Fps = 1100f;
+            _profile.Fps = TooHighFps;
             var error = Assert.Throws<VatBakeException>(() => VatBaker.Bake(_profile));
 
             StringAssert.Contains("4096", error.Message);
             StringAssert.Contains("2 blocks × 2200 frames of 2 clips = 4400 rows", error.Message);
             StringAssert.Contains("split the clips into several VatAssets", error.Message);
             Assert.AreEqual(error.Message, VatBakeEstimate.For(_profile).Error, "the inspector shows it before a bake");
-            Assert.AreEqual(2 * 60, asset.PositionTexture.height, "the old bake is untouched");
+            Assert.AreEqual(TwoBlocks * 2 * ClipRows, asset.PositionTexture.height, "the old bake is untouched");
         }
 
         [Test]
         public void Rebake_KeepsTheTemplateClipByName()
         {
-            _rig = new VatTestRig(_scene, 300, legacy: true);
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: true);
             var partial = _rig.BuildPartialClip("Partial");
             _profile = CreateProfile(_rig.Clip, partial);
-            var asset = VatBaker.Bake(_profile, TempFolder + "/Template.asset");
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Template.asset");
             AssertTemplateShows(asset, 0);
 
             asset.ApplyTo(_profile.Material, 1);
@@ -120,7 +126,7 @@ namespace VATyakov.Tests
             asset.ApplyTo(_profile.Material, 0);
             _profile.SetClips(partial, _rig.Clip);
             VatBaker.Bake(_profile);
-            Assert.AreEqual(_rig.Clip.name, asset.Clips[1].Name);
+            Assert.AreEqual(_rig.Clip.name, asset.Clips[1].Name, "the clips follow the new order");
             AssertTemplateShows(asset, 1);
 
             _profile.SetClips(partial);
@@ -131,7 +137,7 @@ namespace VATyakov.Tests
         [Test]
         public void Validator_ReportsEmptyMissingRepeatedAndSameNamedClips()
         {
-            _rig = new VatTestRig(_scene, 300, legacy: true);
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: true);
             _profile = CreateProfile();
             StringAssert.Contains("Clips is empty", Problems());
 
@@ -143,16 +149,16 @@ namespace VATyakov.Tests
             StringAssert.Contains($"Two clips are named '{_rig.Clip.name}'", problems);
 
             _profile.SetClips(_rig.Clip, _rig.BuildPartialClip("Partial"));
-            Assert.IsEmpty(VatBaker.Validate(_profile));
+            Assert.IsEmpty(VatBaker.Validate(_profile), "a valid list has no problems");
         }
 
         private VatFrame[][] SampleAll(params AnimationClip[] clips)
         {
-            using var source = new SkinnedFrameSource(_rig.Renderer, clips);
+            using var source = new VatSkinnedFrameSource(_rig.Renderer, clips);
             var frames = new VatFrame[clips.Length][];
             for (var c = 0; c < clips.Length; c++)
             {
-                frames[c] = new VatFrame[Mathf.RoundToInt(VatTestRig.Length * Fps)];
+                frames[c] = new VatFrame[ClipRows];
                 for (var k = 0; k < frames[c].Length; k++)
                 {
                     frames[c][k] = new VatFrame(source.Mesh.VertexCount);
@@ -165,31 +171,31 @@ namespace VATyakov.Tests
 
         private static void AssertSameFrame(VatFrame expected, VatFrame actual, string message)
         {
-            CollectionAssert.AreEqual(expected.Positions, actual.Positions, message + ": positions");
-            CollectionAssert.AreEqual(expected.Normals, actual.Normals, message + ": normals");
-            CollectionAssert.AreEqual(expected.Tangents, actual.Tangents, message + ": tangents");
+            CollectionAssert.AreEqual(expected.Positions, actual.Positions, $"{message}: positions");
+            CollectionAssert.AreEqual(expected.Normals, actual.Normals, $"{message}: normals");
+            CollectionAssert.AreEqual(expected.Tangents, actual.Tangents, $"{message}: tangents");
         }
 
-        private static float MaxDifference(VatInMemoryBake a, int clipA, VatInMemoryBake b, int clipB)
+        private static float MaxDifference(VatInMemoryBake bakeA, int clipA, VatInMemoryBake bakeB, int clipB)
         {
-            var positionsA = VatTestUtil.ReadGpu(a.Position);
-            var positionsB = VatTestUtil.ReadGpu(b.Position);
-            var driftA = VatTestUtil.ReadGpu(a.Drift);
-            var driftB = VatTestUtil.ReadGpu(b.Drift);
-            var restA = a.Mesh.vertices;
-            var restB = b.Mesh.vertices;
-            var rowA = a.Layout.Clips[clipA].StartRow;
-            var rowB = b.Layout.Clips[clipB].StartRow;
+            var positionsA = VatTestUtil.ReadGpu(bakeA.Position);
+            var positionsB = VatTestUtil.ReadGpu(bakeB.Position);
+            var driftA = VatTestUtil.ReadGpu(bakeA.Drift);
+            var driftB = VatTestUtil.ReadGpu(bakeB.Drift);
+            var restA = bakeA.Mesh.vertices;
+            var restB = bakeB.Mesh.vertices;
+            var rowA = bakeA.Layout.Clips[clipA].StartRow;
+            var rowB = bakeB.Layout.Clips[clipB].StartRow;
             var max = 0f;
-            for (var k = 0; k < a.Layout.Clips[clipA].FrameCount; k++)
+            for (var k = 0; k < bakeA.Layout.Clips[clipA].FrameCount; k++)
             {
-                var dA = VatTestUtil.DecodeDrift(driftA, rowA + k);
-                var dB = VatTestUtil.DecodeDrift(driftB, rowB + k);
+                var frameDriftA = VatTestUtil.DecodeDrift(driftA, rowA + k);
+                var frameDriftB = VatTestUtil.DecodeDrift(driftB, rowB + k);
                 for (var v = 0; v < restA.Length; v++)
                 {
-                    var pA = restA[v] + dA + VatTestUtil.DecodeOffset(positionsA, a.Layout.Info, v, rowA + k);
-                    var pB = restB[v] + dB + VatTestUtil.DecodeOffset(positionsB, b.Layout.Info, v, rowB + k);
-                    max = Mathf.Max(max, (pA - pB).magnitude);
+                    var positionA = restA[v] + frameDriftA + VatTestUtil.DecodeOffset(positionsA, bakeA.Layout.Info, v, rowA + k);
+                    var positionB = restB[v] + frameDriftB + VatTestUtil.DecodeOffset(positionsB, bakeB.Layout.Info, v, rowB + k);
+                    max = Mathf.Max(max, (positionA - positionB).magnitude);
                 }
             }
 
@@ -198,10 +204,10 @@ namespace VATyakov.Tests
 
         private void AssertTemplateShows(VatAsset asset, int clip)
         {
-            Assert.AreEqual(asset.Clips[clip].Frame(0.0), _profile.Material.GetVector(VatShaderIds.Frame));
+            Assert.AreEqual(asset.Clips[clip].Frame(0.0), _profile.Material.GetVector(VatShaderIds.Frame), "the template shows frame 0 of the clip");
             var binding = VatMaterialBinding.Read(_profile.Material);
             Assert.AreEqual(clip, binding.ClipIndex, "the material inspector finds the clip by its rows");
-            Assert.IsFalse(binding.IsStale);
+            Assert.IsFalse(binding.IsStale, "the binding is up to date");
         }
 
         private string Problems()

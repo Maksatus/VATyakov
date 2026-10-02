@@ -1,18 +1,21 @@
-using System.Globalization;
+using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
 {
     internal sealed class VatVertexJumps
     {
+        private const float MaxJumpOfMeshSize = 0.5f;
+        private const string PointOrderHint =
+            "The point order in the .abc seems to change between frames: the export must keep the point order.";
+
         private readonly Vector3[] _previous;
+
         private bool _hasPrevious;
         private int _frames;
         private string _first;
 
-        public string Warning => _frames == 0 ? null : string.Format(CultureInfo.InvariantCulture,
-            "vertices jump by more than half the mesh size in {0} frames (first: {1}). " +
-            "The point order in the .abc seems to change between frames: the export must keep the point order.", _frames, _first);
+        public string Warning => _frames == 0 ? null : JumpWarning();
 
         public VatVertexJumps(int vertexCount)
         {
@@ -33,23 +36,28 @@ namespace VATyakov.Editor
         private void Compare(Vector3[] positions, double time)
         {
             var bounds = Bounds(_previous);
-            var limit = 0.5f * Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
-            var shift = Centroid(positions) - Centroid(_previous);
-            for (var v = 0; v < positions.Length; v++)
+            var limit = MaxJumpOfMeshSize * Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
+            var shift = VatCentroid.Of(positions) - VatCentroid.Of(_previous);
+            for (var vertex = 0; vertex < positions.Length; vertex++)
             {
-                var distance = (positions[v] - _previous[v] - shift).magnitude;
+                var distance = (positions[vertex] - _previous[vertex] - shift).magnitude;
                 if (distance > limit)
                 {
-                    Report(v, time, distance);
+                    Report(vertex, time, distance);
                     return;
                 }
             }
         }
 
+        private string JumpWarning()
+        {
+            return FormattableString.Invariant($"vertices jump by more than half the mesh size in {_frames} frames (first: {_first}). {PointOrderHint}");
+        }
+
         private void Report(int vertex, double time, float distance)
         {
             _frames++;
-            _first ??= string.Format(CultureInfo.InvariantCulture, "vertex {0} at {1:0.###} s, {2:0.###} m", vertex, time, distance);
+            _first ??= FormattableString.Invariant($"vertex {vertex} at {time:0.###} s, {distance:0.###} m");
         }
 
         private static Bounds Bounds(Vector3[] points)
@@ -61,17 +69,6 @@ namespace VATyakov.Editor
             }
 
             return builder.Bounds;
-        }
-
-        private static Vector3 Centroid(Vector3[] points)
-        {
-            var sum = Vector3.zero;
-            foreach (var point in points)
-            {
-                sum += point;
-            }
-
-            return sum / Mathf.Max(1, points.Length);
         }
     }
 }

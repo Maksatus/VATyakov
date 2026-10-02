@@ -29,10 +29,10 @@ namespace VATyakov.Editor
         {
             mesh.subMeshCount = source.Length;
             var start = 0;
-            for (var s = 0; s < source.Length; s++)
+            for (var subMesh = 0; subMesh < source.Length; subMesh++)
             {
-                mesh.SetSubMesh(s, Descriptor(source[s], subMeshes, s, start), Flags);
-                start += source[s].Indices.Length;
+                mesh.SetSubMesh(subMesh, Descriptor(source[subMesh], subMeshes, subMesh, start), Flags);
+                start += source[subMesh].Indices.Length;
             }
         }
 

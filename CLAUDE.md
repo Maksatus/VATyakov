@@ -54,9 +54,9 @@
     вместо полных (`UnityEditor.Editor` — исключение: конфликтует с namespace `VATyakov.Editor`).
 - Комментариев в коде нет: ни пересказа, ни ссылок на план, ни XML-summary. Неочевидные факты — в `Docs/plan` и `PROGRESS.md`.
 - Классы и методы маленькие, логика разнесена по классам.
-- Редакторный UI — контроллеры по образцу `D:\client\Assets\Editor\AssetsIntegrations\Vehicle`: `IController`
-  (Activate/Deactivate) на каждую часть, `EditorContainer` только строит элементы, общее состояние — Context с
-  Model (`Property<T>`, `Trigger`), инспектор (`ControllerInspector.CreateControllers`) только регистрирует
+- Редакторный UI — контроллеры по образцу `D:\client\Assets\Editor\AssetsIntegrations\Vehicle`: `IVatController`
+  (Activate/Deactivate) на каждую часть, `VatEditorContainer` только строит элементы, общее состояние — Context с
+  Model (`VatProperty<T>`, `VatTrigger`), инспектор (`VatControllerInspector.CreateControllers`) только регистрирует
   контроллеры. Каркас свой, в `Editor/Framework`, без зависимостей от реестра Kefir. IMGUI `ShaderGUI` — `VatShaderGUI`
   рисует по порядку Surface, Animation и Render Queue (`VatSurfaceFields`, `VatAnimationFields`), без реестра секций.
 - Весь текст в пакете только на английском: комментарии, инспекторы, тултипы, ошибки бейка, лог. Подписи — термины Unity

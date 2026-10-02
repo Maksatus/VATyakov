@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatSourceFieldsController : IController
+    internal sealed class VatSourceFieldsController : IVatController
     {
         private readonly VatProfileContext _context;
         private readonly VatSourceFieldsContainer _container;
@@ -30,9 +30,9 @@ namespace VATyakov.Editor
 
         private void Refresh()
         {
-            var alembic = _context.Profile.Kind == VatSourceKind.Alembic;
-            _container.Skinned.SetVisible(!alembic);
-            _container.Alembic.SetVisible(alembic);
+            var isAlembic = _context.Profile.Kind == VatSourceKind.Alembic;
+            _container.Skinned.SetVisible(!isAlembic);
+            _container.Alembic.SetVisible(isAlembic);
         }
     }
 }

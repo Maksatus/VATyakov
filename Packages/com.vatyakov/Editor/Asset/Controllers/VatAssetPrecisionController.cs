@@ -2,14 +2,16 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAssetPrecisionController : IController
+    internal sealed class VatAssetPrecisionController : IVatController
     {
-        private readonly VatAsset _asset;
+        private const string ErrorHint = "Max position error the shader reconstructs, fp16 sampling included.";
+
+        private readonly VatAssetContext _context;
         private readonly VatAssetPrecisionContainer _container;
 
-        public VatAssetPrecisionController(VatAsset asset, VisualElement parent)
+        public VatAssetPrecisionController(VatAssetContext context, VisualElement parent)
         {
-            _asset = asset;
+            _context = context;
             _container = parent.CreateContainer<VatAssetPrecisionContainer>();
         }
 
@@ -20,7 +22,9 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            _container.Show(_asset);
+            var precision = _context.Asset.Precision;
+            _container.Error.Set(VatText.Millimeters(precision.Error), ErrorHint);
+            _container.Drift.Set(VatText.Meters(precision.MaxDrift), VatText.DriftTravel(precision.MaxDrift));
         }
     }
 }

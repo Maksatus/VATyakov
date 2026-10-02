@@ -8,20 +8,20 @@ namespace VATyakov.Editor
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
             using var source = VatFrameSources.Open(profile);
-            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.Loop));
-            var encoder = new VertexEncoder(layout, source.Mesh);
+            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping));
+            var encoder = new VatVertexEncoder(layout, source.Mesh);
             SampleAll(source, layout, encoder);
             return Build(encoder, name, source.Warnings);
         }
 
-        private static void SampleAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
+        private static void SampleAll(IVatFrameSource source, VatLayout layout, VatVertexEncoder encoder)
         {
             var frame = new VatFrame(source.Mesh.VertexCount);
             try
             {
-                for (var c = 0; c < layout.Clips.Length; c++)
+                for (var clipIndex = 0; clipIndex < layout.Clips.Length; clipIndex++)
                 {
-                    SampleClip(source, c, layout.Clips[c], encoder, frame);
+                    SampleClip(source, clipIndex, layout.Clips[clipIndex], encoder, frame);
                 }
             }
             finally
@@ -30,19 +30,19 @@ namespace VATyakov.Editor
             }
         }
 
-        private static void SampleClip(IVatFrameSource source, int index, VatClip clip, VertexEncoder encoder, VatFrame frame)
+        private static void SampleClip(IVatFrameSource source, int clipIndex, VatClip clip, VatVertexEncoder encoder, VatFrame frame)
         {
-            for (var k = 0; k < clip.FrameCount; k++)
+            for (var frameIndex = 0; frameIndex < clip.FrameCount; frameIndex++)
             {
-                VatBakeProgress.Report(clip, k);
-                source.Sample(index, clip.FrameTime(k), frame);
-                encoder.AddFrame(index, k, frame);
+                VatBakeProgress.Report(clip, frameIndex);
+                source.Sample(clipIndex, clip.FrameTime(frameIndex), frame);
+                encoder.AddFrame(clipIndex, frameIndex, frame);
             }
         }
 
-        private static VatBakeResult Build(VertexEncoder encoder, string name, IReadOnlyList<string> warnings)
+        private static VatBakeResult Build(VatVertexEncoder encoder, string name, IReadOnlyList<string> warnings)
         {
-            var mesh = encoder.BuildMesh(name + "_mesh");
+            var mesh = encoder.BuildMesh($"{name}{VatAssetPath.MeshSuffix}");
             try
             {
                 return new VatBakeResult(encoder.Layout, mesh, VatBakeTextures.Build(encoder, name), encoder, warnings);

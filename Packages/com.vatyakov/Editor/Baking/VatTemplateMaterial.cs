@@ -6,6 +6,9 @@ namespace VATyakov.Editor
 {
     internal static class VatTemplateMaterial
     {
+        private static readonly int _baseMapId = Shader.PropertyToID("_BaseMap");
+        private static readonly int _bumpMapId = Shader.PropertyToID("_BumpMap");
+
         public static Shader ResolveShader(VatBakeProfile profile)
         {
             return profile.Shader != null ? profile.Shader : Shader.Find(VatBaker.DefaultShaderName);
@@ -19,15 +22,14 @@ namespace VATyakov.Editor
                 return null;
             }
 
-            var clip = VatClipLookup.Find(asset, profile.Material.GetVector(VatShaderIds.Frame));
-            return clip >= 0 ? asset.Clips[clip].Name : null;
+            return VatClipLookup.TryFind(asset, profile.Material.GetVector(VatShaderIds.Frame), out var clipIndex) ? asset.Clips[clipIndex].Name : null;
         }
 
-        public static void Apply(VatBakeProfile profile, VatAsset asset, string assetPath, string clip)
+        public static void Apply(VatBakeProfile profile, VatAsset asset, string assetPath, string clipName)
         {
             var material = profile.Material != null ? profile.Material : Create(profile, assetPath);
             material.enableInstancing = false;
-            asset.ApplyTo(material, Mathf.Max(asset.FindClip(clip), 0));
+            asset.ApplyTo(material, asset.TryFindClip(clipName, out var clipIndex) ? clipIndex : 0);
             EditorUtility.SetDirty(material);
         }
 
@@ -58,14 +60,14 @@ namespace VATyakov.Editor
                 return;
             }
 
-            if (source.mainTexture != null && material.HasTexture("_BaseMap"))
+            if (source.mainTexture != null && material.HasTexture(_baseMapId))
             {
-                material.SetTexture("_BaseMap", source.mainTexture);
+                material.SetTexture(_baseMapId, source.mainTexture);
             }
 
-            if (source.HasTexture("_BumpMap") && material.HasTexture("_BumpMap"))
+            if (source.HasTexture(_bumpMapId) && material.HasTexture(_bumpMapId))
             {
-                material.SetTexture("_BumpMap", source.GetTexture("_BumpMap"));
+                material.SetTexture(_bumpMapId, source.GetTexture(_bumpMapId));
             }
         }
     }

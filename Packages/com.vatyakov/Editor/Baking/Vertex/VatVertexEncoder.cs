@@ -3,26 +3,26 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VertexEncoder
+    internal sealed class VatVertexEncoder
     {
-        private readonly VatLayout _layout;
+        public readonly VatLayout Layout;
+        public readonly VatQuantizationStats Stats = new();
+        public readonly VatChirality Chirality;
+
         private readonly VatSourceMesh _source;
         private readonly VatPositions _positions;
         private readonly VatDriftTexels _drift;
         private readonly VatRotationTexels _rotations;
         private readonly VatTangentFrames _frames;
+
         private VatRestPose _rest;
 
-        public VatQuantizationStats Stats { get; } = new();
-        public VatChirality Chirality { get; }
-        public VatLayout Layout => _layout;
         public VatPrecision Precision => new VatPrecision(_drift.MaxDistance, _positions.MaxError);
         public float MaxOffset => _positions.MaxOffset;
 
-        public VertexEncoder(VatLayout layout, VatSourceMesh source)
+        public VatVertexEncoder(VatLayout layout, VatSourceMesh source)
         {
-            RequireMatch(layout, source);
-            _layout = layout;
+            Layout = layout;
             _source = source;
             _positions = new VatPositions(layout.Info, source);
             _drift = new VatDriftTexels(layout.Info);
@@ -34,14 +34,14 @@ namespace VATyakov.Editor
         public void AddFrame(int clip, int frame, VatFrame data)
         {
             Stats.AddDegenerate(_frames.Build(frame, data));
-            _rest ??= VatRestPose.Capture(clip, frame, data, _frames);
-            Chirality.Check(_rest, data, _layout.Clips[clip].Name, frame);
-            var row = _layout.Clips[clip].StartRow + frame;
+            _rest ??= new VatRestPose(data, _frames);
+            Chirality.Check(_rest, data, Layout.Clips[clip].Name, frame);
+            var row = Layout.Clips[clip].StartRow + frame;
             var drift = _drift.Write(row, VatCentroid.Of(data.Positions) - _rest.Centroid);
-            for (var v = 0; v < _source.VertexCount; v++)
+            for (var vertex = 0; vertex < _source.VertexCount; vertex++)
             {
-                EncodePosition(v, row, data.Positions[v], drift, clip, frame);
-                EncodeRotation(v, row);
+                EncodePosition(vertex, row, data.Positions[vertex], drift, clip, frame);
+                EncodeRotation(vertex, row);
             }
 
             _positions.EndRow(row);
@@ -49,7 +49,6 @@ namespace VATyakov.Editor
 
         public Mesh BuildMesh(string name)
         {
-            _positions.Texels.RequireComplete();
             return VatVertexMeshBuilder.Build(name, _rest, _source, _positions.SubMeshes, _positions.Bounds);
         }
 
@@ -60,13 +59,11 @@ namespace VATyakov.Editor
 
         public Texture2D BuildRotationTexture(string name)
         {
-            _positions.Texels.RequireComplete();
             return _rotations.Build(name);
         }
 
         public Texture2D BuildDriftTexture(string name)
         {
-            _positions.Texels.RequireComplete();
             return _drift.Build(name);
         }
 
@@ -79,25 +76,18 @@ namespace VATyakov.Editor
 
         private void EncodeRotation(int vertex, int row)
         {
-            var n = _frames.Normals[vertex];
-            var t = _frames.Tangents[vertex];
-            var q = _rotations.Write(vertex, row, VatTangentFrames.Rotation(n, t));
-            Stats.AddRotation(Vector3.Angle(n, VatMath.FrameNormal(q)), Vector3.Angle(t, VatMath.FrameTangent(q)));
+            var normal = _frames.Normals[vertex];
+            var tangent = _frames.Tangents[vertex];
+            var rotation = _rotations.Write(vertex, row, VatTangentFrames.Rotation(normal, tangent));
+            Stats.AddRotation(Vector3.Angle(normal, VatMath.FrameNormal(rotation)), Vector3.Angle(tangent, VatMath.FrameTangent(rotation)));
         }
 
         private void RequireFinite(Vector3 delta, int vertex, int clip, int frame)
         {
             if (!float.IsFinite(delta.x) || !float.IsFinite(delta.y) || !float.IsFinite(delta.z))
             {
-                throw new VatBakeException($"Non-finite position of vertex {vertex}: clip '{_layout.Clips[clip].Name}', frame {frame}.");
-            }
-        }
-
-        private static void RequireMatch(VatLayout layout, VatSourceMesh source)
-        {
-            if (layout.Info.Elements != source.VertexCount)
-            {
-                throw new ArgumentException("Layout does not match the source mesh.", nameof(layout));
+                throw new VatBakeException(
+                    FormattableString.Invariant($"Non-finite position of vertex {vertex}: clip '{Layout.Clips[clip].Name}', frame {frame}."));
             }
         }
     }

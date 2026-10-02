@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace VATyakov.Dev
 {
@@ -18,8 +21,9 @@ namespace VATyakov.Dev
         [SerializeField]
         private float _spacing = 1.5f;
 
+        [FormerlySerializedAs("_flash")]
         [SerializeField]
-        private Color _flash = new(1f, 0.15f, 0.1f);
+        private Color _flashColor = new(1f, 0.15f, 0.1f);
 
         [Min(0f)]
         [SerializeField]
@@ -27,15 +31,16 @@ namespace VATyakov.Dev
 
         private readonly List<VatAnimator> _units = new();
         private readonly Dictionary<VatAnimator, int> _finishedSincePlay = new();
+
         private Color _baseColor = Color.white;
-        private float _flashEnd = -1f;
+        private float _flashEnd;
         private bool _isFlashing;
 
         public int Count => _units.Count;
         public bool IsActive { get; private set; } = true;
         public bool IsPaused { get; private set; }
-        public int Finished { get; private set; }
-        public int Doubled { get; private set; }
+        public int FinishedCount { get; private set; }
+        public int DoubledCount { get; private set; }
 
         public void TogglePool()
         {
@@ -52,7 +57,7 @@ namespace VATyakov.Dev
 
         public void Hit()
         {
-            SetColor(_flash);
+            SetColor(_flashColor);
             _flashEnd = Time.time + _flashTime;
             _isFlashing = true;
         }
@@ -116,21 +121,22 @@ namespace VATyakov.Dev
             var position = transform.position + new Vector3(index % columns, 0f, index / columns) * _spacing;
             var unit = Instantiate(_prefab, position, transform.rotation, transform);
             unit.name = $"{_prefab.name} {index}";
-            unit.ClipFinished += clip => OnFinished(unit, clip);
+            unit.ClipFinished += clip => OnClipFinished(unit, clip);
             _units.Add(unit);
             PlayRandom(unit);
         }
 
-        private void OnFinished(VatAnimator unit, VatClip clip)
+        private void OnClipFinished(VatAnimator unit, VatClip clip)
         {
-            Finished++;
+            FinishedCount++;
             if (++_finishedSincePlay[unit] > 1)
             {
-                Doubled++;
-                Debug.LogError($"{unit.name}: '{clip.Name}' finished {_finishedSincePlay[unit]} times.", unit);
+                DoubledCount++;
+                Debug.LogError(FormattableString.Invariant($"{unit.name}: '{clip.Name}' finished {_finishedSincePlay[unit]} times."), unit);
             }
 
-            Play(unit, (unit.Asset.FindClip(clip.Name) + 1) % unit.Asset.Clips.Count, 0f);
+            var nextClipIndex = unit.Asset.TryFindClip(clip.Name, out var clipIndex) ? clipIndex + 1 : 0;
+            Play(unit, nextClipIndex % unit.Asset.Clips.Count, 0f);
         }
 
         private void PlayRandom(VatAnimator unit)

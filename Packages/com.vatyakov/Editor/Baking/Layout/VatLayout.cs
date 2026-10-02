@@ -5,6 +5,9 @@ namespace VATyakov.Editor
 {
     internal sealed class VatLayout
     {
+        private const string HeightHint =
+            "Lower the fps or the clip length, or split the clips into several VatAssets (transitions work only between clips of one asset).";
+
         public readonly VatLayoutInfo Info;
         public readonly VatClip[] Clips;
 
@@ -41,15 +44,18 @@ namespace VATyakov.Editor
             var rows = 0L;
             for (var i = 0; i < frames.Length; i++)
             {
-                rows += frames[i] = FrameCount(requests[i]);
+                frames[i] = FrameCount(requests[i]);
+                rows += frames[i];
             }
 
             RequireHeight(blocks, rows, frames.Length);
 
             var clips = new VatClip[requests.Count];
-            for (int i = 0, row = 0; i < clips.Length; row += frames[i], i++)
+            var row = 0;
+            for (var i = 0; i < clips.Length; i++)
             {
                 clips[i] = Clip(requests[i], row, frames[i]);
+                row += frames[i];
             }
 
             return clips;
@@ -57,15 +63,15 @@ namespace VATyakov.Editor
 
         private static VatClip Clip(VatClipRequest request, int startRow, int frames)
         {
-            var rate = VatTiming.FrameRate(frames, request.Length, request.Loop);
-            return new VatClip(request.Name, startRow, frames, request.Length, rate, request.Loop);
+            var rate = VatTiming.FrameRate(frames, request.Length, request.IsLooping);
+            return new VatClip(request.Name, startRow, frames, request.Length, rate, request.IsLooping);
         }
 
         private static int FrameCount(VatClipRequest request)
         {
             try
             {
-                return VatTiming.FrameCount(request.Length, request.Fps, request.Loop);
+                return VatTiming.FrameCount(request.Length, request.Fps, request.IsLooping);
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -77,16 +83,14 @@ namespace VATyakov.Editor
         {
             if (blocks * rows > VatMath.MaxTextureSize)
             {
-                throw new VatBakeException(
-                    $"VAT texture height {Blocks(blocks)} × {rows} frames of {VatText.Clips(clips)} = {blocks * rows} rows, " +
-                    $"the limit is {VatMath.MaxTextureSize}. Lower the fps or the clip length, or split the clips into several " +
-                    "VatAssets (transitions work only between clips of one asset).");
+                var height = FormattableString.Invariant($"{Blocks(blocks)} × {rows} frames of {VatText.Clips(clips)} = {blocks * rows} rows");
+                throw new VatBakeException(FormattableString.Invariant($"VAT texture height {height}, the limit is {VatMath.MaxTextureSize}. {HeightHint}"));
             }
         }
 
         private static string Blocks(int blocks)
         {
-            return blocks == 1 ? "1 block" : $"{blocks} blocks";
+            return blocks == 1 ? "1 block" : FormattableString.Invariant($"{blocks} blocks");
         }
 
         private static int RowCount(VatClip[] clips)

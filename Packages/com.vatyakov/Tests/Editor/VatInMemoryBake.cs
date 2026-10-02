@@ -11,6 +11,7 @@ namespace VATyakov.Tests
         public readonly VatBakeTextures Textures;
         public readonly VatPrecision Precision;
         public readonly string[] Warnings;
+
         public Vector3[] Rest { get; private set; }
         public Vector3[] RestNormals { get; private set; }
         public Texture2D Position => Textures.Position;
@@ -21,16 +22,16 @@ namespace VATyakov.Tests
         {
         }
 
-        public VatInMemoryBake(VatTestRig rig, float fps, params AnimationClip[] clips) : this(new SkinnedFrameSource(rig.Renderer, clips), fps)
+        public VatInMemoryBake(VatTestRig rig, float fps, params AnimationClip[] clips) : this(new VatSkinnedFrameSource(rig.Renderer, clips), fps)
         {
         }
 
-        public VatInMemoryBake(IVatFrameSource source, float fps, bool loop = true)
+        public VatInMemoryBake(IVatFrameSource source, float fps, bool isLooping = true)
         {
             using (source)
             {
-                var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, fps, loop));
-                var encoder = new VertexEncoder(layout, source.Mesh);
+                var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, fps, isLooping));
+                var encoder = new VatVertexEncoder(layout, source.Mesh);
                 EncodeAll(source, layout, encoder);
                 Layout = encoder.Layout;
                 Precision = encoder.Precision;
@@ -46,7 +47,7 @@ namespace VATyakov.Tests
             Textures.Destroy();
         }
 
-        private void EncodeAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
+        private void EncodeAll(IVatFrameSource source, VatLayout layout, VatVertexEncoder encoder)
         {
             var frame = new VatFrame(source.Mesh.VertexCount);
             for (var c = 0; c < layout.Clips.Length; c++)

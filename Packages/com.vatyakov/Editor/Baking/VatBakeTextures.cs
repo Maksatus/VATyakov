@@ -4,23 +4,32 @@ namespace VATyakov.Editor
 {
     internal sealed class VatBakeTextures
     {
-        public Texture2D Position { get; private set; }
-        public Texture2D Rotation { get; private set; }
-        public Texture2D Drift { get; private set; }
+        public readonly Texture2D Position;
+        public readonly Texture2D Rotation;
+        public readonly Texture2D Drift;
 
-        public static VatBakeTextures Build(VertexEncoder encoder, string name)
+        private VatBakeTextures(Texture2D position, Texture2D rotation, Texture2D drift)
         {
-            var textures = new VatBakeTextures();
+            Position = position;
+            Rotation = rotation;
+            Drift = drift;
+        }
+
+        public static VatBakeTextures Build(VatVertexEncoder encoder, string name)
+        {
+            Texture2D position = null;
+            Texture2D rotation = null;
             try
             {
-                textures.Position = encoder.BuildPositionTexture(name + "_pos");
-                textures.Rotation = encoder.BuildRotationTexture(name + "_rot");
-                textures.Drift = encoder.BuildDriftTexture(name + "_drift");
-                return textures;
+                position = encoder.BuildPositionTexture($"{name}{VatAssetPath.PositionSuffix}");
+                rotation = encoder.BuildRotationTexture($"{name}{VatAssetPath.RotationSuffix}");
+                var drift = encoder.BuildDriftTexture($"{name}{VatAssetPath.DriftSuffix}");
+                return new VatBakeTextures(position, rotation, drift);
             }
             catch
             {
-                textures.Destroy();
+                DestroyImmediate(position);
+                DestroyImmediate(rotation);
                 throw;
             }
         }

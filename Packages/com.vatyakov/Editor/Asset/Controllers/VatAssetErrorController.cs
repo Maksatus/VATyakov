@@ -2,14 +2,14 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAssetErrorController : IController
+    internal sealed class VatAssetErrorController : IVatController
     {
-        private readonly VatAsset _asset;
+        private readonly VatAssetContext _context;
         private readonly VatAssetErrorContainer _container;
 
-        public VatAssetErrorController(VatAsset asset, VisualElement parent)
+        public VatAssetErrorController(VatAssetContext context, VisualElement parent)
         {
-            _asset = asset;
+            _context = context;
             _container = parent.CreateContainer<VatAssetErrorContainer>();
         }
 
@@ -20,7 +20,7 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            _asset.TryValidate(out var error);
+            _context.Asset.TryValidate(out var error);
             _container.Box.SetMessage(error);
         }
     }

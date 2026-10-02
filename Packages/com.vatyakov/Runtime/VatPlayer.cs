@@ -4,15 +4,16 @@ namespace VATyakov
 {
     internal sealed class VatPlayer
     {
-        private readonly VatEndLatch _end = new();
+        private readonly VatEndLatch _endLatch = new();
+
         private VatPlayback _playback;
-        private bool _paused;
+        private bool _isPaused;
 
         public VatClip Clip => _playback?.Clip;
         public float Speed { get; private set; }
-        public bool IsPaused => _paused;
+        public bool IsPaused => _isPaused;
 
-        private float EffectiveSpeed => _paused ? 0f : Speed;
+        private float EffectiveSpeed => _isPaused ? 0f : Speed;
 
         public VatPlayer(float speed)
         {
@@ -21,13 +22,13 @@ namespace VATyakov
 
         public void Play(VatClip clip, double time)
         {
-            Play(clip, time, Speed < 0f && !clip.Loop ? 1f : 0f);
+            Play(clip, time, Speed < 0f && !clip.IsLooping ? 1f : 0f);
         }
 
         public void Play(VatClip clip, double time, float normalizedTime)
         {
             _playback = new VatPlayback(clip, time, EffectiveSpeed, clip.Position(normalizedTime));
-            _end.Reset();
+            _endLatch.Reset();
         }
 
         public void SetSpeed(double time, float speed)
@@ -38,13 +39,13 @@ namespace VATyakov
 
         public void Pause(double time)
         {
-            _paused = true;
+            _isPaused = true;
             Apply(time);
         }
 
         public void Resume(double time)
         {
-            _paused = false;
+            _isPaused = false;
             Apply(time);
         }
 
@@ -57,7 +58,7 @@ namespace VATyakov
         {
             var position = _playback.Position(time);
             frame = Clip.Frame(position);
-            return _end.Update(Clip, position, _playback.Speed);
+            return _endLatch.Update(Clip, position, _playback.Speed);
         }
 
         private void Apply(double time)

@@ -12,7 +12,7 @@ namespace VATyakov.Editor
         public VatPositionTexels(VatLayoutInfo info)
         {
             _info = info;
-            _texels = new ushort[info.Width * info.Height * 4];
+            _texels = new ushort[info.Width * info.Height * VatVertexFormat.ChannelCount];
             _rowWritten = new bool[info.TotalRows];
         }
 
@@ -28,25 +28,25 @@ namespace VATyakov.Editor
             _rowWritten[row] = true;
         }
 
-        public void RequireComplete()
-        {
-            var missing = Array.IndexOf(_rowWritten, false);
-            if (missing >= 0)
-            {
-                throw new InvalidOperationException($"Row {missing} of the position texture was never written.");
-            }
-        }
-
         public Texture2D Build(string name)
         {
             RequireComplete();
             return VatTexture.Create(_info, VatVertexFormat.Position, name, _texels);
         }
 
+        private void RequireComplete()
+        {
+            var missing = Array.IndexOf(_rowWritten, false);
+            if (missing >= 0)
+            {
+                throw new InvalidOperationException(FormattableString.Invariant($"Row {missing} of the position texture was never written."));
+            }
+        }
+
         private int Offset(int element, int row)
         {
             var texel = VatMath.Texel(element, _info.Width, _info.TotalRows, row);
-            return (texel.y * _info.Width + texel.x) * 4;
+            return (texel.y * _info.Width + texel.x) * VatVertexFormat.ChannelCount;
         }
     }
 }

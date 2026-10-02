@@ -1,24 +1,30 @@
+using System;
 using UnityEngine;
 
 namespace VATyakov.Dev
 {
     public sealed class VatCrowdControls : MonoBehaviour
     {
+        private const float CountPeriod = 0.5f;
+        private const int LabelFontSize = 18;
+        private const float ButtonWidth = 120f;
+        private const float AreaHeight = 140f;
+
         [SerializeField]
         private VatCrowd _crowd;
 
-        private int _materials;
-        private float _nextCount;
+        private int _materialCount;
+        private float _nextCountTime;
 
         private void Update()
         {
-            if (Time.unscaledTime < _nextCount)
+            if (Time.unscaledTime < _nextCountTime)
             {
                 return;
             }
 
-            _materials = Resources.FindObjectsOfTypeAll<Material>().Length;
-            _nextCount = Time.unscaledTime + 0.5f;
+            _materialCount = Resources.FindObjectsOfTypeAll<Material>().Length;
+            _nextCountTime = Time.unscaledTime + CountPeriod;
         }
 
         private void OnGUI()
@@ -28,34 +34,15 @@ namespace VATyakov.Dev
                 return;
             }
 
-            var e = Event.current;
-            if (e.type == EventType.KeyDown)
-            {
-                if (e.keyCode == KeyCode.P)
-                {
-                    _crowd.TogglePool();
-                }
-                else if (e.keyCode == KeyCode.H)
-                {
-                    _crowd.Hit();
-                }
-                else if (e.keyCode == KeyCode.R)
-                {
-                    _crowd.Reverse();
-                }
-                else if (e.keyCode == KeyCode.Space)
-                {
-                    _crowd.TogglePause();
-                }
-            }
+            HandleKeys(Event.current);
+            var scale = VatDevGui.Scale();
+            var button = VatDevGui.ButtonStyle(scale);
+            var label = VatDevGui.LabelStyle(LabelFontSize, TextAnchor.MiddleLeft, scale);
+            var width = GUILayout.Width(ButtonWidth * scale);
+            var height = GUILayout.Height(VatDevGui.ButtonHeight * scale);
+            var margin = VatDevGui.Margin * scale;
 
-            var scale = Mathf.Max(1f, Screen.dpi / 160f);
-            var button = new GUIStyle(GUI.skin.button) { fontSize = Mathf.RoundToInt(20 * scale) };
-            var label = new GUIStyle(GUI.skin.label) { fontSize = Mathf.RoundToInt(18 * scale), alignment = TextAnchor.MiddleLeft };
-            var width = GUILayout.Width(120 * scale);
-            var height = GUILayout.Height(56 * scale);
-
-            GUILayout.BeginArea(new Rect(12 * scale, 12 * scale, Screen.width - 24 * scale, 140 * scale));
+            GUILayout.BeginArea(new Rect(margin, margin, Screen.width - 2f * margin, AreaHeight * scale));
             GUILayout.BeginHorizontal();
             if (GUILayout.Button(_crowd.IsActive ? "Pool" : "Unpool", button, width, height))
             {
@@ -79,9 +66,40 @@ namespace VATyakov.Dev
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
-            GUILayout.Label($"Units {_crowd.Count}{(_crowd.IsActive ? "" : " (pooled)")}   " +
-                $"Finished {_crowd.Finished}   Doubled {_crowd.Doubled}   Materials {_materials}", label);
+            GUILayout.Label(Status(), label);
             GUILayout.EndArea();
+        }
+
+        private void HandleKeys(Event current)
+        {
+            if (current.type != EventType.KeyDown)
+            {
+                return;
+            }
+
+            if (current.keyCode == KeyCode.P)
+            {
+                _crowd.TogglePool();
+            }
+            else if (current.keyCode == KeyCode.H)
+            {
+                _crowd.Hit();
+            }
+            else if (current.keyCode == KeyCode.R)
+            {
+                _crowd.Reverse();
+            }
+            else if (current.keyCode == KeyCode.Space)
+            {
+                _crowd.TogglePause();
+            }
+        }
+
+        private string Status()
+        {
+            var pooled = _crowd.IsActive ? string.Empty : " (pooled)";
+            return FormattableString.Invariant(
+                $"Units {_crowd.Count}{pooled}   Finished {_crowd.FinishedCount}   Doubled {_crowd.DoubledCount}   Materials {_materialCount}");
         }
     }
 }

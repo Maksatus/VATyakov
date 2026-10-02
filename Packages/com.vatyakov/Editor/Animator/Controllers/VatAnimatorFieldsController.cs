@@ -1,17 +1,16 @@
-using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAnimatorFieldsController : IController
+    internal sealed class VatAnimatorFieldsController : IVatController
     {
-        private readonly SerializedObject _serializedObject;
+        private readonly VatAnimatorContext _context;
         private readonly VatAnimatorFieldsContainer _container;
 
-        public VatAnimatorFieldsController(SerializedObject serializedObject, VisualElement parent)
+        public VatAnimatorFieldsController(VatAnimatorContext context, VisualElement parent)
         {
-            _serializedObject = serializedObject;
+            _context = context;
             _container = parent.CreateContainer<VatAnimatorFieldsContainer>();
         }
 
@@ -23,7 +22,7 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            _container.Root.Bind(_serializedObject);
+            _container.Root.Bind(_context.SerializedObject);
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -42,7 +43,7 @@ namespace VATyakov.Editor
         {
             if (other._vertexCount != _vertexCount)
             {
-                return $"vertices {_vertexCount} → {other._vertexCount}";
+                return FormattableString.Invariant($"vertices {_vertexCount} → {other._vertexCount}");
             }
 
             if (other._subMeshes != _subMeshes)
@@ -62,11 +63,11 @@ namespace VATyakov.Editor
         {
             subMeshes.Append(mesh.vertexCount);
             subMeshes.Append(mesh.subMeshCount);
-            for (var s = 0; s < mesh.subMeshCount; s++)
+            for (var subMesh = 0; subMesh < mesh.subMeshCount; subMesh++)
             {
-                subMeshes.Append((int)mesh.GetTopology(s));
-                subMeshes.Append(mesh.GetIndexCount(s));
-                indices.Append(mesh.GetIndices(s, true));
+                subMeshes.Append((int)mesh.GetTopology(subMesh));
+                subMeshes.Append(mesh.GetIndexCount(subMesh));
+                indices.Append(mesh.GetIndices(subMesh, true));
             }
         }
     }

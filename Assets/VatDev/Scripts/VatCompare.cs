@@ -5,6 +5,7 @@ using UnityEngine.Animations;
 using UnityEngine.Formats.Alembic.Importer;
 #endif
 using UnityEngine.Playables;
+using UnityEngine.Serialization;
 
 namespace VATyakov.Dev
 {
@@ -34,8 +35,9 @@ namespace VATyakov.Dev
         [SerializeField]
         private int _clipIndex;
 
+        [FormerlySerializedAs("_step")]
         [SerializeField]
-        private bool _step = true;
+        private bool _isStepping = true;
 
         [Min(0)]
         [SerializeField]
@@ -53,14 +55,14 @@ namespace VATyakov.Dev
         private VatPlayback _playback;
 
         public int Frame => _frame;
-        public bool Step => _step;
+        public bool IsStepping => _isStepping;
         public string ClipName => _asset != null && _asset.Clips.Count > 0 ? Clip.Name : string.Empty;
 
         private VatClip Clip => _asset.Clips[Mathf.Clamp(_clipIndex, 0, _asset.Clips.Count - 1)];
 
-        public void SetStep(bool step)
+        public void SetStepping(bool isStepping)
         {
-            _step = step;
+            _isStepping = isStepping;
             _playback = null;
         }
 
@@ -103,7 +105,7 @@ namespace VATyakov.Dev
             if (!UseAnimatorCopy())
             {
                 _shared = _vat.sharedMaterial;
-                _material = new Material(_shared) { name = _shared.name + " (Compare)", hideFlags = HideFlags.DontSave };
+                _material = new Material(_shared) { name = $"{_shared.name} (Compare)", hideFlags = HideFlags.DontSave };
                 _vat.sharedMaterial = _material;
             }
 
@@ -114,22 +116,11 @@ namespace VATyakov.Dev
             }
         }
 
-        private void OnDisable()
-        {
-            DestroyGraph();
-            if (_animator == null)
-            {
-                RestoreSharedMaterial();
-            }
-
-            _material = null;
-        }
-
         private void Update()
         {
             var clip = Clip;
             double time;
-            if (_step)
+            if (_isStepping)
             {
                 _frame = Mathf.Clamp(_frame, 0, clip.FrameCount - 1);
                 time = clip.FrameTime(_frame);
@@ -149,6 +140,17 @@ namespace VATyakov.Dev
             }
 
             Sample(time);
+        }
+
+        private void OnDisable()
+        {
+            DestroyGraph();
+            if (_animator == null)
+            {
+                RestoreSharedMaterial();
+            }
+
+            _material = null;
         }
 
         private bool UseAnimatorCopy()
@@ -197,7 +199,7 @@ namespace VATyakov.Dev
         private void SetUpAnimation()
         {
             DestroyGraph();
-            _clip = Array.Find(_clips, c => c != null && c.name == Clip.Name);
+            _clip = Array.Find(_clips, clip => clip != null && clip.name == Clip.Name);
             if (_clip == null)
             {
                 Debug.LogError($"{name}: no source clip named '{Clip.Name}'.", this);
@@ -236,7 +238,7 @@ namespace VATyakov.Dev
 
         private float StartPosition(VatClip clip)
         {
-            return _speed < 0f && !clip.Loop ? clip.FrameCount - 1 : 0f;
+            return _speed < 0f && !clip.IsLooping ? clip.FrameCount - 1 : 0f;
         }
 
         private void Sample(double time)

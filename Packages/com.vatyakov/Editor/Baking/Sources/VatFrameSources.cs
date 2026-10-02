@@ -6,7 +6,7 @@ namespace VATyakov.Editor
         {
             return profile.Kind == VatSourceKind.Alembic
                 ? VatAlembic.Open(profile.Alembic)
-                : new SkinnedFrameSource(profile.Source, profile.Clips);
+                : new VatSkinnedFrameSource(profile.Source, profile.Clips);
         }
     }
 }

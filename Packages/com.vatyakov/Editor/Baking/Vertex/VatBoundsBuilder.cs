@@ -5,13 +5,13 @@ namespace VATyakov.Editor
     internal sealed class VatBoundsBuilder
     {
         private Bounds _bounds;
-        private bool _empty = true;
+        private bool _isEmpty = true;
 
         public Bounds Bounds => _bounds;
 
         public void Add(Vector3 point)
         {
-            if (_empty)
+            if (_isEmpty)
             {
                 _bounds = new Bounds(point, Vector3.zero);
             }
@@ -20,7 +20,7 @@ namespace VATyakov.Editor
                 _bounds.Encapsulate(point);
             }
 
-            _empty = false;
+            _isEmpty = false;
         }
     }
 }

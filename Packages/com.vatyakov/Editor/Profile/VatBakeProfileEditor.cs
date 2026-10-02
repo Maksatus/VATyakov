@@ -5,22 +5,13 @@ using UnityEngine.UIElements;
 namespace VATyakov.Editor
 {
     [CustomEditor(typeof(VatBakeProfile))]
-    internal sealed class VatBakeProfileEditor : ControllerInspector
+    internal sealed class VatBakeProfileEditor : VatControllerInspector
     {
-        protected override IEnumerable<IController> CreateControllers(VisualElement root)
+        protected override IEnumerable<IVatController> CreateControllers(VisualElement root)
         {
             var context = new VatProfileContext(serializedObject);
-            var layout = root.CreateContainer<VatProfileLayoutContainer>();
-
             yield return new VatProfileChangeController(context, root);
-            yield return new VatSourceFieldsController(context, layout.Source);
-            yield return new VatEstimateController(context, layout.Source);
-            yield return new VatLoopHintController(context, layout.Source);
-            yield return new VatProblemsController(context, layout.Actions);
-            yield return new VatBakeButtonController(context, layout.Actions);
-            yield return new VatResultController(context, layout.Result);
-            yield return new VatBoundFieldsController<VatMaterialFieldsContainer>(context, layout.Material);
-            yield return new VatPrefabController(context, layout.Prefab);
+            yield return new VatProfileLayoutController(context, root);
         }
     }
 }

@@ -19,7 +19,7 @@ MonoBehaviour:
   - {fileID: 8311010235695890986, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
   - {fileID: 8894828519414019645, guid: feb8e98cacad95d458a17f5bc82e1eac, type: 3}
   _alembic: {fileID: 0}
-  _loop: 1
+  _isLooping: 1
   _fps: 30
   _asset: {fileID: 11400000, guid: 7a412248ba856b84990548a46bf43714, type: 2}
   _material: {fileID: 2100000, guid: 415e5d7633426174caf4b156fb6b5dae, type: 2}

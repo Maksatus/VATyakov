@@ -1,18 +1,21 @@
 #if VAT_ALEMBIC
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Formats.Alembic.Importer;
 
 namespace VATyakov.Editor
 {
-    internal sealed class AlembicFrameSource : IVatFrameSource
+    internal sealed class VatAlembicFrameSource : IVatFrameSource
     {
+        private const string ConstantTopologyHint =
+            "Vertex mode bakes constant topology only: stable point order, no remeshing. Changing topology arrives in patch 2.";
+
         private readonly string _name;
         private readonly VatSourceClip[] _clips;
         private readonly List<string> _warnings = new();
+
         private VatAlembicCopy _copy;
         private VatAlembicReader _reader;
         private VatAlembicTopology _topology;
@@ -22,9 +25,9 @@ namespace VATyakov.Editor
         public IReadOnlyList<VatSourceClip> Clips => _clips;
         public IReadOnlyList<string> Warnings => _jumps.Warning == null ? _warnings : _warnings.Append(_jumps.Warning).ToList();
 
-        public AlembicFrameSource(GameObject alembic)
+        public VatAlembicFrameSource(GameObject alembic)
         {
-            _name = alembic != null ? alembic.name : throw new ArgumentNullException(nameof(alembic));
+            _name = alembic.name;
             _clips = new[] { new VatSourceClip(_name, RequireDuration(alembic)) };
             try
             {
@@ -75,9 +78,8 @@ namespace VATyakov.Editor
             var difference = _topology.Difference(VatAlembicTopology.Capture(_copy.Meshes()));
             if (difference != null)
             {
-                throw new VatBakeException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}': topology changes at {1:0.###} s ({2}). Vertex mode bakes constant topology only: " +
-                    "stable point order, no remeshing. Changing topology arrives in patch 2.", _name, time, difference));
+                throw new VatBakeException(
+                    FormattableString.Invariant($"'{_name}': topology changes at {time:0.###} s ({difference}). {ConstantTopologyHint}"));
             }
         }
 
@@ -92,8 +94,8 @@ namespace VATyakov.Editor
             var duration = player.Duration;
             if (!float.IsFinite(duration) || duration <= 0f)
             {
-                throw new VatBakeException(string.Format(CultureInfo.InvariantCulture,
-                    "'{0}' has a duration of {1} s, nothing to bake. Check the Time Range of the .abc.", _name, duration));
+                throw new VatBakeException(
+                    FormattableString.Invariant($"'{_name}' has a duration of {duration} s, nothing to bake. Check the Time Range of the .abc."));
             }
 
             return duration;

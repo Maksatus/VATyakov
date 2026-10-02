@@ -2,8 +2,10 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatEstimateController : IController
+    internal sealed class VatEstimateController : IVatController
     {
+        private const string ErrorClass = "vat-hint--error";
+
         private readonly VatProfileContext _context;
         private readonly VatEstimateContainer _container;
 
@@ -28,8 +30,20 @@ namespace VATyakov.Editor
         private void Refresh()
         {
             var estimate = VatBakeEstimate.For(_context.Profile);
-            _container.Show(estimate);
-            _context.Model.EstimateFits.Value = estimate.Fits;
+            Show(estimate);
+            _context.Model.IsEstimateWithinLimits.Value = estimate.IsWithinLimits;
+        }
+
+        private void Show(VatBakeEstimate estimate)
+        {
+            _container.SetVisible(!estimate.IsEmpty);
+            if (estimate.IsEmpty)
+            {
+                return;
+            }
+
+            _container.Text.text = estimate.IsWithinLimits ? VatText.Estimate(estimate.Layout) : estimate.Error;
+            _container.Text.EnableInClassList(ErrorClass, !estimate.IsWithinLimits);
         }
     }
 }

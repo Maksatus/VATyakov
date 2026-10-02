@@ -157,7 +157,7 @@ MonoBehaviour:
   _alembic: {fileID: 0}
   _vat: {fileID: 1502378412}
   _clipIndex: 0
-  _step: 1
+  _isStepping: 1
   _frame: 0
   _speed: 1
 --- !u!4 &338188660
@@ -502,7 +502,7 @@ MonoBehaviour:
   _alembic: {fileID: 0}
   _vat: {fileID: 1759027906}
   _clipIndex: 0
-  _step: 1
+  _isStepping: 1
   _frame: 0
   _speed: 1
 --- !u!4 &1394879363

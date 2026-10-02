@@ -5,23 +5,23 @@ using UnityEngine.UIElements;
 namespace VATyakov.Editor
 {
     [CustomEditor(typeof(VatAsset))]
-    internal sealed class VatAssetEditor : ControllerInspector
+    internal sealed class VatAssetEditor : VatControllerInspector
     {
-        protected override IEnumerable<IController> CreateControllers(VisualElement root)
+        protected override IEnumerable<IVatController> CreateControllers(VisualElement root)
         {
-            var asset = (VatAsset)target;
-            var valid = asset.TryValidate(out _);
+            var context = new VatAssetContext((VatAsset)target);
+            var isValid = context.Asset.TryValidate(out _);
 
-            yield return valid ? new VatAssetOverviewController(asset, root) : new VatAssetErrorController(asset, root);
-            if (valid)
+            yield return isValid ? new VatAssetOverviewController(context, root) : new VatAssetErrorController(context, root);
+            if (isValid)
             {
-                yield return new VatAssetPrecisionController(asset, root);
+                yield return new VatAssetPrecisionController(context, root);
             }
 
-            yield return new VatAssetProfileController(asset, root);
-            if (valid)
+            yield return new VatAssetProfileController(context, root);
+            if (isValid)
             {
-                yield return new VatAssetContentsController(asset, root);
+                yield return new VatAssetContentsController(context, root);
             }
         }
     }

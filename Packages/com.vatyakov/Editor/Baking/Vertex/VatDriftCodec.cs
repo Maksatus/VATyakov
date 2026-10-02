@@ -4,15 +4,15 @@ namespace VATyakov.Editor
 {
     internal static class VatDriftCodec
     {
-        public static (VatHalf3 Hi, VatHalf3 Lo) Encode(Vector3 drift)
+        public static (VatHalf3 High, VatHalf3 Low) Encode(Vector3 drift)
         {
-            var hi = new VatHalf3(drift);
-            return (hi, new VatHalf3(drift - hi.ToVector3()));
+            var high = new VatHalf3(drift);
+            return (high, new VatHalf3(drift - high.ToVector3()));
         }
 
-        public static Vector3 Decode(VatHalf3 hi, VatHalf3 lo)
+        public static Vector3 Decode(VatHalf3 high, VatHalf3 low)
         {
-            return VatMath.Drift(hi.ToVector3(), lo.ToVector3());
+            return VatMath.Drift(high.ToVector3(), low.ToVector3());
         }
     }
 }

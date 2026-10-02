@@ -2,7 +2,7 @@ using System;
 
 namespace VATyakov.Editor
 {
-    internal sealed class Trigger
+    internal sealed class VatTrigger
     {
         public event Action OnCall;
 

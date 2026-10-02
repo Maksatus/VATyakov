@@ -40,11 +40,11 @@ namespace VATyakov.Editor
                 _transforms[i].localScale = _scales[i];
             }
 
-            for (var r = 0; r < _renderers.Length; r++)
+            for (var rendererIndex = 0; rendererIndex < _renderers.Length; rendererIndex++)
             {
-                for (var s = 0; s < _weights[r].Length; s++)
+                for (var shapeIndex = 0; shapeIndex < _weights[rendererIndex].Length; shapeIndex++)
                 {
-                    _renderers[r].SetBlendShapeWeight(s, _weights[r][s]);
+                    _renderers[rendererIndex].SetBlendShapeWeight(shapeIndex, _weights[rendererIndex][shapeIndex]);
                 }
             }
         }
@@ -53,9 +53,9 @@ namespace VATyakov.Editor
         {
             var count = renderer.sharedMesh != null ? renderer.sharedMesh.blendShapeCount : 0;
             var weights = new float[count];
-            for (var s = 0; s < count; s++)
+            for (var shapeIndex = 0; shapeIndex < count; shapeIndex++)
             {
-                weights[s] = renderer.GetBlendShapeWeight(s);
+                weights[shapeIndex] = renderer.GetBlendShapeWeight(shapeIndex);
             }
 
             return weights;

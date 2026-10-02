@@ -2,14 +2,14 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAssetProfileController : IController
+    internal sealed class VatAssetProfileController : IVatController
     {
-        private readonly VatAsset _asset;
+        private readonly VatAssetContext _context;
         private readonly VatAssetProfileContainer _container;
 
-        public VatAssetProfileController(VatAsset asset, VisualElement parent)
+        public VatAssetProfileController(VatAssetContext context, VisualElement parent)
         {
-            _asset = asset;
+            _context = context;
             _container = parent.CreateContainer<VatAssetProfileContainer>();
         }
 
@@ -20,7 +20,9 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            _container.Show(VatProfileLookup.Find(_asset));
+            var profile = VatProfileLookup.Find(_context.Asset);
+            _container.Profile.Set(profile);
+            _container.Missing.SetVisible(profile == null);
         }
     }
 }

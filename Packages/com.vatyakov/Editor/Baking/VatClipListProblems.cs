@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace VATyakov.Editor
             var clip = clips[index];
             if (clip == null)
             {
-                return $"Clip {index + 1} is not set.";
+                return FormattableString.Invariant($"Clip {index + 1} is not set.");
             }
 
             if (!(float.IsFinite(clip.length) && clip.length > 0f))
@@ -37,7 +38,7 @@ namespace VATyakov.Editor
                 return $"Clip '{clip.name}' has zero length.";
             }
 
-            if (IndexOf(clips, clip) < index)
+            if (IsListedBefore(clips, index))
             {
                 return $"Clip '{clip.name}' is listed twice.";
             }
@@ -45,17 +46,17 @@ namespace VATyakov.Editor
             return names.Add(clip.name) ? null : $"Two clips are named '{clip.name}': clip names in a VAT asset must be unique.";
         }
 
-        private static int IndexOf(IReadOnlyList<AnimationClip> clips, AnimationClip clip)
+        private static bool IsListedBefore(IReadOnlyList<AnimationClip> clips, int index)
         {
-            for (var i = 0; i < clips.Count; i++)
+            for (var i = 0; i < index; i++)
             {
-                if (clips[i] == clip)
+                if (clips[i] == clips[index])
                 {
-                    return i;
+                    return true;
                 }
             }
 
-            return -1;
+            return false;
         }
     }
 }

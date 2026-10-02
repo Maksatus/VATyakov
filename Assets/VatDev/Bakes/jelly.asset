@@ -16,7 +16,7 @@ MonoBehaviour:
   _source: {fileID: 0}
   _clips: []
   _alembic: {fileID: -6561506069903816014, guid: 904684543a9b3ed4f97254734322ce62, type: 3}
-  _loop: 0
+  _isLooping: 0
   _fps: 30
   _asset: {fileID: 11400000, guid: 40666a8606e1a564e9fff0123fa7cf5f, type: 2}
   _material: {fileID: 2100000, guid: 85b46adb720049c49a024fb443c4a758, type: 2}

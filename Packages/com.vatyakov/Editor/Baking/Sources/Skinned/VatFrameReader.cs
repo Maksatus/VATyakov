@@ -7,8 +7,10 @@ namespace VATyakov.Editor
 {
     internal sealed class VatFrameReader : IDisposable
     {
+        private const string BakedMeshName = "VatBakeFrame";
+
         private readonly int _vertexCount;
-        private readonly Mesh _baked = new() { name = "VatBakeFrame" };
+        private readonly Mesh _baked = new() { name = BakedMeshName };
         private readonly List<Vector3> _positions = new();
         private readonly List<Vector3> _normals = new();
         private readonly List<Vector4> _tangents = new();
@@ -40,7 +42,8 @@ namespace VATyakov.Editor
             _baked.GetTangents(_tangents);
             if (_positions.Count != _vertexCount)
             {
-                throw new InvalidOperationException($"BakeMesh returned {_positions.Count} vertices, the source mesh has {_vertexCount}.");
+                throw new InvalidOperationException(
+                    FormattableString.Invariant($"BakeMesh returned {_positions.Count} vertices, the source mesh has {_vertexCount}."));
             }
         }
 
@@ -54,19 +57,19 @@ namespace VATyakov.Editor
 
         private void WriteNormals(VatRootSpace space, VatFrame frame)
         {
-            var present = _normals.Count == _vertexCount;
+            var hasNormals = _normals.Count == _vertexCount;
             for (var i = 0; i < _vertexCount; i++)
             {
-                frame.Normals[i] = present ? space.Normal(_normals[i]) : Vector3.forward;
+                frame.Normals[i] = hasNormals ? space.Normal(_normals[i]) : VatFrame.MissingNormal;
             }
         }
 
         private void WriteTangents(VatRootSpace space, VatFrame frame)
         {
-            var present = _tangents.Count == _vertexCount;
+            var hasTangents = _tangents.Count == _vertexCount;
             for (var i = 0; i < _vertexCount; i++)
             {
-                frame.Tangents[i] = present ? space.Tangent(_tangents[i]) : new Vector4(1f, 0f, 0f, 1f);
+                frame.Tangents[i] = hasTangents ? space.Tangent(_tangents[i]) : VatFrame.MissingTangent;
             }
         }
     }

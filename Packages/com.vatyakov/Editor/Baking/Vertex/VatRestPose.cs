@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -10,26 +9,17 @@ namespace VATyakov.Editor
         public readonly Vector4[] Tangents;
         public readonly Vector3 Centroid;
 
-        private VatRestPose(VatFrame frame, VatTangentFrames basis)
+        public VatRestPose(VatFrame frame, VatTangentFrames basis)
         {
             Positions = (Vector3[])frame.Positions.Clone();
             Normals = (Vector3[])basis.Normals.Clone();
             Centroid = VatCentroid.Of(Positions);
             Tangents = new Vector4[Positions.Length];
-            for (var v = 0; v < Tangents.Length; v++)
+            for (var vertex = 0; vertex < Tangents.Length; vertex++)
             {
-                Tangents[v] = new Vector4(basis.Tangents[v].x, basis.Tangents[v].y, basis.Tangents[v].z, frame.Tangents[v].w);
+                var tangent = basis.Tangents[vertex];
+                Tangents[vertex] = new Vector4(tangent.x, tangent.y, tangent.z, frame.Tangents[vertex].w);
             }
-        }
-
-        public static VatRestPose Capture(int clip, int frame, VatFrame data, VatTangentFrames basis)
-        {
-            if (clip != 0 || frame != 0)
-            {
-                throw new InvalidOperationException("Frame 0 of clip 0 defines the rest pose and must come first.");
-            }
-
-            return new VatRestPose(data, basis);
         }
     }
 }

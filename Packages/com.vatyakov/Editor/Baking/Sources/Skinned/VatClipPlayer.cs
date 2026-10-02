@@ -7,8 +7,13 @@ namespace VATyakov.Editor
 {
     internal sealed class VatClipPlayer : IDisposable
     {
+        private const double MinWrapGuard = 1e-5;
+        private const double RelativeWrapGuard = 1e-6;
+        private const string OutputName = "out";
+
         private readonly GameObject _root;
         private readonly Animator _animator;
+
         private PlayableGraph _graph;
         private AnimationClipPlayable _playable;
         private AnimationClip _graphClip;
@@ -44,7 +49,7 @@ namespace VATyakov.Editor
 
         private static double BeforeWrap(AnimationClip clip, double time)
         {
-            var guard = Math.Max(1e-5, clip.length * 1e-6);
+            var guard = Math.Max(MinWrapGuard, clip.length * RelativeWrapGuard);
             return Wraps(clip) && time > clip.length - guard ? clip.length - guard : time;
         }
 
@@ -73,9 +78,9 @@ namespace VATyakov.Editor
 
         private void CreateGraph(AnimationClip clip)
         {
-            _graph = PlayableGraph.Create("VatBake");
+            _graph = PlayableGraph.Create(VatBakeCopy.BakeName);
             _graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
-            var output = AnimationPlayableOutput.Create(_graph, "out", _animator);
+            var output = AnimationPlayableOutput.Create(_graph, OutputName, _animator);
             _playable = AnimationClipPlayable.Create(_graph, clip);
             _playable.SetApplyFootIK(false);
             _playable.SetApplyPlayableIK(false);

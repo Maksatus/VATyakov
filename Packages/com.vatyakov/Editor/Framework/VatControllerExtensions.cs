@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace VATyakov.Editor
 {
-    internal static class ControllerExtensions
+    internal static class VatControllerExtensions
     {
-        public static void Deactivate(this IReadOnlyList<IController> controllers)
+        public static void Deactivate(this IReadOnlyList<IVatController> controllers)
         {
             for (var i = controllers.Count - 1; i >= 0; i--)
             {
@@ -12,7 +12,7 @@ namespace VATyakov.Editor
             }
         }
 
-        public static void Activate(this IReadOnlyList<IController> controllers)
+        public static void Activate(this IReadOnlyList<IVatController> controllers)
         {
             foreach (var controller in controllers)
             {

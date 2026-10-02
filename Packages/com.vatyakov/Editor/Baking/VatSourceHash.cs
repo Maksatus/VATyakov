@@ -5,6 +5,8 @@ namespace VATyakov.Editor
 {
     internal static class VatSourceHash
     {
+        private const string ScenePrefix = "scene:";
+
         public static string Compute(VatBakeProfile profile)
         {
             var hash = new Hash128();
@@ -19,7 +21,7 @@ namespace VATyakov.Editor
             }
 
             hash.Append(profile.Fps);
-            hash.Append(profile.Loop ? 1 : 0);
+            hash.Append(profile.IsLooping ? 1 : 0);
             return hash.ToString();
         }
 
@@ -38,7 +40,7 @@ namespace VATyakov.Editor
         private static string DependencyHash(Object target)
         {
             var path = AssetDatabase.GetAssetPath(target);
-            return string.IsNullOrEmpty(path) ? "scene:" + target.name : AssetDatabase.GetAssetDependencyHash(path).ToString();
+            return string.IsNullOrEmpty(path) ? $"{ScenePrefix}{target.name}" : AssetDatabase.GetAssetDependencyHash(path).ToString();
         }
     }
 }

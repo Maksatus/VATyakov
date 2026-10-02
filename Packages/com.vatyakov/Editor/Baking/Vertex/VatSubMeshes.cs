@@ -11,17 +11,17 @@ namespace VATyakov.Editor
 
         public VatSubMeshes(VatSourceMesh source)
         {
-            _vertices = Array.ConvertAll(source.SubMeshes, s => UniqueSorted(s.Indices));
+            _vertices = Array.ConvertAll(source.SubMeshes, subMesh => UniqueSorted(subMesh.Indices));
             _bounds = Array.ConvertAll(_vertices, _ => new VatBoundsBuilder());
         }
 
         public void Encapsulate(Vector3[] positions)
         {
-            for (var s = 0; s < _vertices.Length; s++)
+            for (var subMesh = 0; subMesh < _vertices.Length; subMesh++)
             {
-                foreach (var v in _vertices[s])
+                foreach (var vertex in _vertices[subMesh])
                 {
-                    _bounds[s].Add(positions[v]);
+                    _bounds[subMesh].Add(positions[vertex]);
                 }
             }
         }

@@ -5,25 +5,25 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    internal sealed class SkinnedFrameSource : IVatFrameSource
+    internal sealed class VatSkinnedFrameSource : IVatFrameSource
     {
         private readonly AnimationClip[] _clips;
         private readonly VatSourceClip[] _clipInfos;
+
         private VatBakeCopy _copy;
         private VatClipPlayer _player;
         private VatFrameReader _reader;
         private VatPoseSnapshot _pose;
-        private int _clip = -1;
+        private int? _clip;
 
         public VatSourceMesh Mesh { get; }
         public IReadOnlyList<VatSourceClip> Clips => _clipInfos;
         public IReadOnlyList<string> Warnings => Array.Empty<string>();
 
-        public SkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
+        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
         {
-            RequireMesh(source);
             _clips = clips.ToArray();
-            _clipInfos = Array.ConvertAll(_clips, c => new VatSourceClip(c.name, c.length));
+            _clipInfos = Array.ConvertAll(_clips, clip => new VatSourceClip(clip.name, clip.length));
             Mesh = VatSourceMesh.Read(source.sharedMesh);
             try
             {
@@ -71,15 +71,7 @@ namespace VATyakov.Editor
 
         private bool NeedsAnimator()
         {
-            return Array.Exists(_clips, c => !c.legacy);
-        }
-
-        private static void RequireMesh(SkinnedMeshRenderer source)
-        {
-            if (source == null || source.sharedMesh == null)
-            {
-                throw new ArgumentException("Source SkinnedMeshRenderer with a mesh is required.", nameof(source));
-            }
+            return Array.Exists(_clips, clip => !clip.legacy);
         }
     }
 }

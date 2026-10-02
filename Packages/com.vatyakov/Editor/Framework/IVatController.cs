@@ -1,6 +1,6 @@
 namespace VATyakov.Editor
 {
-    internal interface IController
+    internal interface IVatController
     {
         void Deactivate();
 

@@ -4,7 +4,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatBoundFieldsController<T> : IController where T : EditorContainer, new()
+    internal sealed class VatBoundFieldsController<T> : IVatController where T : VatEditorContainer, new()
     {
         private readonly SerializedObject _serializedObject;
         private readonly T _container;

@@ -11,9 +11,9 @@ namespace VATyakov.Editor
             {
                 action();
             }
-            catch (VatBakeException e)
+            catch (VatBakeException exception)
             {
-                EditorUtility.DisplayDialog("VAT", e.Message, "OK");
+                EditorUtility.DisplayDialog("VAT", exception.Message, "OK");
             }
         }
     }

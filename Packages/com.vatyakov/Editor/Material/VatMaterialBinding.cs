@@ -7,20 +7,22 @@ namespace VATyakov.Editor
     {
         public readonly VatMaterialStatus Status;
         public readonly VatAsset Asset;
+        public readonly bool HasClip;
         public readonly int ClipIndex;
         public readonly bool IsStale;
 
-        private VatMaterialBinding(VatMaterialStatus status, VatAsset asset = null, int clipIndex = -1, bool isStale = false)
+        private VatMaterialBinding(VatMaterialStatus status, VatAsset asset = null, bool hasClip = false, int clipIndex = 0, bool isStale = false)
         {
             Status = status;
             Asset = asset;
+            HasClip = hasClip;
             ClipIndex = clipIndex;
             IsStale = isStale;
         }
 
         public static VatMaterialBinding Read(Material material)
         {
-            var texture = material.GetTexture(VatShaderIds.PosTex);
+            var texture = material.GetTexture(VatShaderIds.PositionTexture);
             if (texture == null)
             {
                 return new VatMaterialBinding(VatMaterialStatus.NotAssigned);
@@ -32,8 +34,8 @@ namespace VATyakov.Editor
                 return new VatMaterialBinding(VatMaterialStatus.Foreign);
             }
 
-            var clip = VatClipLookup.Find(asset, material.GetVector(VatShaderIds.Frame));
-            return new VatMaterialBinding(VatMaterialStatus.Bound, asset, clip, IsStaleFor(material, asset, clip));
+            var hasClip = VatClipLookup.TryFind(asset, material.GetVector(VatShaderIds.Frame), out var clipIndex);
+            return new VatMaterialBinding(VatMaterialStatus.Bound, asset, hasClip, clipIndex, IsStaleFor(material, asset, hasClip));
         }
 
         private static VatAsset OwnerOf(Texture texture)
@@ -41,13 +43,13 @@ namespace VATyakov.Editor
             return AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(texture)) as VatAsset;
         }
 
-        private static bool IsStaleFor(Material material, VatAsset asset, int clip)
+        private static bool IsStaleFor(Material material, VatAsset asset, bool hasClip)
         {
-            return clip < 0 ||
-            material.GetTexture(VatShaderIds.PosTex) != asset.PositionTexture ||
-            material.GetTexture(VatShaderIds.RotTex) != asset.RotationTexture ||
-            material.GetTexture(VatShaderIds.DriftTex) != asset.DriftTexture ||
-            material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout;
+            return !hasClip ||
+                material.GetTexture(VatShaderIds.PositionTexture) != asset.PositionTexture ||
+                material.GetTexture(VatShaderIds.RotationTexture) != asset.RotationTexture ||
+                material.GetTexture(VatShaderIds.DriftTexture) != asset.DriftTexture ||
+                material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout;
         }
     }
 }

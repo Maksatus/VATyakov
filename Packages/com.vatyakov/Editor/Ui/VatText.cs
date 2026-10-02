@@ -1,15 +1,17 @@
+using System;
 using System.Globalization;
 
 namespace VATyakov.Editor
 {
     internal static class VatText
     {
-        private static readonly CultureInfo _invariant = CultureInfo.InvariantCulture;
+        private const float MillimetersPerMeter = 1000f;
+        private const double BytesPerMegabyte = 1024.0 * 1024.0;
 
         public static string ClipSummary(VatClip clip)
         {
-            return string.Format(_invariant, "{0} {1} · {2:0.##} fps · {3:0.##} s · {4}",
-                clip.FrameCount, Frames(clip.FrameCount), clip.FrameRate, clip.Length, clip.Loop ? "loop" : "once");
+            var playback = clip.IsLooping ? "loop" : "once";
+            return FormattableString.Invariant($"{Count(clip.FrameCount)} · {clip.FrameRate:0.##} fps · {clip.Length:0.##} s · {playback}");
         }
 
         public static string Estimate(VatLayout layout)
@@ -19,17 +21,17 @@ namespace VATyakov.Editor
 
         public static string Clips(int count)
         {
-            return Number(count) + (count == 1 ? " clip" : " clips");
+            return count == 1 ? $"{Number(count)} clip" : $"{Number(count)} clips";
         }
 
         public static string Blocks(VatLayoutInfo info)
         {
-            return info.Blocks > 1 ? $"The mesh is split into {info.Blocks} blocks across the width." : null;
+            return info.Blocks > 1 ? $"The mesh is split into {Number(info.Blocks)} blocks across the width." : null;
         }
 
         public static string Count(int frames)
         {
-            return Number(frames) + " " + Frames(frames);
+            return $"{Number(frames)} {Frames(frames)}";
         }
 
         public static string Frames(int count)
@@ -39,49 +41,48 @@ namespace VATyakov.Editor
 
         public static string Number(int value)
         {
-            return value.ToString(_invariant);
+            return value.ToString(CultureInfo.InvariantCulture);
         }
 
         public static string Size(VatLayoutInfo info)
         {
-            return string.Format(_invariant, "{0}×{1}", info.Width, info.Height);
+            return FormattableString.Invariant($"{info.Width}×{info.Height}");
         }
 
-        public static string LoopHint(float gap, bool closed, bool loop)
+        public static string LoopHint(float gap, bool isClosed, bool isLooping)
         {
-            var distance = string.Format(_invariant, "{0:0.##} mm", gap * 1000f);
-            if (closed)
+            var distance = FormattableString.Invariant($"{gap * MillimetersPerMeter:0.##} mm");
+            if (isClosed)
             {
-                return loop
+                return isLooping
                     ? $"The end matches the start ({distance}): a loop."
                     : $"The end matches the start ({distance}): looks like a loop, Loop can be enabled.";
             }
 
-            return loop
+            return isLooping
                 ? $"The end differs from the start by {distance}: Loop will pop at the seam. Disable Loop or adjust the Time Range of the .abc."
                 : $"The end differs from the start by {distance}: not a loop.";
         }
 
         public static string Millimeters(float meters)
         {
-            return string.Format(_invariant, "{0:0.###} mm", meters * 1000f);
+            return FormattableString.Invariant($"{meters * MillimetersPerMeter:0.###} mm");
         }
 
         public static string Meters(float meters)
         {
-            return string.Format(_invariant, "{0:0.##} m", meters);
+            return FormattableString.Invariant($"{meters:0.##} m");
         }
 
         public static string DriftTravel(float meters)
         {
-            return string.Format(_invariant,
-                "The centroid travels up to {0:0.##} m from the rest pose. Positions are stored relative to it, so far-travelling bodies stay precise.",
-                meters);
+            return FormattableString.Invariant(
+                $"The centroid travels up to {meters:0.##} m from the rest pose. Positions are stored relative to it, so far-travelling bodies stay precise.");
         }
 
         public static string Megabytes(VatLayoutInfo info)
         {
-            return string.Format(_invariant, "{0:0.##} MB", VatMemory.TextureBytes(info) / (1024.0 * 1024.0));
+            return FormattableString.Invariant($"{VatMemory.TextureBytes(info) / BytesPerMegabyte:0.##} MB");
         }
     }
 }

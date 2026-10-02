@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatSourceFieldsContainer : EditorContainer
+    internal sealed class VatSourceFieldsContainer : VatEditorContainer
     {
         public readonly VisualElement Skinned = new();
         public readonly VisualElement Alembic = new();
@@ -18,7 +18,7 @@ namespace VATyakov.Editor
                 new PropertyField { bindingPath = "_kind", label = "Source" },
                 Skinned,
                 Alembic,
-                new PropertyField { bindingPath = "_loop", label = "Loop" },
+                new PropertyField { bindingPath = "_isLooping", label = "Loop" },
                 new PropertyField { bindingPath = "_fps", label = "Frames Per Second" });
         }
     }

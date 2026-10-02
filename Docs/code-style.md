@@ -14,10 +14,10 @@
 
 | Клиент | VATyakov |
 |---|---|
-| Model — обычный C#-класс с `Property<T>`, `Trigger` | `VatProfileModel` (`Editor/Profile`), `Property<T>`, `Trigger` в `Editor/Framework` |
+| Model — обычный C#-класс с `Property<T>`, `Trigger` | `VatProfileModel` (`Editor/Profile`), `VatProperty<T>`, `VatTrigger` в `Editor/Framework` |
 | Controller (`IController`) связывает модель и вид | `*Controller` в `Editor/*/Controllers` |
-| Container — пассивный MonoBehaviour со ссылками | `*Container : EditorContainer` только строит элементы UI |
-| Generator / `ControllersGroupController.CreateControllers()` регистрирует контроллеры | `ControllerInspector.CreateControllers()` в инспекторах |
+| Container — пассивный MonoBehaviour со ссылками | `*Container : VatEditorContainer` только строит элементы UI |
+| Generator / `ControllersGroupController.CreateControllers()` регистрирует контроллеры | `VatControllerInspector.CreateControllers()` в инспекторах |
 | Context — общее состояние | `VatProfileContext` |
 
 Правила контроллеров (из `truegta-reactive-lifecycle`):
@@ -28,7 +28,7 @@
 - в файле `Deactivate()` стоит перед `Activate()`;
 - каждый `+=` делается в `Activate()`, парный `-=` — в `Deactivate()`; подписка в `Activate()` безусловная;
 - одна ответственность на контроллер, публичных методов кроме `Activate`/`Deactivate` нет; общаются через модель;
-- для `Property<T>.Changed` не нужна проверка «старое == новое»: событие и так приходит только при изменении.
+- для `VatProperty<T>.Changed` не нужна проверка «старое == новое»: событие и так приходит только при изменении.
 
 Пример клиента (`Game/DiggingEvents/Dialog/DiggingEventDialogTimerController.cs`):
 
@@ -63,7 +63,7 @@ public class DiggingEventDialogTimerController : IController
 У нас так же (`Editor/Profile/Controllers/VatEstimateController.cs`):
 
 ```csharp
-internal sealed class VatEstimateController : IController
+internal sealed class VatEstimateController : IVatController
 {
     private readonly VatProfileContext _context;
     private readonly VatEstimateContainer _container;
@@ -176,7 +176,8 @@ PascalCase.
   ```
 - Сравнение с null — `!= null` / `== null`, не `is not null`. Unity-объекты сравниваются только через `==`, у них
   `?.` не работает.
-- Строки собираются интерполяцией `$"..."`. Числа в строки — через `CultureInfo.InvariantCulture`: культура
+- Строки собираются интерполяцией `$"..."`, без `+` и `string.Format`. Строка с числами (любыми, и `int` тоже) —
+  `FormattableString.Invariant($"...")`, отдельное число — `ToString(CultureInfo.InvariantCulture)`: культура
   редактора — ru-RU.
 - Ранний выход (guard) вместо вложенных `if`. Маленькие методы: если блок нужно объяснять — это отдельный метод с
   говорящим именем.
@@ -203,7 +204,7 @@ PascalCase.
 ## 8. Unity
 
 - Сериализуемые данные — `[SerializeField] private` плюс свойство. У клиента в контейнерах публичные поля; у нас
-  общий пакет, и изменяемое состояние наружу не отдаём. Контейнеры UI Toolkit (`EditorContainer`) отдают элементы
+  общий пакет, и изменяемое состояние наружу не отдаём. Контейнеры UI Toolkit (`VatEditorContainer`) отдают элементы
   через `public readonly`.
 - Колбэки Unity — `private void OnEnable()` и т. п.
 - `.meta` не правятся вручную. Переименование и перенос — через Unity (`AssetDatabase.RenameAsset`/`MoveAsset`); при
@@ -237,7 +238,7 @@ PascalCase.
 | `private static readonly` в PascalCase (около половины случаев) | `.editorconfig` требует `_camelCase` |
 | несортированные `using` в 44% файлов | правило — сортировка |
 | строки по 200–690 символов | наш предел — 160 |
-| публичные изменяемые поля в моделях (`FurnitureShopModel`) | состояние — через `Property<T>` или `readonly` |
+| публичные изменяемые поля в моделях (`FurnitureShopModel`) | состояние — через `VatProperty<T>` или `readonly` |
 | классы-свалки: `GameContext` (около 180 свойств), `AnalyticsModel` (915 строк) | маленькие классы с одной задачей |
 | закомментированный код, TODO без Jira, `#region` | нет |
 | кириллица в идентификаторах | только латиница |

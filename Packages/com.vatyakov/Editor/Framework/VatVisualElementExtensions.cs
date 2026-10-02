@@ -2,9 +2,9 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal static class VisualElementExtensions
+    internal static class VatVisualElementExtensions
     {
-        public static T CreateContainer<T>(this VisualElement parent) where T : EditorContainer, new()
+        public static T CreateContainer<T>(this VisualElement parent) where T : VatEditorContainer, new()
         {
             var container = new T();
             parent.Add(container.Root);
@@ -27,9 +27,9 @@ namespace VATyakov.Editor
             return element;
         }
 
-        public static void SetVisible(this VisualElement element, bool visible)
+        public static void SetVisible(this VisualElement element, bool isVisible)
         {
-            element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            element.style.display = isVisible ? DisplayStyle.Flex : DisplayStyle.None;
         }
     }
 }

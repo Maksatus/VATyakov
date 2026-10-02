@@ -13,29 +13,38 @@ namespace VATyakov.Dev
         private const float Radius = 0.5f;
         private const int Segments = 48;
         private const int Rings = 24;
+        private const float ArcPeakFactor = 4f;
+        private const float SquashAmplitude = 0.35f;
+        private const float SquashDamping = 2f;
+        private const float SquashFrequency = 10f;
+        private const float WobbleAmplitude = 0.08f;
+        private const float WobbleFrequency = 12f;
+        private const float RippleAmplitude = 0.04f;
+        private const float RippleFrequency = 6f * Mathf.PI;
+        private const float RippleSpeed = 1.5f;
 
         [MenuItem("VATyakov/Dev/Regenerate Drift Content")]
         private static void Regenerate()
         {
-            VatAlembicFixtures.Record(Path, Frames, true, (mesh, k) => Jelly(mesh, k / VatAlembicFixtures.Fps));
+            VatAlembicFixtures.Record(Path, Frames, true, (mesh, frameIndex) => Jelly(mesh, frameIndex / VatAlembicFixtures.Fps));
             AssetDatabase.Refresh();
         }
 
-        private static Mesh Jelly(Mesh mesh, float t)
+        private static Mesh Jelly(Mesh mesh, float time)
         {
-            var center = Center(t);
-            var landed = Mathf.Max(0f, t - Flight);
+            var center = Center(time);
+            var landed = Mathf.Max(0f, time - Flight);
             var vertices = new Vector3[(Segments + 1) * (Rings + 1)];
             var uv = new Vector2[vertices.Length];
-            for (var r = 0; r <= Rings; r++)
+            for (var ring = 0; ring <= Rings; ring++)
             {
-                for (var s = 0; s <= Segments; s++)
+                for (var segment = 0; segment <= Segments; segment++)
                 {
-                    var u = s / (float)Segments;
-                    var v = r / (float)Rings;
-                    var n = Sphere(u, v);
-                    vertices[r * (Segments + 1) + s] = center + Deform(n, u, t, landed);
-                    uv[r * (Segments + 1) + s] = new Vector2(u, v);
+                    var u = segment / (float)Segments;
+                    var v = ring / (float)Rings;
+                    var normal = Sphere(u, v);
+                    vertices[ring * (Segments + 1) + segment] = center + Deform(normal, u, time, landed);
+                    uv[ring * (Segments + 1) + segment] = new Vector2(u, v);
                 }
             }
 
@@ -48,19 +57,25 @@ namespace VATyakov.Dev
             return mesh;
         }
 
-        private static Vector3 Center(float t)
+        private static Vector3 Center(float time)
         {
-            var a = Mathf.Clamp01(t / Flight);
-            return new Vector3(Distance * a, Radius + 4f * Height * a * (1f - a), 0f);
+            var progress = Mathf.Clamp01(time / Flight);
+            return new Vector3(Distance * progress, Radius + ArcPeakFactor * Height * progress * (1f - progress), 0f);
         }
 
-        private static Vector3 Deform(Vector3 n, float u, float t, float landed)
+        private static Vector3 Deform(Vector3 normal, float u, float time, float landed)
         {
-            var squash = landed > 0f ? 0.35f * Mathf.Exp(-2f * landed) * Mathf.Sin(10f * landed) : 0.08f * Mathf.Sin(12f * t);
-            var ripple = 0.04f * Mathf.Sin(6f * Mathf.PI * u + 1.5f * t) * (1f - n.y * n.y);
-            var y = 1f + squash;
-            var xz = 1f / Mathf.Sqrt(y);
-            return new Vector3(n.x * xz, n.y * y, n.z * xz) * (Radius * (1f + ripple));
+            var ripple = RippleAmplitude * Mathf.Sin(RippleFrequency * u + RippleSpeed * time) * (1f - normal.y * normal.y);
+            var stretch = 1f + Squash(time, landed);
+            var squeeze = 1f / Mathf.Sqrt(stretch);
+            return new Vector3(normal.x * squeeze, normal.y * stretch, normal.z * squeeze) * (Radius * (1f + ripple));
+        }
+
+        private static float Squash(float time, float landed)
+        {
+            return landed > 0f
+                ? SquashAmplitude * Mathf.Exp(-SquashDamping * landed) * Mathf.Sin(SquashFrequency * landed)
+                : WobbleAmplitude * Mathf.Sin(WobbleFrequency * time);
         }
 
         private static Vector3 Sphere(float u, float v)

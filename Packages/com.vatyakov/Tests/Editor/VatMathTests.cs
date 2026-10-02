@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -17,10 +16,10 @@ namespace VATyakov.Tests
         [TestCase(100000, 25, 4000)]
         public void Width_IsElementsOverBlocks_NotAPowerOfTwo(int elements, int blocks, int width)
         {
-            Assert.AreEqual(blocks, VatMath.BlockCount(elements));
-            Assert.AreEqual(width, VatMath.TextureWidth(elements));
-            Assert.LessOrEqual(width, VatMath.MaxTextureSize);
-            Assert.GreaterOrEqual(blocks * width, elements);
+            Assert.AreEqual(blocks, VatMath.BlockCount(elements), "block count");
+            Assert.AreEqual(width, VatMath.TextureWidth(elements), "texture width");
+            Assert.LessOrEqual(width, VatMath.MaxTextureSize, "width fits the texture size limit");
+            Assert.GreaterOrEqual(blocks * width, elements, "every element has a texel");
             Assert.Less((blocks - 1) * width, elements, "no empty block");
         }
 
@@ -36,34 +35,12 @@ namespace VATyakov.Tests
                 for (var element = 0; element < elements; element++)
                 {
                     var texel = VatMath.Texel(element, width, totalRows, row);
-                    Assert.That(texel.x, Is.InRange(0, width - 1));
-                    Assert.That(texel.y, Is.InRange(0, height - 1));
-                    Assert.AreEqual(row, texel.y % totalRows);
+                    Assert.That(texel.x, Is.InRange(0, width - 1), "texel x inside the texture");
+                    Assert.That(texel.y, Is.InRange(0, height - 1), "texel y inside the texture");
+                    Assert.AreEqual(row, texel.y % totalRows, "row inside the block");
                     Assert.IsTrue(seen.Add(texel), $"texel {texel} used twice");
                 }
             }
-        }
-
-        internal static float NextUp(float x)
-        {
-            return Step(x, +1);
-        }
-
-        internal static float NextDown(float x)
-        {
-            return Step(x, -1);
-        }
-
-        private static float Step(float x, int direction)
-        {
-            if (x == 0f)
-            {
-                return direction > 0 ? float.Epsilon : -float.Epsilon;
-            }
-
-            var bits = BitConverter.ToInt32(BitConverter.GetBytes(x), 0);
-            bits += (x > 0f) == (direction > 0) ? 1 : -1;
-            return BitConverter.ToSingle(BitConverter.GetBytes(bits), 0);
         }
     }
 }

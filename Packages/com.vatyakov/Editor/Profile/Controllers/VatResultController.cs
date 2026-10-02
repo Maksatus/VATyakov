@@ -1,8 +1,9 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatResultController : IController
+    internal sealed class VatResultController : IVatController
     {
         private readonly VatProfileContext _context;
         private readonly VatResultContainer _container;
@@ -28,18 +29,35 @@ namespace VATyakov.Editor
         private void Refresh()
         {
             var profile = _context.Profile;
-            var asset = profile.Asset;
+            ShowLinks(profile.Asset, profile.Material);
+            ShowSummary(profile.Asset);
+        }
+
+        private void ShowLinks(VatAsset asset, Material material)
+        {
+            var isBaked = asset != null;
+            _container.NotBaked.SetVisible(!isBaked);
+            _container.Asset.SetVisible(isBaked);
+            _container.Material.SetVisible(isBaked);
+            _container.Asset.Set(asset);
+            _container.Material.Set(material);
+        }
+
+        private void ShowSummary(VatAsset asset)
+        {
             if (asset == null)
             {
-                _container.ShowNotBaked();
+                _container.Invalid.SetMessage(null);
+                _container.Summary.SetVisible(false);
+                return;
             }
-            else if (!asset.TryValidate(out var error))
+
+            var isValid = asset.TryValidate(out var error);
+            _container.Invalid.SetMessage(error);
+            _container.Summary.SetVisible(isValid);
+            if (isValid)
             {
-                _container.ShowInvalid(asset, profile.Material, error);
-            }
-            else
-            {
-                _container.ShowBaked(asset, profile.Material);
+                VatAssetSummary.Show(_container.Summary, asset);
             }
         }
     }

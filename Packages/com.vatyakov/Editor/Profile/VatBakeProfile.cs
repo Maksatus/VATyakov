@@ -1,17 +1,20 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace VATyakov.Editor
 {
-    [CreateAssetMenu(menuName = "VATyakov/VAT Bake Profile", fileName = "vat_bake_profile", order = 400)]
+    [CreateAssetMenu(menuName = "VATyakov/VAT Bake Profile", fileName = "vat_bake_profile", order = VatBakeProfile.MenuOrder)]
     public sealed class VatBakeProfile : ScriptableObject
     {
-        [Tooltip("Skinned Mesh Renderer: a SkinnedMeshRenderer with clips. Alembic: an .abc with constant topology (cloth, soft body, liquid).")]
+        public const int MenuOrder = 400;
+
+        [Tooltip("Skinned Mesh Renderer: a renderer with clips. Alembic: an .abc with constant topology (cloth, soft body, liquid).")]
         [SerializeField]
         private VatSourceKind _kind;
 
-        [Tooltip("SkinnedMeshRenderer of a prefab or model. Positions are baked in the prefab root space.")]
+        [Tooltip("Skinned Mesh Renderer of a prefab or model. Positions are baked in the prefab root space.")]
         [SerializeField]
         private SkinnedMeshRenderer _source;
 
@@ -26,8 +29,9 @@ namespace VATyakov.Editor
 
         [Tooltip("For every clip. On: the clip loops, the last frame does not repeat the first. " +
                  "Off: the clip plays once and stops on the last frame.")]
+        [FormerlySerializedAs("_loop")]
         [SerializeField]
-        private bool _loop = true;
+        private bool _isLooping = true;
 
         [Tooltip("Baked frames per second of animation, for every clip. Higher is smoother and costs more memory.")]
         [Min(0.001f)]
@@ -55,7 +59,7 @@ namespace VATyakov.Editor
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
         public IReadOnlyList<AnimationClip> Clips => _clips;
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
-        public bool Loop { get => _loop; set => _loop = value; }
+        public bool IsLooping { get => _isLooping; set => _isLooping = value; }
         public float Fps { get => _fps; set => _fps = value; }
         public VatAsset Asset { get => _asset; set => _asset = value; }
         public Material Material { get => _material; set => _material = value; }

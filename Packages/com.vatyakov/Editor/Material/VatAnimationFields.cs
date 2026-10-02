@@ -5,7 +5,7 @@ namespace VATyakov.Editor
 {
     internal static class VatAnimationFields
     {
-        private static readonly GUIContent _animationLabel = new("Animation", "VAT asset the material takes its animation from. Click to ping it in Project.");
+        private static readonly GUIContent _assetLabel = new("VAT Asset", "VAT asset the material takes its animation from. Click to ping it in Project.");
 
         public static void Draw(MaterialEditor editor)
         {
@@ -39,9 +39,9 @@ namespace VATyakov.Editor
 
         private static void DrawBound(Material material, VatMaterialBinding binding)
         {
-            VatObjectLinkField.Draw(_animationLabel, binding.Asset);
+            VatObjectLinkField.Draw(_assetLabel, binding.Asset);
             VatClipField.Draw(material, binding);
-            if (binding.ClipIndex >= 0)
+            if (binding.HasClip)
             {
                 VatFrameField.Draw(material, binding.Asset.Clips[binding.ClipIndex]);
             }
@@ -63,8 +63,8 @@ namespace VATyakov.Editor
 
         private static void Reapply(Material material, VatMaterialBinding binding)
         {
-            Undo.RecordObject(material, "Update VAT Material");
-            binding.Asset.ApplyTo(material, Mathf.Max(binding.ClipIndex, 0));
+            Undo.RecordObject(material, VatUndo.Material);
+            binding.Asset.ApplyTo(material, binding.HasClip ? binding.ClipIndex : 0);
             EditorUtility.SetDirty(material);
         }
     }

@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatLoopHintController : IController
+    internal sealed class VatLoopHintController : IVatController
     {
         private readonly VatProfileContext _context;
         private readonly VatLoopHintContainer _container;
@@ -34,10 +34,10 @@ namespace VATyakov.Editor
                 return;
             }
 
-            var loop = _context.Profile.Loop;
-            var closed = probe.LoopGap <= VatLoopGap.MaxLoopGap;
-            _container.Box.messageType = closed == loop ? HelpBoxMessageType.Info : HelpBoxMessageType.Warning;
-            _container.Box.SetMessage(VatText.LoopHint(probe.LoopGap, closed, loop));
+            var isLooping = _context.Profile.IsLooping;
+            var isClosed = probe.LoopGap <= VatLoopGap.Max;
+            _container.Box.messageType = isClosed == isLooping ? HelpBoxMessageType.Info : HelpBoxMessageType.Warning;
+            _container.Box.SetMessage(VatText.LoopHint(probe.LoopGap, isClosed, isLooping));
         }
 
         private static VatAlembicProbe Probe(VatBakeProfile profile)

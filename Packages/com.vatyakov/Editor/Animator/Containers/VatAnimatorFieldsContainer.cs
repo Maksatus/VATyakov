@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatAnimatorFieldsContainer : EditorContainer
+    internal sealed class VatAnimatorFieldsContainer : VatEditorContainer
     {
         public VatAnimatorFieldsContainer()
         {
