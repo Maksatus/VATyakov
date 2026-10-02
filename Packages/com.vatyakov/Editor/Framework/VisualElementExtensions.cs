@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    static class VisualElementExtensions
+    internal static class VisualElementExtensions
     {
         public static T CreateContainer<T>(this VisualElement parent) where T : EditorContainer, new()
         {
@@ -14,7 +14,10 @@ namespace VATyakov.Editor
         public static T WithElements<T>(this T element, params VisualElement[] children) where T : VisualElement
         {
             foreach (var child in children)
+            {
                 element.Add(child);
+            }
+
             return element;
         }
 
@@ -24,7 +27,9 @@ namespace VATyakov.Editor
             return element;
         }
 
-        public static void SetVisible(this VisualElement element, bool visible) =>
+        public static void SetVisible(this VisualElement element, bool visible)
+        {
             element.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        }
     }
 }

@@ -5,17 +5,13 @@ using UnityEngine.Playables;
 
 namespace VATyakov.Editor
 {
-    // §2.1: Generic and Humanoid through a manual PlayableGraph, legacy through SampleAnimation.
-    // The pose reset before each clip is the source's job (VatPoseSnapshot); Stop drops the graph first.
-    // A looping clip (loopTime, legacy WrapMode.Loop) wraps t = L to the pose at 0, so the last one-shot frame
-    // is sampled just before the end. The guard is far above the float ulp of clip time and far below visible motion.
-    sealed class VatClipPlayer : IDisposable
+    internal sealed class VatClipPlayer : IDisposable
     {
-        readonly GameObject _root;
-        readonly Animator _animator;
-        PlayableGraph _graph;
-        AnimationClipPlayable _playable;
-        AnimationClip _graphClip;
+        private readonly GameObject _root;
+        private readonly Animator _animator;
+        private PlayableGraph _graph;
+        private AnimationClipPlayable _playable;
+        private AnimationClip _graphClip;
 
         public VatClipPlayer(GameObject root, Animator animator)
         {
@@ -27,54 +23,73 @@ namespace VATyakov.Editor
         {
             time = BeforeWrap(clip, time);
             if (clip.legacy)
+            {
                 clip.SampleAnimation(_root, (float)time);
+            }
             else
+            {
                 Evaluate(clip, time);
+            }
         }
 
-        public void Stop() => DestroyGraph();
-
-        public void Dispose() => DestroyGraph();
-
-        static double BeforeWrap(AnimationClip clip, double time)
+        public void Stop()
         {
-            double guard = Math.Max(1e-5, clip.length * 1e-6);
+            DestroyGraph();
+        }
+
+        public void Dispose()
+        {
+            DestroyGraph();
+        }
+
+        private static double BeforeWrap(AnimationClip clip, double time)
+        {
+            var guard = Math.Max(1e-5, clip.length * 1e-6);
             return Wraps(clip) && time > clip.length - guard ? clip.length - guard : time;
         }
 
-        static bool Wraps(AnimationClip clip) => clip.legacy ? clip.wrapMode == WrapMode.Loop : clip.isLooping;
+        private static bool Wraps(AnimationClip clip)
+        {
+            return clip.legacy ? clip.wrapMode == WrapMode.Loop : clip.isLooping;
+        }
 
-        void Evaluate(AnimationClip clip, double time)
+        private void Evaluate(AnimationClip clip, double time)
         {
             UseGraph(clip);
             _playable.SetTime(time);
             _graph.Evaluate();
         }
 
-        void UseGraph(AnimationClip clip)
+        private void UseGraph(AnimationClip clip)
         {
             if (_graphClip == clip)
+            {
                 return;
+            }
+
             DestroyGraph();
             CreateGraph(clip);
         }
 
-        void CreateGraph(AnimationClip clip)
+        private void CreateGraph(AnimationClip clip)
         {
             _graph = PlayableGraph.Create("VatBake");
             _graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
             var output = AnimationPlayableOutput.Create(_graph, "out", _animator);
             _playable = AnimationClipPlayable.Create(_graph, clip);
-            _playable.SetApplyFootIK(false); // on by default for a new playable
+            _playable.SetApplyFootIK(false);
             _playable.SetApplyPlayableIK(false);
             output.SetSourcePlayable(_playable);
             _graphClip = clip;
         }
 
-        void DestroyGraph()
+        private void DestroyGraph()
         {
             if (_graph.IsValid())
+            {
                 _graph.Destroy();
+            }
+
             _graphClip = null;
         }
     }

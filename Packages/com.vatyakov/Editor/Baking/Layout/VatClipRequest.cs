@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace VATyakov.Editor
 {
-    readonly struct VatClipRequest
+    internal readonly struct VatClipRequest
     {
         public readonly string Name;
         public readonly float Length;
@@ -20,8 +20,11 @@ namespace VATyakov.Editor
         public static VatClipRequest[] From(IReadOnlyList<VatSourceClip> clips, float fps, bool loop)
         {
             var requests = new VatClipRequest[clips.Count];
-            for (int i = 0; i < requests.Length; i++)
+            for (var i = 0; i < requests.Length; i++)
+            {
                 requests[i] = new VatClipRequest(clips[i].Name, clips[i].Length, fps, loop);
+            }
+
             return requests;
         }
     }

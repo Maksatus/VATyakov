@@ -28,12 +28,12 @@ namespace VATyakov.Tests
         public void Texel_MapsEveryElementAndRowToAUniqueTexel([Values(1, 2079, 4097, 8193)] int elements)
         {
             const int totalRows = 7;
-            int width = VatMath.TextureWidth(elements);
-            int height = VatMath.BlockCount(elements) * totalRows;
+            var width = VatMath.TextureWidth(elements);
+            var height = VatMath.BlockCount(elements) * totalRows;
             var seen = new HashSet<Vector2Int>();
-            for (int row = 0; row < totalRows; row++)
+            for (var row = 0; row < totalRows; row++)
             {
-                for (int element = 0; element < elements; element++)
+                for (var element = 0; element < elements; element++)
                 {
                     var texel = VatMath.Texel(element, width, totalRows, row);
                     Assert.That(texel.x, Is.InRange(0, width - 1));
@@ -44,15 +44,24 @@ namespace VATyakov.Tests
             }
         }
 
-        internal static float NextUp(float x) => Step(x, +1);
+        internal static float NextUp(float x)
+        {
+            return Step(x, +1);
+        }
 
-        internal static float NextDown(float x) => Step(x, -1);
+        internal static float NextDown(float x)
+        {
+            return Step(x, -1);
+        }
 
-        static float Step(float x, int direction)
+        private static float Step(float x, int direction)
         {
             if (x == 0f)
+            {
                 return direction > 0 ? float.Epsilon : -float.Epsilon;
-            int bits = BitConverter.ToInt32(BitConverter.GetBytes(x), 0);
+            }
+
+            var bits = BitConverter.ToInt32(BitConverter.GetBytes(x), 0);
             bits += (x > 0f) == (direction > 0) ? 1 : -1;
             return BitConverter.ToSingle(BitConverter.GetBytes(bits), 0);
         }

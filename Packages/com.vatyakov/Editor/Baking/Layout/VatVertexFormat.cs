@@ -3,8 +3,7 @@ using UnityEngine.Rendering;
 
 namespace VATyakov.Editor
 {
-    // §1.7, §1.9: stream 0 — position only (IDVS on Mali), stream 1 — the rest. No TexCoord4 in Vertex mode.
-    static class VatVertexFormat
+    internal static class VatVertexFormat
     {
         public const GraphicsFormat Position = GraphicsFormat.R16G16B16A16_SFloat;
         public const GraphicsFormat Rotation = GraphicsFormat.R8G8B8A8_UNorm;

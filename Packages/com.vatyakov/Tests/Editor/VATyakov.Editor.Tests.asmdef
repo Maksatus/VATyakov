@@ -4,7 +4,6 @@
     "references": [
         "VATyakov",
         "VATyakov.Editor",
-        "VATyakov.Editor.Alembic",
         "Unity.Formats.Alembic.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

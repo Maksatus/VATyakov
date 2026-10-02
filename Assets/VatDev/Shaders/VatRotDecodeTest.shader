@@ -1,7 +1,3 @@
-// Device check of 1.3: RGBA8 bytes and smallest-three fields of _VatRotTex decode exactly through VatCore.hlsl.
-// The texel is read as half, like a Shader Graph Blackboard texture on mobile (mediump sampler, §1.2).
-// Expected values are recomputed from the texel index, independent of the CPU code that filled the texture:
-// row 0 — every byte in every channel, rows 1–4 — 1024 packed (n_a, n_b, n_c, idx). Green = exact, red = wrong.
 Shader "VATyakov/Dev/RotDecodeTest"
 {
     Properties
@@ -40,7 +36,6 @@ Shader "VATyakov/Dev/RotDecodeTest"
                 float2 uv : TEXCOORD0;
             };
 
-            // Drawn by Graphics.Blit: the quad covers the target whatever matrices are set.
             Varyings Vert(Attributes input)
             {
                 Varyings output;

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
 using VATyakov.Editor;
 using Object = UnityEngine.Object;
@@ -11,24 +12,24 @@ namespace VATyakov.Tests
 {
     public class VatShaderGraphTests
     {
-        const string HalfParent = "Packages/com.vatyakov/Tests/Editor/Fixtures/VAT_HalfParent.shadergraph";
-        const string UnlitSample = "Packages/com.vatyakov/Samples/UnlitVertex/VAT_Unlit_Vertex.shadergraph";
-        const string LitSample = "Packages/com.vatyakov/Samples/LitVertex/VAT_Lit_Vertex.shadergraph";
-        const string TriplanarSample = "Packages/com.vatyakov/Samples/LitVertexTriplanar/VAT_Lit_Vertex_Triplanar.shadergraph";
+        private const string HalfParent = "Packages/com.vatyakov/Tests/Editor/Fixtures/vat_half_parent.shadergraph";
+        private const string UnlitSample = "Packages/com.vatyakov/Samples/UnlitVertex/vat_unlit_vertex.shadergraph";
+        private const string LitSample = "Packages/com.vatyakov/Samples/LitVertex/vat_lit_vertex.shadergraph";
+        private const string TriplanarSample = "Packages/com.vatyakov/Samples/LitVertexTriplanar/vat_lit_vertex_triplanar.shadergraph";
 
         [Test]
         public void HalfPrecisionParent_CompilesAndCallsFloatWrapper()
         {
             AssertCompiles(HalfParent);
 
-            string code = GeneratedCode(HalfParent);
+            var code = GeneratedCode(HalfParent);
             if (code == null)
+            {
                 Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+            }
 
-            // Only VatVertexPosition_float exists, so a _half call would also fail to compile.
             StringAssert.Contains("VatVertexPosition_float(", code);
             StringAssert.DoesNotContain("VatVertexPosition_half", code);
-            // Promoted state must stay float4 in UnityPerMaterial: half breaks rows and W above 2048.
             StringAssert.Contains("float4 _VatFrame;", code);
             StringAssert.Contains("float4 _VatLayout;", code);
             StringAssert.DoesNotContain("half4 _VatFrame", code);
@@ -42,9 +43,11 @@ namespace VATyakov.Tests
             AssertCompiles(LitSample);
             Assert.AreEqual(VatBaker.DefaultShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitSample).name, "default template shader");
 
-            string code = GeneratedCode(LitSample);
+            var code = GeneratedCode(LitSample);
             if (code == null)
+            {
                 Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+            }
 
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
@@ -53,16 +56,17 @@ namespace VATyakov.Tests
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 
-        // 1.4: meshes without UV (Alembic liquids); the triplanar normal map also needs the VAT tangent frame.
         [Test]
         public void TriplanarSample_CompilesWithoutUv()
         {
             AssertCompiles(TriplanarSample);
             Assert.AreEqual(VatBaker.TriplanarShaderName, AssetDatabase.LoadAssetAtPath<Shader>(TriplanarSample).name);
 
-            string code = GeneratedCode(TriplanarSample);
+            var code = GeneratedCode(TriplanarSample);
             if (code == null)
+            {
                 Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+            }
 
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
@@ -77,17 +81,20 @@ namespace VATyakov.Tests
             AssertCompiles(UnlitSample);
         }
 
-        static void AssertCompiles(string path)
+        private static void AssertCompiles(string path)
         {
             var shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
             Assert.IsNotNull(shader, path);
             var material = new Material(shader);
             try
             {
-                for (int pass = 0; pass < shader.passCount; pass++)
+                for (var pass = 0; pass < shader.passCount; pass++)
+                {
                     ShaderUtil.CompilePass(material, pass, true);
+                }
+
                 var errors = ShaderUtil.GetShaderMessages(shader)
-                    .Where(m => m.severity == UnityEditor.Rendering.ShaderCompilerMessageSeverity.Error)
+                    .Where(m => m.severity == ShaderCompilerMessageSeverity.Error)
                     .Select(m => $"{m.message} (line {m.line})").ToArray();
                 Assert.IsEmpty(errors, string.Join("\n", errors));
                 Assert.IsFalse(ShaderUtil.ShaderHasError(shader));
@@ -98,8 +105,7 @@ namespace VATyakov.Tests
             }
         }
 
-        // Through Shader Graph internals; null when they are not available.
-        static string GeneratedCode(string path)
+        private static string GeneratedCode(string path)
         {
             var importer = AppDomain.CurrentDomain.GetAssemblies()
                 .Select(a => a.GetType("UnityEditor.ShaderGraph.ShaderGraphImporter"))
@@ -107,7 +113,9 @@ namespace VATyakov.Tests
             var method = importer?.GetMethods(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
                 .FirstOrDefault(m => m.Name == "GetShaderText" && m.GetParameters().Length == 4);
             if (method == null)
+            {
                 return null;
+            }
 
             var collection = Activator.CreateInstance(method.GetParameters()[2].ParameterType, true);
             return method.Invoke(null, new object[] { path, null, collection, null }) as string;

@@ -2,12 +2,12 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatAssetSummaryContainer : EditorContainer
+    internal sealed class VatAssetSummaryContainer : EditorContainer
     {
-        readonly VatStat _vertices = new VatStat("Vertices");
-        readonly VatStat _texture = new VatStat("Texture");
-        readonly VatStat _memory = new VatStat("Memory");
-        readonly VisualElement _clips = new VisualElement();
+        private readonly VatStat _vertices = new("Vertices");
+        private readonly VatStat _texture = new("Texture");
+        private readonly VatStat _memory = new("Memory");
+        private readonly VisualElement _clips = new();
 
         public VatAssetSummaryContainer()
         {
@@ -20,7 +20,7 @@ namespace VATyakov.Editor
             ShowClips(asset);
         }
 
-        void ShowLayout(VatLayoutInfo info)
+        private void ShowLayout(VatLayoutInfo info)
         {
             _vertices.Set(VatText.Number(info.Elements));
             _texture.Set(VatText.Size(info), VatText.Blocks(info));
@@ -28,11 +28,13 @@ namespace VATyakov.Editor
                 "Actual memory of the position, rotation and drift textures, including the empty texels of the last block.");
         }
 
-        void ShowClips(VatAsset asset)
+        private void ShowClips(VatAsset asset)
         {
             _clips.Clear();
             foreach (var clip in asset.Clips)
+            {
                 _clips.Add(new VatClipRow(clip));
+            }
         }
     }
 }

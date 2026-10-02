@@ -2,9 +2,9 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatStat : VisualElement
+    internal sealed class VatStat : VisualElement
     {
-        readonly Label _value = new Label().WithClass("vat-stat__value");
+        private readonly Label _value = new Label().WithClass("vat-stat__value");
 
         public VatStat(string name)
         {

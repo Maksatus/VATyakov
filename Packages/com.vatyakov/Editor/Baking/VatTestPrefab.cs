@@ -6,9 +6,7 @@ using UnityEngine.SceneManagement;
 
 namespace VATyakov.Editor
 {
-    // Prefab for the Compare scene; game prefabs are assembled by hand. Updating in place keeps references
-    // and refreshes material slots after the submesh count changed.
-    static class VatTestPrefab
+    internal static class VatTestPrefab
     {
         public static GameObject CreateOrUpdate(VatBakeProfile profile)
         {
@@ -20,19 +18,27 @@ namespace VATyakov.Editor
             return prefab;
         }
 
-        static void RequireBaked(VatBakeProfile profile)
+        private static void RequireBaked(VatBakeProfile profile)
         {
             if (profile.Asset == null)
+            {
                 throw new VatBakeException("Bake the profile first.");
+            }
+
             if (!profile.Asset.TryValidate(out var error))
+            {
                 throw new VatBakeException(error);
+            }
+
             if (profile.Material == null)
+            {
                 throw new VatBakeException("No template material: bake the profile again.");
+            }
         }
 
-        static GameObject Update(VatBakeProfile profile)
+        private static GameObject Update(VatBakeProfile profile)
         {
-            string path = AssetDatabase.GetAssetPath(profile.Prefab);
+            var path = AssetDatabase.GetAssetPath(profile.Prefab);
             var root = PrefabUtility.LoadPrefabContents(path);
             try
             {
@@ -45,10 +51,9 @@ namespace VATyakov.Editor
             }
         }
 
-        // Built in a preview scene so the user's scenes are never marked dirty.
-        static GameObject Create(VatBakeProfile profile)
+        private static GameObject Create(VatBakeProfile profile)
         {
-            string path = NewPath(profile.Asset);
+            var path = NewPath(profile.Asset);
             var scene = EditorSceneManager.NewPreviewScene();
             try
             {
@@ -62,10 +67,12 @@ namespace VATyakov.Editor
             }
         }
 
-        static string NewPath(VatAsset asset) =>
-            AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(AssetDatabase.GetAssetPath(asset), ".prefab"));
+        private static string NewPath(VatAsset asset)
+        {
+            return AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(AssetDatabase.GetAssetPath(asset), ".prefab"));
+        }
 
-        static GameObject NewRoot(Scene scene, string name)
+        private static GameObject NewRoot(Scene scene, string name)
         {
             var root = EditorUtility.CreateGameObjectWithHideFlags(name, HideFlags.HideAndDontSave);
             SceneManager.MoveGameObjectToScene(root, scene);
@@ -73,22 +80,25 @@ namespace VATyakov.Editor
             return root;
         }
 
-        static void Fill(GameObject root, VatBakeProfile profile)
+        private static void Fill(GameObject root, VatBakeProfile profile)
         {
             GetOrAdd<MeshFilter>(root).sharedMesh = profile.Asset.Mesh;
             GetOrAdd<MeshRenderer>(root).sharedMaterials = Slots(profile.Material, profile.Asset.Mesh.subMeshCount);
-            GetOrAdd<VatAnimator>(root).Asset = profile.Asset; // §4
+            GetOrAdd<VatAnimator>(root).Asset = profile.Asset;
         }
 
-        static Material[] Slots(Material material, int subMeshCount)
+        private static Material[] Slots(Material material, int subMeshCount)
         {
             var slots = new Material[Mathf.Max(1, subMeshCount)];
-            for (int i = 0; i < slots.Length; i++)
+            for (var i = 0; i < slots.Length; i++)
+            {
                 slots[i] = material;
+            }
+
             return slots;
         }
 
-        static T GetOrAdd<T>(GameObject target) where T : Component
+        private static T GetOrAdd<T>(GameObject target) where T : Component
         {
             var component = target.GetComponent<T>();
             return component != null ? component : target.AddComponent<T>();

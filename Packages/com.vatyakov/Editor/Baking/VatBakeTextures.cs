@@ -2,22 +2,20 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // Vertex mode textures of one bake (§1.9).
-    sealed class VatBakeTextures
+    internal sealed class VatBakeTextures
     {
         public Texture2D Position { get; private set; }
         public Texture2D Rotation { get; private set; }
         public Texture2D Drift { get; private set; }
 
-        // Destroys what was built when a later texture throws.
         public static VatBakeTextures Build(VertexEncoder encoder, string name)
         {
             var textures = new VatBakeTextures();
             try
             {
-                textures.Position = encoder.BuildPositionTexture(name + "_Pos");
-                textures.Rotation = encoder.BuildRotationTexture(name + "_Rot");
-                textures.Drift = encoder.BuildDriftTexture(name + "_Drift");
+                textures.Position = encoder.BuildPositionTexture(name + "_pos");
+                textures.Rotation = encoder.BuildRotationTexture(name + "_rot");
+                textures.Drift = encoder.BuildDriftTexture(name + "_drift");
                 return textures;
             }
             catch
@@ -34,10 +32,12 @@ namespace VATyakov.Editor
             DestroyImmediate(Drift);
         }
 
-        static void DestroyImmediate(Object target)
+        private static void DestroyImmediate(Object target)
         {
             if (target != null)
+            {
                 Object.DestroyImmediate(target);
+            }
         }
     }
 }

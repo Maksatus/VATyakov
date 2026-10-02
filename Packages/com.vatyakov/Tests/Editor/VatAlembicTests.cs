@@ -10,22 +10,22 @@ using VATyakov.Editor;
 
 namespace VATyakov.Tests
 {
-    // Fixtures: a 9×9 grid with a wave, 30 fps, recorded by Assets/VatDev/Editor/VatAlembicFixtures.
-    // VatCloth — 1 s, the end repeats the start; VatTopology — 10×10 from frame 10; VatShuffled — no UV,
-    // point order reversed on frame 15 with the indices kept.
     public class VatAlembicTests
     {
-        const string Fixtures = "Packages/com.vatyakov/Tests/Editor/Fixtures/";
-        const float Fps = 30f;
-        const float Tolerance = 5e-4f; // half quantization of offsets below 1 m, meters
-        const float AngleTolerance = 0.3f; // degrees, smallest-three
+        private const string Fixtures = "Packages/com.vatyakov/Tests/Editor/Fixtures/";
+        private const float Fps = 30f;
+        private const float Tolerance = 5e-4f;
+        private const float AngleTolerance = 0.3f;
 
-        Scene _scene;
-        VatInMemoryBake _bake;
-        VatBakeProfile _profile;
+        private Scene _scene;
+        private VatInMemoryBake _bake;
+        private VatBakeProfile _profile;
 
         [SetUp]
-        public void SetUp() => _scene = EditorSceneManager.NewPreviewScene();
+        public void SetUp()
+        {
+            _scene = EditorSceneManager.NewPreviewScene();
+        }
 
         [TearDown]
         public void TearDown()
@@ -33,12 +33,14 @@ namespace VATyakov.Tests
             _bake?.Destroy();
             _bake = null;
             if (_profile != null)
+            {
                 Object.DestroyImmediate(_profile);
+            }
+
             _profile = null;
             EditorSceneManager.ClosePreviewScene(_scene);
         }
 
-        // A trimmed start checks that the sample time counts from StartTime, not from the file start.
         [Test]
         public void ClothBake_MatchesAlembicFrames_WithinQuantization([Values(0f, 0.2f)] float start)
         {
@@ -54,14 +56,15 @@ namespace VATyakov.Tests
             var drift = VatTestUtil.ReadGpu(_bake.Drift);
             var rest = _bake.Mesh.vertices;
             var reference = new AlembicReference(cloth, _scene);
-            float maxError = 0f, maxAngle = 0f;
-            for (int k = 0; k < clip.FrameCount; k++)
+            var maxError = 0f;
+            var maxAngle = 0f;
+            for (var k = 0; k < clip.FrameCount; k++)
             {
                 var mesh = reference.Sample(clip.FrameTime(k));
                 var vertices = mesh.vertices;
                 var normals = mesh.normals;
                 var d = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
-                for (int v = 0; v < rest.Length; v++)
+                for (var v = 0; v < rest.Length; v++)
                 {
                     var decoded = rest[v] + d + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);
                     var q = VatTestUtil.DecodeRotation(rotations, _bake.Layout.Info, v, clip.StartRow + k);
@@ -69,6 +72,7 @@ namespace VATyakov.Tests
                     maxAngle = Mathf.Max(maxAngle, Vector3.Angle(normals[v], VatMath.FrameNormal(q)));
                 }
             }
+
             Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
             Assert.Less(maxAngle, AngleTolerance, "normal, degrees");
         }
@@ -114,7 +118,7 @@ namespace VATyakov.Tests
             Assert.Less(probe.LoopGap, VatLoopGap.MaxLoopGap);
         }
 
-        VatBakeProfile AlembicProfile(GameObject alembic)
+        private VatBakeProfile AlembicProfile(GameObject alembic)
         {
             _profile = ScriptableObject.CreateInstance<VatBakeProfile>();
             _profile.Kind = VatSourceKind.Alembic;
@@ -124,25 +128,24 @@ namespace VATyakov.Tests
             return _profile;
         }
 
-        GameObject Instance(string name)
+        private GameObject Instance(string name)
         {
             var instance = Object.Instantiate(Load(name));
             SceneManager.MoveGameObjectToScene(instance, _scene);
             return instance;
         }
 
-        static GameObject Load(string name)
+        private static GameObject Load(string name)
         {
             var alembic = AssetDatabase.LoadAssetAtPath<GameObject>(Fixtures + name + ".abc");
             Assert.IsNotNull(alembic, name);
             return alembic;
         }
 
-        // The importer's own playback: what AlembicStreamPlayer shows at the time.
-        sealed class AlembicReference
+        private sealed class AlembicReference
         {
-            readonly AlembicStreamPlayer _player;
-            readonly MeshFilter _mesh;
+            private readonly AlembicStreamPlayer _player;
+            private readonly MeshFilter _mesh;
 
             public AlembicReference(GameObject alembic, Scene scene)
             {

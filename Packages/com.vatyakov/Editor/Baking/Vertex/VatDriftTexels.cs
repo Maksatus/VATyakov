@@ -2,11 +2,12 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // _VatDriftTex, §1.9: RGBAHalf, VatMath.DriftWidth × ΣF without blocks; x = 0 — hi, x = 1 — lo.
-    sealed class VatDriftTexels
+    internal sealed class VatDriftTexels
     {
-        readonly int _rows;
-        readonly ushort[] _texels;
+        private readonly int _rows;
+        private readonly ushort[] _texels;
+
+        public float MaxDistance { get; private set; }
 
         public VatDriftTexels(VatLayoutInfo info)
         {
@@ -14,9 +15,6 @@ namespace VATyakov.Editor
             _texels = Buffer(info);
         }
 
-        public float MaxDistance { get; private set; }
-
-        // Returns d as the shader reads it back.
         public Vector3 Write(int row, Vector3 drift)
         {
             var (hi, lo) = VatDriftCodec.Encode(drift);
@@ -26,17 +24,17 @@ namespace VATyakov.Editor
             return VatDriftCodec.Decode(hi, lo);
         }
 
-        public Texture2D Build(string name) => Create(_rows, name, _texels);
+        public Texture2D Build(string name)
+        {
+            return VatTexture.Create(VatMath.DriftWidth, _rows, VatVertexFormat.Drift, name, _texels);
+        }
 
-        // Drift off: the shader still adds d, so the texture is there and holds zeros.
-        public static Texture2D Zero(VatLayoutInfo info, string name) => Create(info.TotalRows, name, Buffer(info));
+        private static ushort[] Buffer(VatLayoutInfo info)
+        {
+            return new ushort[VatMath.DriftWidth * info.TotalRows * 4];
+        }
 
-        static ushort[] Buffer(VatLayoutInfo info) => new ushort[VatMath.DriftWidth * info.TotalRows * 4];
-
-        static Texture2D Create(int rows, string name, ushort[] texels) =>
-            VatTexture.Create(VatMath.DriftWidth, rows, VatVertexFormat.Drift, name, texels);
-
-        static int Offset(int part, int row)
+        private static int Offset(int part, int row)
         {
             var texel = VatMath.DriftTexel(part, row);
             return (texel.y * VatMath.DriftWidth + texel.x) * 4;

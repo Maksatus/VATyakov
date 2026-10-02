@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    readonly struct VatSourceSubMesh
+    internal readonly struct VatSourceSubMesh
     {
-        public readonly int[] Indices; // absolute, baseVertex already applied
+        public readonly int[] Indices;
         public readonly MeshTopology Topology;
 
         public VatSourceSubMesh(int[] indices, MeshTopology topology)

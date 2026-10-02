@@ -14,11 +14,15 @@
 | 1.5 Дрейф | готово | 0.5.0 |
 | 1.6 Несколько клипов в одном ассете | готово | 0.6.0 |
 | 1.7 VatAnimator: материал на юнита и управление | готово | 0.7.0 |
+| Аудит: упрощение после 1.7 | готово | 0.7.1 |
 | 1.8 | следующая | — |
-| 1.9–1.19 | не начаты | — |
+| 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
+| 1.10–1.16, 1.18 | не начаты | — |
+| 1.17 Тени | убрана, рекомендация — в §3 | — |
+| 1.19 Финальные бюджеты | слита с 1.14 | — |
 
 Проверки на устройствах (iPhone 12, Adreno, Mali): результаты не записаны — дописать сюда при следующем прогоне.
-1.3 на устройствах: сцена `RotDecode` (кнопка RGBA8 в Compare) — «RGBA8: OK» или число неверных текселей и API.
+1.3 на устройствах: сцена `rot_decode` (кнопка RGBA8 в `compare`) — «RGBA8: OK» или число неверных текселей и API.
 
 ## Как устроено сейчас
 
@@ -30,21 +34,21 @@
   клипы друг под другом в порядке списка и проверяет высоту по всем сразу до сэмплинга (та же ошибка в оценке
   инспектора, `VatBakeEstimate`). `SkinnedFrameSource` при смене клипа: `VatClipPlayer.Stop` (граф) →
   `VatPoseSnapshot.Restore` (локальные трансформы всей копии и веса блендшейпов, снимок после `PrepareAnimator`).
-  Клип по умолчанию — `VatAsset._defaultClip` (имя), `DefaultClipIndex`; выбор — `VatDefaultClip.Set` (инспектор
-  ассета, пишет в шаблон профиля через `VatProfileLookup`), при бейке — `VatTemplateMaterial.Apply`. Инспектор
-  материала: `VatClipField` (выпадающий список, `ApplyTo` кадр 0), клип материала ищется по строке `_VatFrame.x`
-  (`VatClipLookup`).
-- **Alembic:** `VATyakov.Editor` типов Alembic не видит; `VatAlembic` находит через `TypeCache` реализацию
-  `IVatAlembicSupport` из сборки `VATyakov.Editor.Alembic` (только с `VAT_ALEMBIC`). `AlembicFrameSource`: скрытая
+  Клипа по умолчанию нет (0.7.1): клип шаблона выбирается в инспекторе материала — `VatClipField` (выпадающий
+  список, `ApplyTo` кадр 0), клип материала ищется по строке `_VatFrame.x` (`VatClipLookup`). Перебейк сохраняет его
+  по имени: `VatTemplateMaterial.ShownClip` читает имя из старого ассета до записи, `Apply` ищет его в новом (нет —
+  первый клип). `VatAnimator` с пустым Clip играет первый клип.
+- **Alembic:** код в `VATyakov.Editor` (`Editor/Baking/Sources/Alembic/`), сборка ссылается на
+  `Unity.Formats.Alembic.Runtime` по имени и получает `VAT_ALEMBIC` через `versionDefines` (0.7.1). Под `#if VAT_ALEMBIC` —
+  только `AlembicFrameSource` и `VatAlembicCopy`; `VatAlembic.IsInstalled` и `Open` — по тому же define. `AlembicFrameSource`: скрытая
   копия .abc с корнем в identity (`VatAlembicCopy`), все меш-ноды — один меш (`VatAlembicReader`, `VatSourceMeshes.Combine`),
   на каждом кадре `VatAlembicTopology` (ошибка «патч 2») и `VatVertexJumps` (предупреждение). Инспектор профиля
   берёт число вертексов, длину и разрыв петли из `VatAlembicProbe` (кэш до переимпорта .abc), подсказка loop —
   `VatLoopHintController`.
   `VertexEncoder` за один проход пишет `_VatPosTex` (`VatPositionTexels`), `_VatRotTex` (`VatRotationTexels`,
   кодек `VatSmallestThree`) и `_VatDriftTex` (`VatDriftTexels`, кодек `VatDriftCodec`); N и T кадра — `VatTangentFrames`,
-  знак бинормали — `VatChirality`. Позиции пишутся в два `VatPositionVariant` (d = 0 и d = центроид кадра − центроид
-  покоя); после последнего кадра `VatDriftPolicy` выбирает один, `encoder.Layout` — раскладка с решением о дрейфе.
-  Ошибки обоих вариантов — `VatPrecision` в ассете.
+  знак бинормали — `VatChirality`. Позиции — `VatPositions`: Δ = pos − rest − d, d = центроид кадра − центроид покоя,
+  дрейф включён всегда (0.7.1). `VatPrecision` в ассете — ошибка после fp16 и путь центроида.
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
   уникальный VAT-шаблон, VAT = есть `_VatFrame`, только в Play mode, `Dispose` в `OnDestroy`), `VatPlayer` (клип,
@@ -53,48 +57,51 @@
   Запись — в `LateUpdate`, событие `ClipFinished` после записи. `VatCompare` в Compare берёт копию `VatAnimator`
   из префаба и выключает его.
 - **Шейдер:** `VatCore.hlsl` — адрес тексела, тексел и сумма дрейфа, декод smallest-three, nlerp и оси кадра;
-  `VatMath.cs` — его CPU-зеркало. Дрейф читается всегда (без него в текстуре нули).
-  `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float`; SubGraph `VAT_Vertex` отдаёт
-  Position, Normal, Tangent. Шаблон по умолчанию — `VAT_Lit_Vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
-- **Тестовый контент:** `Assets/VatDev/Content/Bow`, результаты бейка — `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/Compare.unity`.
-  Толпа (1.7): профиль `Bakes/Bow_OneShot` — те же три клипа лука, но one-shot (VAT 26, Fire 79, BakeSave 98 кадров),
-  префаб `Bow_OneShot_Vat`; сцена `Scenes/Animator.unity` (третья в сборке) — 100 юнитов `VatCrowd` в сетке 10×10,
+  `VatMath.cs` — его CPU-зеркало. Дрейф пишется и читается всегда.
+  `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float`; SubGraph `vat_vertex` отдаёт
+  Position, Normal, Tangent. Шаблон по умолчанию — `vat_lit_vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
+- **Тестовый контент** (файлы — маленькими буквами через `_`, 0.7.1): `Assets/VatDev/Content/Bow`, результаты бейка —
+  `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/compare.unity`.
+  Толпа (1.7): профиль `Bakes/bow_one_shot` — те же три клипа лука, но one-shot (VAT 26, Fire 79, BakeSave 98 кадров),
+  префаб `bow_one_shot_vat`; сцена `Scenes/animator.unity` (третья в сборке) — 100 юнитов `VatCrowd` в сетке 10×10,
   каждый по `ClipFinished` играет следующий клип. Кнопки и клавиши: Pool (P, `SetActive` всех), Hit (H, `_BaseColor`
   на 0.15 с), Reverse (R), Pause (Space); счётчики Finished, Doubled (повторное событие за один Play, должно быть 0) и
   Materials (все загруженные `Material`, не должно расти при пуле).
-  У `WeaponLandingBow.fbx` (legacy) три клипа: `VAT` (кадры 0–25 take Fire), `Fire` (take целиком, 2.6 с), `BakeSave`
-  (take целиком, 3.23 с); профили `Bow_Default` и `Bow_Upgrade` запекают все три (loop, 30 fps): 200 строк, у Upgrade
+  У `weapon_landing_bow.fbx` (legacy) три клипа: `VAT` (кадры 0–25 take Fire), `Fire` (take целиком, 2.6 с), `BakeSave`
+  (take целиком, 3.23 с); профили `bow_default` и `bow_upgrade` запекают все три (loop, 30 fps): 200 строк, у Upgrade
   2 блока — текстура 2265×400.
-  Alembic: `Assets/VatDev/Content/Alembic/Water.abc` (5853 вертекса, 80 кадров по 24 fps, с UV, не петля — конец
-  отличается от начала на 218 мм), профиль `Bakes/Water.asset`, сцена `Scenes/CompareAlembic.unity` (не в сборке: .abc
-  в мобильный билд не идёт) — сплит-скрин, у каждой половины своя камера с одинаковым ракурсом. `Columns.fbx` — на 1.15.
-  У лука нет своей normal map: `Bow_TestNormal.png` — процедурный рельеф (sin·sin, 24 периода), на SMR — `Bow_Source_Lit.mat`
-  (URP Lit), на VAT — `VAT_Lit_Vertex` с той же картой и smoothness 0.6. Сцена `RotDecode` — проверка RGBA8 на устройстве
+  Alembic: `Assets/VatDev/Content/Alembic/water.abc` (5853 вертекса, 80 кадров по 24 fps, с UV, не петля — конец
+  отличается от начала на 218 мм), профиль `Bakes/water.asset`, сцена `Scenes/compare_alembic.unity` (не в сборке: .abc
+  в мобильный билд не идёт) — сплит-скрин, у каждой половины своя камера с одинаковым ракурсом. `columns.fbx` — на 1.15.
+  У лука нет своей normal map: `bow_test_normal.png` — процедурный рельеф (sin·sin, 24 периода), на SMR — `bow_source_lit.mat`
+  (URP Lit), на VAT — `vat_lit_vertex` с той же картой и smoothness 0.6. Сцена `rot_decode` — проверка RGBA8 на устройстве
   (`VatRotDecodeCheck`, шейдер `Assets/VatDev/Shaders/VatRotDecodeTest.shader`), вторая сцена сборки.
-  Дрейф (1.5): `Content/Alembic/Jelly.abc` — желе 1225 вертексов, 121 кадр по 30 fps, за 1.5 с улетает на 40 м и потом
-  медленно колышется (генератор — меню VATyakov → Dev → Regenerate Drift Content, `VatJellyContent`). Профили
-  `Bakes/Jelly` (дрейф включился сам: ошибка 0.059 мм) и `Bakes/Jelly_NoDrift` (скрытое `_noDrift`, 15.6 мм), сцена
-  `Scenes/Drift.unity` (не в сборке): Alembic, VAT с дрейфом (x = 40) и без (x = 41.5), камера вплотную к их силуэтам.
+  Дрейф (1.5): `Content/Alembic/jelly.abc` — желе 1225 вертексов, 121 кадр по 30 fps, за 1.5 с улетает на 40 м и потом
+  медленно колышется (генератор — меню VATyakov → Dev → Regenerate Drift Content, `VatJellyContent`). Профиль
+  `Bakes/jelly` (ошибка 0.059 мм, без дрейфа было 15.6 мм), сцена `Scenes/drift.unity` (не в сборке): Alembic и VAT
+  (x = 40), камера вплотную к силуэтам.
+  Разрушение (на 1.15): `Content/RBDDestroy/rbd_test_rig.fbx` — меши-куски с анимацией трансформов, legacy-клип, без
+  скиннинга; сейчас его не печёт ни один источник. `rbd_test_cell.fbx` побайтно совпадает с ним — похоже, не тот файл.
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
 - `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatPlayback, VatPlayer, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming
-- `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — VAT_Vertex.shadersubgraph
-- `Samples/UnlitVertex/` — VAT_Unlit_Vertex.shadergraph; `Samples/LitVertex/` — VAT_Lit_Vertex.shadergraph (шаблон по умолчанию);
-  `Samples/LitVertexTriplanar/` — VAT_Lit_Vertex_Triplanar.shadergraph (меши без UV)
+- `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph
+- `Samples/UnlitVertex/` — vat_unlit_vertex.shadergraph; `Samples/LitVertex/` — vat_lit_vertex.shadergraph (шаблон по умолчанию);
+  `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV)
 - `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTestPrefab
-- `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatLayoutVerifier, VatVertexFormat
-- `Editor/Baking/Sources/` — IVatAlembicSupport, IVatFrameSource, VatAlembic, VatAlembicProbe, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
-- `Editor/Alembic/` — VATyakov.Editor.Alembic.asmdef, AlembicFrameSource, VatAlembicCopy, VatAlembicReader, VatAlembicSupport, VatAlembicTopology, VatVertexJumps
+- `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
+- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
+- `Editor/Baking/Sources/Alembic/` — AlembicFrameSource и VatAlembicCopy (под `#if VAT_ALEMBIC`), VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — SkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
-- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftCodec, VatDriftPolicy, VatDriftTexels, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositionVariant, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VertexEncoder
+- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftCodec, VatDriftTexels, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositions, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (источник — VatSourceFields*, подсказка loop — VatLoopHint*)
-- `Editor/Asset/` — VatAssetEditor, VatDefaultClip, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка с дрейфом и без — VatAssetPrecision*, клип по умолчанию — VatAssetDefaultClip*)
-- `Editor/Animator/` — VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = Default), VatAnimatorFields* (Play On Enable, Speed)
-- `Editor/Material/` — VatShaderGUI, IVatMaterialSection, VatClipField, VatClipLookup, VatFoldoutHeader, VatFrameField, VatMaterialBinding, VatObjectLinkField; `Sections/` — VatAdvancedSection, VatAnimationSection, VatSurfaceSection
+- `Editor/Asset/` — VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка и путь центроида — VatAssetPrecision*)
+- `Editor/Animator/` — VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
+- `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField
 - `Editor/Framework/` — ControllerExtensions, ControllerInspector, EditorContainer, IController, Property, Trigger, VisualElementExtensions
 - `Editor/Ui/` — VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — VAT_HalfParent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, VatCloth.abc, VatTopology.abc, VatShuffled.abc
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -164,3 +171,32 @@
   201 до и после; Hit красит `_BaseColor` и возвращает его; MPB на одном юните — одна ошибка с именем объекта. Compare
   на Fire кадр 20 — SMR и VAT совпадают через копию `VatAnimator`. Шаблонные `.mat` после Play mode в git не
   изменились. Замер стоимости записи (маркер `VatAnimator.Write`) не делал — его проверяет пользователь. 203 теста зелёные.
+- **Аудит после 1.7 (0.7.1):** запрос пользователя — убрать лишнее из инструмента и плана. Его решения: дрейф всегда
+  включён; клипа по умолчанию в `VatAsset` нет; Alembic-код — в основной Editor-сборке через `#if`; убраны поля
+  `VatLayoutInfo` под Bone и Rigid, `VatLayoutVerifier`, миграция `_clip`, реестр секций ShaderGUI. Инспекторы не
+  урезались (оценка, подсказка loop, Result, Test Prefab остались). В плане: 1.9 — в патч 2, 1.17 убрана, 1.19 слита с
+  1.14, у 1.13 нет `averageSpeed`, в §1.9 нет vertex color и доп. UV. Bone, Rigid и 1.10 остаются как были; RBD
+  (1.15–1.16) пользователь назвал архиважным. Записано в §0, §1.1, §1.4, §1.6, §1.8, §1.9, §2.1, §2.2, §3, §4, §6.
+  Сам решил: перебейк сохраняет клип шаблона по имени (иначе каждый перебейк сбрасывал бы выбор из инспектора
+  материала); `VatPositionVariant` → `VatPositions`; Alembic-файлы переехали к источникам, `VatAlembic` — с `#if`.
+  `formatVersion` не менялся: у старых ассетов без дрейфа в текстуре нули, они играют; ошибка в инспекторе у них 0
+  до перебейка (поле `VatPrecision._error` новое). VatDev перезапечён: лук 0.122 мм (без дрейфа было 0.21), Jelly
+  0.059 мм, вода 0.503 мм (было ≈ 0.5 мм). Профиль `Jelly_NoDrift` и его результаты удалены, из сцены Drift — объект
+  без дрейфа. Шаблонные материалы лука при перебейке сохранили клип (`_VatFrame` в git не изменился).
+  Проверено: 198 тестов зелёные; без `com.unity.formats.alembic` (удалён и возвращён через `package_remove/add`)
+  проект собирается, 192 теста зелёные; `manifest.json`, lock и `.meta` у .abc после возврата не изменились.
+  Нейминг (по просьбе пользователя): файлы контента VatDev — маленькими буквами через `_` (`Bow_Default_Vat.prefab` →
+  `bow_default_vat.prefab`, `WeaponLandingBow.fbx` → `weapon_landing_bow.fbx`, сцены `compare`, `rot_decode`,
+  `animator`, `compare_alembic`, `drift`); папки и код — PascalCase, как в `D:\client`. Бейкер пишет `<профиль>_vat` и
+  сабассеты `_mesh`, `_pos`, `_rot`, `_drift`; при перебейке имена сабассетов теперь идут от текущего имени файла
+  (`VatAssetWriter.Adopt` больше не держит старое). Клипы Alembic называются по файлу: `water`, `jelly`. Клипы лука
+  (`VAT`, `Fire`, `BakeSave`) — имена из импортёра FBX, не файлы, не менялись. Переименовано через `AssetDatabase.RenameAsset`
+  (GUID и ссылки целы, Build Settings обновились сами); смену регистра git с `core.ignorecase` не видит — папки
+  `Bakes`, `Content`, `Scenes` перевнесены в индекс.
+  Стиль кода (по просьбе пользователя): весь C# и HLSL приведён к стилю `D:\client\Assets\Scripts\Game` и его
+  `AGENTS.md`. Правила записаны в CLAUDE.md («Соглашения»), для Rider — `.editorconfig` в корне. Основное:
+  явные модификаторы, скобки всегда, `var`, методы с блочным телом, порядок членов, `Deactivate()` перед `Activate()`,
+  комментариев нет. Сделано утилитой на Roslyn из .NET SDK (синтаксические проходы плюс `var` по семантике только при
+  точном совпадении типов), остальное — руками. Из старых комментариев шейдеров в CLAUDE.md перенесено: в HLSL только
+  `_float`, новый вход Custom Function — последним. В `VatAnimator` убран костыль с `int.MinValue`
+  (`TryGetClip` по имени и по индексу, проверка ассета в `IsAssetPlayable`). Поведение не менялось, 198 тестов зелёные.

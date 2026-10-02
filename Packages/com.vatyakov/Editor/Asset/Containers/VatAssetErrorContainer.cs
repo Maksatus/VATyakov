@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatAssetErrorContainer : EditorContainer
+    internal sealed class VatAssetErrorContainer : EditorContainer
     {
         public readonly HelpBox Box = VatUi.HelpBox(HelpBoxMessageType.Error);
 

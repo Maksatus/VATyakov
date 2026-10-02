@@ -4,51 +4,42 @@ using UnityEngine;
 
 namespace VATyakov
 {
-    // §1.8: main object of a .asset with Mesh and Texture2D sub-assets.
-    // Binary serialization keeps pixel data compact in a Force Text project.
     [PreferBinarySerialization]
     public sealed class VatAsset : ScriptableObject
     {
-        // Bump on any incompatible change of the channel map (§1.9).
-        public const int CurrentFormatVersion = 3; // 2: _VatRotTex (1.3), 3: _VatDriftTex (1.5)
+        public const int CurrentFormatVersion = 3;
 
-        [SerializeField] int _formatVersion;
-        [SerializeField] VatLayoutInfo _layout;
-        [SerializeField] Mesh _mesh;
-        [SerializeField] Texture2D _positionTexture;
-        [SerializeField] Texture2D _rotationTexture;
-        [SerializeField] Texture2D _driftTexture;
-        [SerializeField] VatClip[] _clips = Array.Empty<VatClip>();
-        [SerializeField] VatPrecision _precision;
-        [SerializeField] string _sourceHash = string.Empty;
-
-        // §1.6: chosen in the VatAsset inspector, not by the baker. By name, so it survives a rebake with other clips.
-        [SerializeField] string _defaultClip = string.Empty;
+        [SerializeField]
+        private int _formatVersion;
+        [SerializeField]
+        private VatLayoutInfo _layout;
+        [SerializeField]
+        private Mesh _mesh;
+        [SerializeField]
+        private Texture2D _positionTexture;
+        [SerializeField]
+        private Texture2D _rotationTexture;
+        [SerializeField]
+        private Texture2D _driftTexture;
+        [SerializeField]
+        private VatClip[] _clips = Array.Empty<VatClip>();
+        [SerializeField]
+        private VatPrecision _precision;
+        [SerializeField]
+        private string _sourceHash = string.Empty;
 
         public int FormatVersion => _formatVersion;
-
         public VatLayoutInfo Layout => _layout;
-
         public Mesh Mesh => _mesh;
-
         public Texture2D PositionTexture => _positionTexture;
-
         public Texture2D RotationTexture => _rotationTexture;
-
         public Texture2D DriftTexture => _driftTexture;
-
         public IReadOnlyList<VatClip> Clips => _clips;
-
         public VatPrecision Precision => _precision;
-
         public string SourceHash => _sourceHash;
-
-        // The clip template materials show in edit mode; the first clip when none is chosen or it is gone.
-        public int DefaultClipIndex => Math.Max(FindClip(_defaultClip), 0);
-
         public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
 
-        bool IsComplete =>
+        private bool IsComplete =>
             _mesh != null && _positionTexture != null && _rotationTexture != null && _driftTexture != null && _clips.Length > 0;
 
         public bool TryValidate(out string error)
@@ -57,16 +48,19 @@ namespace VATyakov
             return error == null;
         }
 
-        // −1 when the asset has no clip with this name.
         public int FindClip(string clipName)
         {
-            for (int i = 0; i < _clips.Length; i++)
+            for (var i = 0; i < _clips.Length; i++)
+            {
                 if (_clips[i].Name == clipName)
+                {
                     return i;
+                }
+            }
+
             return -1;
         }
 
-        // Template materials show the first frame of the clip; playback is the driver's job (§1.3).
         public void ApplyTo(Material material, int clipIndex)
         {
             RequireApplicable(material, clipIndex);
@@ -91,21 +85,32 @@ namespace VATyakov
             _sourceHash = sourceHash;
         }
 
-        internal void SetDefaultClip(int clipIndex) => _defaultClip = _clips[clipIndex].Name;
-
-        void RequireApplicable(Material material, int clipIndex)
+        private void RequireApplicable(Material material, int clipIndex)
         {
             if (material == null)
+            {
                 throw new ArgumentNullException(nameof(material));
+            }
+
             if (!TryValidate(out var error))
+            {
                 throw new InvalidOperationException(error);
+            }
+
             if ((uint)clipIndex >= (uint)_clips.Length)
+            {
                 throw new ArgumentOutOfRangeException(nameof(clipIndex), clipIndex, $"VAT asset '{name}' has {_clips.Length} clip(s).");
+            }
         }
 
-        string FormatError() =>
-            $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.";
+        private string FormatError()
+        {
+            return $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.";
+        }
 
-        string IncompleteError() => $"VAT asset '{name}' is incomplete (mesh, textures or clips missing). Rebake it.";
+        private string IncompleteError()
+        {
+            return $"VAT asset '{name}' is incomplete (mesh, textures or clips missing). Rebake it.";
+        }
     }
 }

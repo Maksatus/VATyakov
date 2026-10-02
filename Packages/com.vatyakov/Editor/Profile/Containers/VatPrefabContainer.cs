@@ -3,10 +3,10 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatPrefabContainer : EditorContainer
+    internal sealed class VatPrefabContainer : EditorContainer
     {
         public readonly Button Button = VatUi.SecondaryButton();
-        readonly VatObjectLink _link = new VatObjectLink("Prefab");
+        private readonly VatObjectLink _link = new("Prefab");
 
         public VatPrefabContainer()
         {

@@ -2,21 +2,15 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatProblemsController : IController
+    internal sealed class VatProblemsController : IController
     {
-        readonly VatProfileContext _context;
-        readonly VatProblemsContainer _container;
+        private readonly VatProfileContext _context;
+        private readonly VatProblemsContainer _container;
 
         public VatProblemsController(VatProfileContext context, VisualElement parent)
         {
             _context = context;
             _container = parent.CreateContainer<VatProblemsContainer>();
-        }
-
-        public void Activate()
-        {
-            _context.Model.Changed.OnCall += Refresh;
-            Refresh();
         }
 
         public void Deactivate()
@@ -25,7 +19,13 @@ namespace VATyakov.Editor
             _container.DestroyView();
         }
 
-        void Refresh()
+        public void Activate()
+        {
+            _context.Model.Changed.OnCall += Refresh;
+            Refresh();
+        }
+
+        private void Refresh()
         {
             var problems = VatBakeValidator.Validate(_context.Profile);
             _container.Box.SetMessage(string.Join("\n", problems));

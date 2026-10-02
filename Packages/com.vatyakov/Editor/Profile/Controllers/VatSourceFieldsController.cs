@@ -3,22 +3,15 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatSourceFieldsController : IController
+    internal sealed class VatSourceFieldsController : IController
     {
-        readonly VatProfileContext _context;
-        readonly VatSourceFieldsContainer _container;
+        private readonly VatProfileContext _context;
+        private readonly VatSourceFieldsContainer _container;
 
         public VatSourceFieldsController(VatProfileContext context, VisualElement parent)
         {
             _context = context;
             _container = parent.CreateContainer<VatSourceFieldsContainer>();
-        }
-
-        public void Activate()
-        {
-            _container.Root.Bind(_context.SerializedObject);
-            _context.Model.Changed.OnCall += Refresh;
-            Refresh();
         }
 
         public void Deactivate()
@@ -28,9 +21,16 @@ namespace VATyakov.Editor
             _container.DestroyView();
         }
 
-        void Refresh()
+        public void Activate()
         {
-            bool alembic = _context.Profile.Kind == VatSourceKind.Alembic;
+            _container.Root.Bind(_context.SerializedObject);
+            _context.Model.Changed.OnCall += Refresh;
+            Refresh();
+        }
+
+        private void Refresh()
+        {
+            var alembic = _context.Profile.Kind == VatSourceKind.Alembic;
             _container.Skinned.SetVisible(!alembic);
             _container.Alembic.SetVisible(alembic);
         }

@@ -1,9 +1,9 @@
 namespace VATyakov.Editor
 {
-    interface IController
+    internal interface IController
     {
-        void Activate();
-
         void Deactivate();
+
+        void Activate();
     }
 }

@@ -1,10 +1,14 @@
+using UnityEngine;
+
 namespace VATyakov
 {
-    // §1.3 on the CPU: f = (t − t0)·fps_eff·speed + offset. The driver writes Frame(t) into _VatFrame every frame.
     public sealed class VatPlayback
     {
-        double _t0;
-        double _offset;
+        private double _t0;
+        private double _offset;
+
+        public VatClip Clip { get; }
+        public float Speed { get; private set; }
 
         public VatPlayback(VatClip clip, double time, float speed = 1f, double offset = 0.0)
         {
@@ -14,16 +18,16 @@ namespace VATyakov
             _offset = offset;
         }
 
-        public VatClip Clip { get; }
+        public double Position(double time)
+        {
+            return (time - _t0) * Clip.FrameRate * Speed + _offset;
+        }
 
-        // 0 is a pause, negative plays backwards: a loop wraps, a one-shot stops on frame 0.
-        public float Speed { get; private set; }
+        public Vector4 Frame(double time)
+        {
+            return Clip.Frame(Position(time));
+        }
 
-        public double Position(double time) => (time - _t0) * Clip.FrameRate * Speed + _offset;
-
-        public UnityEngine.Vector4 Frame(double time) => Clip.Frame(Position(time));
-
-        // The anchor moves to `time`, so the frame shown right now stays.
         public void SetSpeed(double time, float speed)
         {
             _offset = Clip.Wrap(Position(time));

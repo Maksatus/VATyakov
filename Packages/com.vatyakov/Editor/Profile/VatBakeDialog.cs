@@ -3,7 +3,7 @@ using UnityEditor;
 
 namespace VATyakov.Editor
 {
-    static class VatBakeDialog
+    internal static class VatBakeDialog
     {
         public static void Run(Action action)
         {

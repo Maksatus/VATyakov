@@ -1,6 +1,6 @@
 namespace VATyakov.Editor
 {
-    readonly struct VatSourceClip
+    internal readonly struct VatSourceClip
     {
         public readonly string Name;
         public readonly float Length;

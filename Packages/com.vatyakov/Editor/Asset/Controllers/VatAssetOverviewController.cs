@@ -2,10 +2,10 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatAssetOverviewController : IController
+    internal sealed class VatAssetOverviewController : IController
     {
-        readonly VatAsset _asset;
-        readonly VatAssetOverviewContainer _container;
+        private readonly VatAsset _asset;
+        private readonly VatAssetOverviewContainer _container;
 
         public VatAssetOverviewController(VatAsset asset, VisualElement parent)
         {
@@ -13,8 +13,14 @@ namespace VATyakov.Editor
             _container = parent.CreateContainer<VatAssetOverviewContainer>();
         }
 
-        public void Activate() => _container.Summary.Show(_asset);
+        public void Deactivate()
+        {
+            _container.DestroyView();
+        }
 
-        public void Deactivate() => _container.DestroyView();
+        public void Activate()
+        {
+            _container.Summary.Show(_asset);
+        }
     }
 }

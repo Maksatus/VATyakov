@@ -1,38 +1,47 @@
-using VATyakov.Editor;
+using System;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VATyakov.Editor;
+using Object = UnityEngine.Object;
 
 namespace VATyakov.Tests
 {
     public class VatBakeTests
     {
-        const string TempFolder = "Assets/__VatTestTemp";
-        const float Fps = 30f;
-        const float Tolerance = 5e-4f; // half quantization of offsets below 1 m, meters
-        const float AngleTolerance = 0.3f; // degrees: smallest-three plus Float32 skinning order
+        private const string TempFolder = "Assets/__VatTestTemp";
+        private const float Fps = 30f;
+        private const float Tolerance = 5e-4f;
+        private const float AngleTolerance = 0.3f;
 
-        Scene _scene;
-        VatTestRig _rig;
-        VatBakeProfile _profile;
+        private Scene _scene;
+        private VatTestRig _rig;
+        private VatBakeProfile _profile;
+
+        private static Vector3 RestNormal => Quaternion.Euler(-90f, 0f, 0f) * Vector3.back;
 
         [SetUp]
         public void SetUp()
         {
             _scene = EditorSceneManager.NewPreviewScene();
             if (!AssetDatabase.IsValidFolder(TempFolder))
+            {
                 AssetDatabase.CreateFolder("Assets", TempFolder.Substring("Assets/".Length));
+            }
         }
 
         [TearDown]
         public void TearDown()
         {
             _rig?.Destroy();
-            _rig = null; // NUnit reuses the fixture instance between tests
+            _rig = null;
             if (_profile != null)
+            {
                 Object.DestroyImmediate(_profile);
+            }
+
             _profile = null;
             EditorSceneManager.ClosePreviewScene(_scene);
             AssetDatabase.DeleteAsset(TempFolder);
@@ -56,56 +65,17 @@ namespace VATyakov.Tests
             }
         }
 
-        static void AssertFormat(VatInMemoryBake bake)
-        {
-            CollectionAssert.AreEqual(VatVertexFormat.Attributes, bake.Mesh.GetVertexAttributes());
-            Assert.AreEqual(VatVertexFormat.Strides[0], bake.Mesh.GetVertexBufferStride(0));
-            Assert.AreEqual(VatVertexFormat.Strides[1], bake.Mesh.GetVertexBufferStride(1));
-            Assert.DoesNotThrow(() => VatLayoutVerifier.Verify(bake.Layout, bake.Mesh, bake.Textures));
-            Assert.AreEqual(VatVertexFormat.Rotation, bake.Rotation.graphicsFormat);
-            Assert.AreEqual(bake.Position.width, bake.Rotation.width);
-            Assert.AreEqual(bake.Position.height, bake.Rotation.height);
-        }
-
-        static void AssertVertices(VatInMemoryBake bake, Vector2[] sourceUv)
-        {
-            var mesh = bake.Mesh;
-            Assert.IsTrue(mesh.isReadable);
-            CollectionAssert.AreEqual(bake.Rest, mesh.vertices, "positions are Float32 rest positions");
-            var uv = mesh.uv;
-            var normals = mesh.normals;
-            for (int v = 0; v < mesh.vertexCount; v++)
-            {
-                Assert.That((uv[v] - sourceUv[v]).magnitude, Is.LessThan(1e-3f), "uv, Float16");
-                Assert.That((normals[v] - bake.RestNormals[v]).magnitude, Is.LessThan(1e-3f), "normal, Float16");
-                Assert.That((bake.RestNormals[v] - RestNormal).magnitude, Is.LessThan(1e-5f), "normal in root space");
-            }
-        }
-
-        static void AssertSubMeshes(Mesh mesh, Mesh source)
-        {
-            Assert.AreEqual(source.subMeshCount, mesh.subMeshCount);
-            for (int s = 0; s < mesh.subMeshCount; s++)
-            {
-                Assert.AreEqual(0, mesh.GetSubMesh(s).baseVertex, "baseVertex = 0 on every sub-mesh");
-                CollectionAssert.AreEqual(source.GetIndices(s, true), mesh.GetIndices(s, true));
-            }
-        }
-
-        // Model rotates the strip −90° around X.
-        static Vector3 RestNormal => Quaternion.Euler(-90f, 0f, 0f) * Vector3.back;
-
         [Test]
         public void Bake_Reload_TextureBytesAreIdentical_AndDecodeToReference([Values] bool legacy)
         {
             _rig = new VatTestRig(_scene, 5000, legacy);
             _profile = CreateProfile(_rig);
             var asset = VatBaker.Bake(_profile, TempFolder + "/Reload.asset");
-            byte[] before = VatTestUtil.ReadGpu(asset.PositionTexture);
-            byte[] rotationBefore = VatTestUtil.ReadGpu(asset.RotationTexture);
+            var before = VatTestUtil.ReadGpu(asset.PositionTexture);
+            var rotationBefore = VatTestUtil.ReadGpu(asset.RotationTexture);
 
             var reloaded = Reload(asset);
-            byte[] after = VatTestUtil.ReadGpu(reloaded.PositionTexture);
+            var after = VatTestUtil.ReadGpu(reloaded.PositionTexture);
 
             CollectionAssert.AreEqual(before, after, "texture bytes after reload");
             CollectionAssert.AreEqual(rotationBefore, VatTestUtil.ReadGpu(reloaded.RotationTexture), "rotation bytes after reload");
@@ -118,42 +88,22 @@ namespace VATyakov.Tests
             AssertDecodesToReference(reloaded, after);
         }
 
-        void AssertDecodesToReference(VatAsset asset, byte[] texels)
-        {
-            var clip = asset.Clips[0];
-            var rest = asset.Mesh.vertices;
-            var drift = VatTestUtil.ReadGpu(asset.DriftTexture);
-            float maxError = 0f;
-            for (int k = 0; k < clip.FrameCount; k++)
-            {
-                var reference = _rig.ReferencePositions(clip.FrameTime(k));
-                var d = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
-                for (int v = 0; v < rest.Length; v++)
-                {
-                    var decoded = rest[v] + d + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
-                    maxError = Mathf.Max(maxError, (decoded - reference[v]).magnitude);
-                    Assert.IsTrue(Contains(asset.Mesh.bounds, decoded), $"vertex {v} of frame {k} outside bounds");
-                }
-            }
-            Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
-        }
-
-        // §2.2: the frame decoded from _VatRotTex is the skinned, normalized normal and the Gram–Schmidt tangent.
         [Test]
         public void TwistedStrip_RotationTextureDecodesToSkinnedNormalsAndTangents()
         {
             _rig = new VatTestRig(_scene, 300, legacy: true, twist: true);
             _profile = CreateProfile(_rig);
             var asset = VatBaker.Bake(_profile, TempFolder + "/Twist.asset");
-            byte[] texels = VatTestUtil.ReadGpu(asset.RotationTexture);
+            var texels = VatTestUtil.ReadGpu(asset.RotationTexture);
 
             var clip = asset.Clips[0];
-            float maxNormal = 0f, maxTangent = 0f;
-            for (int k = 0; k < clip.FrameCount; k++)
+            var maxNormal = 0f;
+            var maxTangent = 0f;
+            for (var k = 0; k < clip.FrameCount; k++)
             {
                 var normals = _rig.ReferenceNormals(clip.FrameTime(k));
                 var tangents = _rig.ReferenceTangents(clip.FrameTime(k));
-                for (int v = 0; v < normals.Length; v++)
+                for (var v = 0; v < normals.Length; v++)
                 {
                     var q = VatTestUtil.DecodeRotation(texels, asset.Layout, v, clip.StartRow + k);
                     var tangent = (tangents[v] - normals[v] * Vector3.Dot(normals[v], tangents[v])).normalized;
@@ -161,14 +111,14 @@ namespace VATyakov.Tests
                     maxTangent = Mathf.Max(maxTangent, Vector3.Angle(tangent, VatMath.FrameTangent(q)));
                 }
             }
+
             Assert.Less(maxNormal, AngleTolerance, "normal, degrees");
             Assert.Less(maxTangent, AngleTolerance, "tangent, degrees");
             Assert.Greater(Vector3.Angle(_rig.ReferenceNormals(0.5)[_rig.Renderer.sharedMesh.vertexCount - 1], RestNormal), 30f,
                 "the twist turns the top of the strip");
-            Assert.IsTrue(System.Array.TrueForAll(asset.Mesh.tangents, t => t.w == 1f), "bitangent sign from the rest tangent");
+            Assert.IsTrue(Array.TrueForAll(asset.Mesh.tangents, t => t.w == 1f), "bitangent sign from the rest tangent");
         }
 
-        // §1.3: F = round(L·fps) + 1, the last frame is the pose at t = L even when the source clip wraps there.
         [Test]
         public void OneShotBake_EndsOnTheClipEnd([Values] bool legacy, [Values] bool loopingClip)
         {
@@ -195,8 +145,8 @@ namespace VATyakov.Tests
             Assert.IsNull(_profile.Prefab, "a bake never creates a prefab");
             VatBaker.CreatePrefab(_profile);
             var ids = Ids(asset);
-            string materialPath = AssetDatabase.GetAssetPath(_profile.Material);
-            string prefabPath = AssetDatabase.GetAssetPath(_profile.Prefab);
+            var materialPath = AssetDatabase.GetAssetPath(_profile.Material);
+            var prefabPath = AssetDatabase.GetAssetPath(_profile.Prefab);
             Assert.AreEqual(30, asset.PositionTexture.height);
 
             _profile.Fps = 10f;
@@ -208,7 +158,76 @@ namespace VATyakov.Tests
             AssertReferencesSurviveReload(rebaked, materialPath, prefabPath);
         }
 
-        static void AssertReferencesSurviveReload(VatAsset asset, string materialPath, string prefabPath)
+        [Test]
+        public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
+        {
+            var clips = new[] { new VatClipRequest("Long", 100f, 30f) };
+            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(5000, clips));
+            StringAssert.Contains("4096", error.Message);
+            StringAssert.Contains("fps", error.Message);
+        }
+
+        private static void AssertFormat(VatInMemoryBake bake)
+        {
+            CollectionAssert.AreEqual(VatVertexFormat.Attributes, bake.Mesh.GetVertexAttributes());
+            Assert.AreEqual(VatVertexFormat.Strides[0], bake.Mesh.GetVertexBufferStride(0));
+            Assert.AreEqual(VatVertexFormat.Strides[1], bake.Mesh.GetVertexBufferStride(1));
+            Assert.AreEqual(VatVertexFormat.Position, bake.Position.graphicsFormat);
+            Assert.AreEqual(bake.Layout.Info.Width, bake.Position.width);
+            Assert.AreEqual(bake.Layout.Info.Height, bake.Position.height);
+            Assert.AreEqual(1, bake.Position.mipmapCount);
+            Assert.AreEqual(VatVertexFormat.Rotation, bake.Rotation.graphicsFormat);
+            Assert.AreEqual(bake.Position.width, bake.Rotation.width);
+            Assert.AreEqual(bake.Position.height, bake.Rotation.height);
+        }
+
+        private static void AssertVertices(VatInMemoryBake bake, Vector2[] sourceUv)
+        {
+            var mesh = bake.Mesh;
+            Assert.IsTrue(mesh.isReadable);
+            CollectionAssert.AreEqual(bake.Rest, mesh.vertices, "positions are Float32 rest positions");
+            var uv = mesh.uv;
+            var normals = mesh.normals;
+            for (var v = 0; v < mesh.vertexCount; v++)
+            {
+                Assert.That((uv[v] - sourceUv[v]).magnitude, Is.LessThan(1e-3f), "uv, Float16");
+                Assert.That((normals[v] - bake.RestNormals[v]).magnitude, Is.LessThan(1e-3f), "normal, Float16");
+                Assert.That((bake.RestNormals[v] - RestNormal).magnitude, Is.LessThan(1e-5f), "normal in root space");
+            }
+        }
+
+        private static void AssertSubMeshes(Mesh mesh, Mesh source)
+        {
+            Assert.AreEqual(source.subMeshCount, mesh.subMeshCount);
+            for (var s = 0; s < mesh.subMeshCount; s++)
+            {
+                Assert.AreEqual(0, mesh.GetSubMesh(s).baseVertex, "baseVertex = 0 on every sub-mesh");
+                CollectionAssert.AreEqual(source.GetIndices(s, true), mesh.GetIndices(s, true));
+            }
+        }
+
+        private void AssertDecodesToReference(VatAsset asset, byte[] texels)
+        {
+            var clip = asset.Clips[0];
+            var rest = asset.Mesh.vertices;
+            var drift = VatTestUtil.ReadGpu(asset.DriftTexture);
+            var maxError = 0f;
+            for (var k = 0; k < clip.FrameCount; k++)
+            {
+                var reference = _rig.ReferencePositions(clip.FrameTime(k));
+                var d = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
+                for (var v = 0; v < rest.Length; v++)
+                {
+                    var decoded = rest[v] + d + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
+                    maxError = Mathf.Max(maxError, (decoded - reference[v]).magnitude);
+                    Assert.IsTrue(Contains(asset.Mesh.bounds, decoded), $"vertex {v} of frame {k} outside bounds");
+                }
+            }
+
+            Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+        }
+
+        private static void AssertReferencesSurviveReload(VatAsset asset, string materialPath, string prefabPath)
         {
             var reloaded = Reload(asset);
             var material = AssetDatabase.LoadAssetAtPath<Material>(materialPath);
@@ -222,16 +241,7 @@ namespace VATyakov.Tests
             Assert.IsFalse(material.enableInstancing);
         }
 
-        [Test]
-        public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
-        {
-            var clips = new[] { new VatClipRequest("Long", 100f, 30f) }; // 3000 frames × 2 blocks
-            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(5000, clips));
-            StringAssert.Contains("4096", error.Message);
-            StringAssert.Contains("fps", error.Message);
-        }
-
-        static VatBakeProfile CreateProfile(VatTestRig rig)
+        private static VatBakeProfile CreateProfile(VatTestRig rig)
         {
             var profile = ScriptableObject.CreateInstance<VatBakeProfile>();
             profile.Source = rig.Renderer;
@@ -241,7 +251,7 @@ namespace VATyakov.Tests
             return profile;
         }
 
-        static VatAsset Reload(VatAsset asset)
+        private static VatAsset Reload(VatAsset asset)
         {
             Resources.UnloadAsset(asset.PositionTexture);
             Resources.UnloadAsset(asset.RotationTexture);
@@ -249,14 +259,20 @@ namespace VATyakov.Tests
             return AssetDatabase.LoadAssetAtPath<VatAsset>(AssetDatabase.GetAssetPath(asset));
         }
 
-        static long[] Ids(VatAsset asset) => new[] { Id(asset), Id(asset.Mesh), Id(asset.PositionTexture), Id(asset.RotationTexture) };
-
-        static long Id(Object target)
+        private static long[] Ids(VatAsset asset)
         {
-            Assert.IsTrue(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target, out string _, out long id), $"{target} is not an asset");
+            return new[] { Id(asset), Id(asset.Mesh), Id(asset.PositionTexture), Id(asset.RotationTexture) };
+        }
+
+        private static long Id(Object target)
+        {
+            Assert.IsTrue(AssetDatabase.TryGetGUIDAndLocalFileIdentifier(target, out string _, out var id), $"{target} is not an asset");
             return id;
         }
 
-        static bool Contains(Bounds bounds, Vector3 point) => bounds.Contains(point) || bounds.SqrDistance(point) < 1e-10f;
+        private static bool Contains(Bounds bounds, Vector3 point)
+        {
+            return bounds.Contains(point) || bounds.SqrDistance(point) < 1e-10f;
+        }
     }
 }

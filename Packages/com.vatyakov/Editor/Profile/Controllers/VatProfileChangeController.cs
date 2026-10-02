@@ -4,16 +4,21 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatProfileChangeController : IController
+    internal sealed class VatProfileChangeController : IController
     {
-        readonly VatProfileContext _context;
-        readonly VisualElement _parent;
-        readonly VisualElement _tracker = new VisualElement();
+        private readonly VatProfileContext _context;
+        private readonly VisualElement _parent;
+        private readonly VisualElement _tracker = new();
 
         public VatProfileChangeController(VatProfileContext context, VisualElement parent)
         {
             _context = context;
             _parent = parent;
+        }
+
+        public void Deactivate()
+        {
+            _tracker.RemoveFromHierarchy();
         }
 
         public void Activate()
@@ -22,8 +27,9 @@ namespace VATyakov.Editor
             _tracker.TrackSerializedObjectValue(_context.SerializedObject, OnChanged);
         }
 
-        public void Deactivate() => _tracker.RemoveFromHierarchy();
-
-        void OnChanged(SerializedObject _) => _context.Model.Changed.Call();
+        private void OnChanged(SerializedObject _)
+        {
+            _context.Model.Changed.Call();
+        }
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    readonly struct VatHalf3
+    internal readonly struct VatHalf3
     {
         public readonly ushort X;
         public readonly ushort Y;
@@ -15,9 +15,11 @@ namespace VATyakov.Editor
             Z = Mathf.FloatToHalf(value.z);
         }
 
-        public Vector3 ToVector3() => new Vector3(Mathf.HalfToFloat(X), Mathf.HalfToFloat(Y), Mathf.HalfToFloat(Z));
+        public Vector3 ToVector3()
+        {
+            return new Vector3(Mathf.HalfToFloat(X), Mathf.HalfToFloat(Y), Mathf.HalfToFloat(Z));
+        }
 
-        // RGBAHalf texel (x, y, z, 0).
         public void WriteTo(ushort[] texels, int offset)
         {
             texels[offset] = X;

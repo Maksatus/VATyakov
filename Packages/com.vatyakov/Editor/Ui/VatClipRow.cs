@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatClipRow : VisualElement
+    internal sealed class VatClipRow : VisualElement
     {
         public VatClipRow(VatClip clip)
         {

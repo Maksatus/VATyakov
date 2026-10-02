@@ -3,8 +3,7 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // Readable in-memory data, consumed by VatAssetWriter.
-    sealed class VatBakeResult
+    internal sealed class VatBakeResult
     {
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;

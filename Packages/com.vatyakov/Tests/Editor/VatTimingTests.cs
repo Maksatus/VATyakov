@@ -4,12 +4,11 @@ using UnityEngine;
 
 namespace VATyakov.Tests
 {
-    // §1.3 clip layout.
     public class VatTimingTests
     {
         [TestCase(0.8333334f, 30f, 25)]
         [TestCase(1f, 30f, 30)]
-        [TestCase(0.01f, 30f, 1)] // L·fps < 0.5 still gives one frame
+        [TestCase(0.01f, 30f, 1)]
         public void LoopFrameCount_RoundsLengthTimesFps(float length, float fps, int expected)
         {
             Assert.AreEqual(expected, VatTiming.LoopFrameCount(length, fps));
@@ -46,8 +45,8 @@ namespace VATyakov.Tests
         [Test]
         public void Loop_LastFrameDoesNotRepeatTheFirst([Values(0.01f, 0.8333334f, 1f)] float length)
         {
-            int frameCount = VatTiming.LoopFrameCount(length, 30f);
-            float rate = VatTiming.FrameRate(frameCount, length, loop: true);
+            var frameCount = VatTiming.LoopFrameCount(length, 30f);
+            var rate = VatTiming.FrameRate(frameCount, length, loop: true);
 
             Assert.AreEqual(frameCount / (double)length, rate, 1e-4);
             Assert.AreEqual(0.0, VatTiming.FrameTime(0, frameCount, length, true));
@@ -58,8 +57,8 @@ namespace VATyakov.Tests
         [Test]
         public void OneShot_LastFrameIsTheClipEnd([Values(0.02f, 0.8333334f, 1f)] float length)
         {
-            int frameCount = VatTiming.OneShotFrameCount(length, 30f);
-            float rate = VatTiming.FrameRate(frameCount, length, loop: false);
+            var frameCount = VatTiming.OneShotFrameCount(length, 30f);
+            var rate = VatTiming.FrameRate(frameCount, length, loop: false);
 
             Assert.AreEqual((frameCount - 1) / (double)length, rate, 1e-4);
             Assert.AreEqual(length, VatTiming.FrameTime(frameCount - 1, frameCount, length, false), 1e-9);

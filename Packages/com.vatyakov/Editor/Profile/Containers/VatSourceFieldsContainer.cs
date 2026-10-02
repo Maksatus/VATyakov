@@ -3,10 +3,10 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatSourceFieldsContainer : EditorContainer
+    internal sealed class VatSourceFieldsContainer : EditorContainer
     {
-        public readonly VisualElement Skinned = new VisualElement();
-        public readonly VisualElement Alembic = new VisualElement();
+        public readonly VisualElement Skinned = new();
+        public readonly VisualElement Alembic = new();
 
         public VatSourceFieldsContainer()
         {

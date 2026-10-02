@@ -1,13 +1,13 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace VATyakov.Tests
 {
-    // §1.3: "clip finished" for a one-shot fires once, at the end the playback moves towards.
     public class VatPlayerTests
     {
-        const double FourHours = 4.0 * 3600.0;
-        const double Dt = 1.0 / 60.0;
+        private const double FourHours = 4.0 * 3600.0;
+        private const double Dt = 1.0 / 60.0;
 
         [Test]
         public void OneShot_PositiveSpeed_FinishesOnceOnTheLastFrame([Values(0.0, FourHours)] double start)
@@ -17,7 +17,7 @@ namespace VATyakov.Tests
 
             var events = Run(player, start, 3.0);
 
-            CollectionAssert.AreEqual(new[] { 60 }, events); // f = 30 = F − 1 at 1 s
+            CollectionAssert.AreEqual(new[] { 60 }, events);
             Assert.AreEqual(1f, player.NormalizedTime(start + 3.0));
         }
 
@@ -118,20 +118,29 @@ namespace VATyakov.Tests
             Assert.AreEqual(0f, player.NormalizedTime(0.75), 1e-6f);
         }
 
-        // Indices of the evaluated frames (dt = 1/60 from `from`) on which the clip finished.
-        static List<int> Run(VatPlayer player, double from, double duration)
+        private static List<int> Run(VatPlayer player, double from, double duration)
         {
             var events = new List<int>();
-            int steps = (int)System.Math.Round(duration / Dt);
-            for (int k = 0; k <= steps; k++)
+            var steps = (int)Math.Round(duration / Dt);
+            for (var k = 0; k <= steps; k++)
+            {
                 if (player.Evaluate(from + k * Dt, out _))
+                {
                     events.Add(k);
+                }
+            }
+
             return events;
         }
 
-        // fps_eff = 30; F = 31 for the one-shot and 30 for the loop, so both last 1 s.
-        static VatClip OneShot() => new VatClip("Fire", 0, 31, 1f, 30f, loop: false);
+        private static VatClip OneShot()
+        {
+            return new VatClip("Fire", 0, 31, 1f, 30f, loop: false);
+        }
 
-        static VatClip Loop() => new VatClip("Idle", 31, 30, 1f, 30f, loop: true);
+        private static VatClip Loop()
+        {
+            return new VatClip("Idle", 31, 30, 1f, 30f, loop: true);
+        }
     }
 }

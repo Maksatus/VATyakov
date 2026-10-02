@@ -4,18 +4,23 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    static class VatBakeLog
+    internal static class VatBakeLog
     {
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
-            Debug.Log(Describe(asset) + Positions(asset, result) + Stats(result.Stats), asset);
+            Debug.Log(Describe(asset) + Positions(result) + Stats(result.Stats), asset);
             if (result.Chirality.Count > 0)
+            {
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
-            foreach (string warning in result.Warnings)
+            }
+
+            foreach (var warning in result.Warnings)
+            {
                 Debug.LogWarning($"VAT '{asset.name}': {warning}", asset);
+            }
         }
 
-        static string Describe(VatAsset asset)
+        private static string Describe(VatAsset asset)
         {
             var info = asset.Layout;
             return string.Format(CultureInfo.InvariantCulture,
@@ -24,23 +29,29 @@ namespace VATyakov.Editor
                 VatText.Megabytes(info));
         }
 
-        static string Describe(VatClip clip) => string.Format(CultureInfo.InvariantCulture,
-            "clip '{0}': rows {1}–{2}, {3:0.###} fps", clip.Name, clip.StartRow, clip.StartRow + clip.FrameCount - 1, clip.FrameRate);
-
-        static string Positions(VatAsset asset, VatBakeResult result)
+        private static string Describe(VatClip clip)
         {
-            var precision = result.Precision;
             return string.Format(CultureInfo.InvariantCulture,
-                "; drift {0} (centroid travels {1:0.###} m), max |Δ| {2:0.###} m, max half error {3:0.###} mm with drift, {4:0.###} mm without",
-                asset.Layout.Drift ? "on" : "off", precision.MaxDrift, result.MaxOffset, precision.ErrorWithDrift * 1000f,
-                precision.ErrorWithoutDrift * 1000f);
+                "clip '{0}': rows {1}–{2}, {3:0.###} fps", clip.Name, clip.StartRow, clip.StartRow + clip.FrameCount - 1, clip.FrameRate);
         }
 
-        static string Stats(VatQuantizationStats stats) => string.Format(CultureInfo.InvariantCulture,
-            ", max rotation error {0:0.###}°, degenerate tangents {1}", stats.MaxRotationError, stats.DegenerateTangents);
+        private static string Positions(VatBakeResult result)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                "; centroid travels {0:0.###} m, max |Δ| {1:0.###} m, max half error {2:0.###} mm",
+                result.Precision.MaxDrift, result.MaxOffset, result.Precision.Error * 1000f);
+        }
 
-        static string Chirality(VatAsset asset, VatChirality chirality) =>
-            $"VAT '{asset.name}': {chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First}). " +
+        private static string Stats(VatQuantizationStats stats)
+        {
+            return string.Format(CultureInfo.InvariantCulture,
+                ", max rotation error {0:0.###}°, degenerate tangents {1}", stats.MaxRotationError, stats.DegenerateTangents);
+        }
+
+        private static string Chirality(VatAsset asset, VatChirality chirality)
+        {
+            return $"VAT '{asset.name}': {chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First}). " +
             "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
+        }
     }
 }

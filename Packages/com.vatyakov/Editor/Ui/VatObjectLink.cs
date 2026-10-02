@@ -4,12 +4,12 @@ using Object = UnityEngine.Object;
 
 namespace VATyakov.Editor
 {
-    sealed class VatObjectLink : VisualElement
+    internal sealed class VatObjectLink : VisualElement
     {
-        readonly Button _button;
-        readonly Image _icon = new Image().WithClass("vat-link__icon");
-        readonly Label _name = new Label().WithClass("vat-link__name");
-        Object _target;
+        private readonly Button _button;
+        private readonly Image _icon = new Image().WithClass("vat-link__icon");
+        private readonly Label _name = new Label().WithClass("vat-link__name");
+        private Object _target;
 
         public VatObjectLink(string label, string hint = null)
         {
@@ -28,6 +28,9 @@ namespace VATyakov.Editor
             _button.SetEnabled(target != null);
         }
 
-        void Ping() => EditorGUIUtility.PingObject(_target);
+        private void Ping()
+        {
+            EditorGUIUtility.PingObject(_target);
+        }
     }
 }

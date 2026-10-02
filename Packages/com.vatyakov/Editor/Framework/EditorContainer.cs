@@ -2,12 +2,18 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    abstract class EditorContainer
+    internal abstract class EditorContainer
     {
-        public readonly VisualElement Root = new VisualElement();
+        public readonly VisualElement Root = new();
 
-        public void SetVisible(bool visible) => Root.SetVisible(visible);
+        public void SetVisible(bool visible)
+        {
+            Root.SetVisible(visible);
+        }
 
-        public void DestroyView() => Root.RemoveFromHierarchy();
+        public void DestroyView()
+        {
+            Root.RemoveFromHierarchy();
+        }
     }
 }

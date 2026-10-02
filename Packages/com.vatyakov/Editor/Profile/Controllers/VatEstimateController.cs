@@ -2,21 +2,15 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatEstimateController : IController
+    internal sealed class VatEstimateController : IController
     {
-        readonly VatProfileContext _context;
-        readonly VatEstimateContainer _container;
+        private readonly VatProfileContext _context;
+        private readonly VatEstimateContainer _container;
 
         public VatEstimateController(VatProfileContext context, VisualElement parent)
         {
             _context = context;
             _container = parent.CreateContainer<VatEstimateContainer>();
-        }
-
-        public void Activate()
-        {
-            _context.Model.Changed.OnCall += Refresh;
-            Refresh();
         }
 
         public void Deactivate()
@@ -25,7 +19,13 @@ namespace VATyakov.Editor
             _container.DestroyView();
         }
 
-        void Refresh()
+        public void Activate()
+        {
+            _context.Model.Changed.OnCall += Refresh;
+            Refresh();
+        }
+
+        private void Refresh()
         {
             var estimate = VatBakeEstimate.For(_context.Profile);
             _container.Show(estimate);

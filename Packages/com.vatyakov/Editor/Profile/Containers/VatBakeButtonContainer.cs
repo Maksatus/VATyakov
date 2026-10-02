@@ -2,7 +2,7 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatBakeButtonContainer : EditorContainer
+    internal sealed class VatBakeButtonContainer : EditorContainer
     {
         public readonly Button Button = VatUi.PrimaryButton("Bake");
 

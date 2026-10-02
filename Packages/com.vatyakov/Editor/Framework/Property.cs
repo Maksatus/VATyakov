@@ -3,14 +3,9 @@ using System.Collections.Generic;
 
 namespace VATyakov.Editor
 {
-    sealed class Property<T>
+    internal sealed class Property<T>
     {
-        T _value;
-
-        public Property(T value = default)
-        {
-            _value = value;
-        }
+        private T _value;
 
         public event Action<T> Changed;
 
@@ -20,10 +15,18 @@ namespace VATyakov.Editor
             set
             {
                 if (EqualityComparer<T>.Default.Equals(_value, value))
+                {
                     return;
+                }
+
                 _value = value;
                 Changed?.Invoke(value);
             }
+        }
+
+        public Property(T value = default)
+        {
+            _value = value;
         }
     }
 }

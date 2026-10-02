@@ -5,9 +5,9 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    abstract class ControllerInspector : UnityEditor.Editor
+    internal abstract class ControllerInspector : UnityEditor.Editor
     {
-        IController[] _controllers = Array.Empty<IController>();
+        private IController[] _controllers = Array.Empty<IController>();
 
         public override VisualElement CreateInspectorGUI()
         {
@@ -20,9 +20,12 @@ namespace VATyakov.Editor
 
         protected abstract IEnumerable<IController> CreateControllers(VisualElement root);
 
-        protected virtual void OnDisable() => DeactivateControllers();
+        protected virtual void OnDisable()
+        {
+            DeactivateControllers();
+        }
 
-        void DeactivateControllers()
+        private void DeactivateControllers()
         {
             _controllers.Deactivate();
             _controllers = Array.Empty<IController>();

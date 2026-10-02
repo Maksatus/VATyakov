@@ -1,19 +1,21 @@
 using System.Linq;
-using VATyakov.Editor;
 using UnityEngine;
+using VATyakov.Editor;
 
 namespace VATyakov.Tests
 {
-    // Bake pipeline without the asset writer: mesh and texture stay readable.
-    sealed class VatInMemoryBake
+    internal sealed class VatInMemoryBake
     {
-        public readonly VatLayout Layout; // with the drift decision of the encoder
+        public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly VatBakeTextures Textures;
         public readonly VatPrecision Precision;
+        public readonly string[] Warnings;
         public Vector3[] Rest { get; private set; }
         public Vector3[] RestNormals { get; private set; }
-        public readonly string[] Warnings;
+        public Texture2D Position => Textures.Position;
+        public Texture2D Rotation => Textures.Rotation;
+        public Texture2D Drift => Textures.Drift;
 
         public VatInMemoryBake(VatTestRig rig, float fps) : this(rig, fps, rig.Clip)
         {
@@ -23,7 +25,6 @@ namespace VATyakov.Tests
         {
         }
 
-        // Takes ownership of the source.
         public VatInMemoryBake(IVatFrameSource source, float fps, bool loop = true)
         {
             using (source)
@@ -39,29 +40,25 @@ namespace VATyakov.Tests
             }
         }
 
-        public Texture2D Position => Textures.Position;
-
-        public Texture2D Rotation => Textures.Rotation;
-
-        public Texture2D Drift => Textures.Drift;
-
         public void Destroy()
         {
             Object.DestroyImmediate(Mesh);
             Textures.Destroy();
         }
 
-        void EncodeAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
+        private void EncodeAll(IVatFrameSource source, VatLayout layout, VertexEncoder encoder)
         {
             var frame = new VatFrame(source.Mesh.VertexCount);
-            for (int c = 0; c < layout.Clips.Length; c++)
-                for (int k = 0; k < layout.Clips[c].FrameCount; k++)
+            for (var c = 0; c < layout.Clips.Length; c++)
+            {
+                for (var k = 0; k < layout.Clips[c].FrameCount; k++)
                 {
                     source.Sample(c, layout.Clips[c].FrameTime(k), frame);
                     Rest ??= (Vector3[])frame.Positions.Clone();
                     RestNormals ??= (Vector3[])frame.Normals.Clone();
                     encoder.AddFrame(c, k, frame);
                 }
+            }
         }
     }
 }

@@ -1,11 +1,11 @@
 namespace VATyakov.Editor
 {
-    sealed class VatAssetContentsContainer : EditorContainer
+    internal sealed class VatAssetContentsContainer : EditorContainer
     {
-        readonly VatObjectLink _mesh = new VatObjectLink("Mesh");
-        readonly VatObjectLink _position = new VatObjectLink("Position Texture");
-        readonly VatObjectLink _rotation = new VatObjectLink("Rotation Texture");
-        readonly VatObjectLink _drift = new VatObjectLink("Drift Texture");
+        private readonly VatObjectLink _mesh = new("Mesh");
+        private readonly VatObjectLink _position = new("Position Texture");
+        private readonly VatObjectLink _rotation = new("Rotation Texture");
+        private readonly VatObjectLink _drift = new("Drift Texture");
 
         public VatAssetContentsContainer()
         {

@@ -3,28 +3,21 @@ using UnityEngine;
 
 namespace VATyakov
 {
-    // Bake-time position error after fp16 sampling, meters (§1.2); the baker measures it with drift and without (§2.2).
     [Serializable]
     public struct VatPrecision
     {
-        [SerializeField] float _maxDrift;
-        [SerializeField] float _errorWithoutDrift;
-        [SerializeField] float _errorWithDrift;
+        [SerializeField]
+        private float _maxDrift;
+        [SerializeField]
+        private float _error;
 
-        public VatPrecision(float maxDrift, float errorWithoutDrift, float errorWithDrift)
+        public float MaxDrift => _maxDrift;
+        public float Error => _error;
+
+        public VatPrecision(float maxDrift, float error)
         {
             _maxDrift = maxDrift;
-            _errorWithoutDrift = errorWithoutDrift;
-            _errorWithDrift = errorWithDrift;
+            _error = error;
         }
-
-        // Farthest distance of a frame centroid from the rest centroid.
-        public float MaxDrift => _maxDrift;
-
-        public float ErrorWithoutDrift => _errorWithoutDrift;
-
-        public float ErrorWithDrift => _errorWithDrift;
-
-        public float Error(bool drift) => drift ? _errorWithDrift : _errorWithoutDrift;
     }
 }

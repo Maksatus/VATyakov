@@ -3,13 +3,13 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatResultContainer : EditorContainer
+    internal sealed class VatResultContainer : EditorContainer
     {
-        readonly Label _notBaked = VatUi.Hint("Not baked yet.");
-        readonly VatObjectLink _asset = new VatObjectLink("Animation", "VAT asset: mesh and animation textures.");
-        readonly VatObjectLink _material = new VatObjectLink("Material", "Template material with this animation.");
-        readonly HelpBox _invalid = VatUi.HelpBox(HelpBoxMessageType.Warning);
-        readonly VatAssetSummaryContainer _summary = new VatAssetSummaryContainer();
+        private readonly Label _notBaked = VatUi.Hint("Not baked yet.");
+        private readonly VatObjectLink _asset = new("Animation", "VAT asset: mesh and animation textures.");
+        private readonly VatObjectLink _material = new("Material", "Template material with this animation.");
+        private readonly HelpBox _invalid = VatUi.HelpBox(HelpBoxMessageType.Warning);
+        private readonly VatAssetSummaryContainer _summary = new();
 
         public VatResultContainer()
         {
@@ -38,14 +38,14 @@ namespace VATyakov.Editor
             _summary.Show(asset);
         }
 
-        void ShowLinks(VatAsset asset, Material material)
+        private void ShowLinks(VatAsset asset, Material material)
         {
             SetBaked(true);
             _asset.Set(asset);
             _material.Set(material);
         }
 
-        void SetBaked(bool baked)
+        private void SetBaked(bool baked)
         {
             _notBaked.SetVisible(!baked);
             _asset.SetVisible(baked);

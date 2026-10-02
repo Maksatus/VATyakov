@@ -5,31 +5,35 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // §4: VatBakeProfile → IVatFrameSource → VatLayout → encoder → VatAssetWriter.
     public static class VatBaker
     {
-        public const string DefaultShaderName = "VATyakov/VAT_Lit_Vertex";
-        public const string TriplanarShaderName = "VATyakov/VAT_Lit_Vertex_Triplanar"; // for meshes without UV
+        public const string DefaultShaderName = "VATyakov/vat_lit_vertex";
+        public const string TriplanarShaderName = "VATyakov/vat_lit_vertex_triplanar";
 
-        public static List<string> Validate(VatBakeProfile profile) => VatBakeValidator.Validate(profile);
+        public static List<string> Validate(VatBakeProfile profile)
+        {
+            return VatBakeValidator.Validate(profile);
+        }
 
-        // Throws VatBakeException for the user; existing assets are untouched then.
-        // assetPath is used only when the profile has no asset yet.
         public static VatAsset Bake(VatBakeProfile profile, string assetPath = null)
         {
             VatBakeValidator.ThrowIfInvalid(profile);
-            string path = VatAssetPath.Resolve(profile, assetPath);
+            var path = VatAssetPath.Resolve(profile, assetPath);
             var result = VatBakePipeline.Run(profile, Path.GetFileNameWithoutExtension(path));
+            var clip = VatTemplateMaterial.ShownClip(profile);
             var asset = VatAssetWriter.Write(profile.Asset, path, result, VatSourceHash.Compute(profile));
-            VatTemplateMaterial.Apply(profile, asset, path);
+            VatTemplateMaterial.Apply(profile, asset, path, clip);
             Save(profile, asset);
             VatBakeLog.Baked(asset, result);
             return asset;
         }
 
-        public static GameObject CreatePrefab(VatBakeProfile profile) => VatTestPrefab.CreateOrUpdate(profile);
+        public static GameObject CreatePrefab(VatBakeProfile profile)
+        {
+            return VatTestPrefab.CreateOrUpdate(profile);
+        }
 
-        static void Save(VatBakeProfile profile, VatAsset asset)
+        private static void Save(VatBakeProfile profile, VatAsset asset)
         {
             profile.Asset = asset;
             EditorUtility.SetDirty(profile);

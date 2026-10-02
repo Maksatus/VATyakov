@@ -2,7 +2,7 @@ using UnityEditor.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatMaterialFieldsContainer : EditorContainer
+    internal sealed class VatMaterialFieldsContainer : EditorContainer
     {
         public VatMaterialFieldsContainer()
         {

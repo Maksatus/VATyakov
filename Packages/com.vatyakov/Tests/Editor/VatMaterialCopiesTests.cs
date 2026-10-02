@@ -3,20 +3,19 @@ using UnityEngine;
 
 namespace VATyakov.Tests
 {
-    // §1.6: one copy per unique VAT template, other slots untouched, the templates back on Dispose.
     public class VatMaterialCopiesTests
     {
-        GameObject _root;
-        Material _vat;
-        Material _otherVat;
-        Material _plain;
+        private GameObject _root;
+        private Material _vat;
+        private Material _otherVat;
+        private Material _plain;
 
         [SetUp]
         public void SetUp()
         {
             _root = new GameObject("Unit");
-            _vat = new Material(Shader.Find("VATyakov/VAT_Lit_Vertex")) { name = "Vat" };
-            _otherVat = new Material(Shader.Find("VATyakov/VAT_Unlit_Vertex")) { name = "OtherVat" };
+            _vat = new Material(Shader.Find("VATyakov/vat_lit_vertex")) { name = "Vat" };
+            _otherVat = new Material(Shader.Find("VATyakov/vat_unlit_vertex")) { name = "OtherVat" };
             _plain = new Material(Shader.Find("Universal Render Pipeline/Lit")) { name = "Plain" };
         }
 
@@ -66,7 +65,6 @@ namespace VATyakov.Tests
             Assert.AreEqual(0, copies.Materials.Count);
         }
 
-        // §1.6: in edit mode the templates stay untouched.
         [Test]
         public void AnimatorInEditMode_DoesNotTouchMaterials()
         {
@@ -81,14 +79,14 @@ namespace VATyakov.Tests
             Assert.AreEqual(color, _vat.GetColor("_BaseColor"));
         }
 
-        GameObject Child(string name)
+        private GameObject Child(string name)
         {
             var child = new GameObject(name);
             child.transform.SetParent(_root.transform);
             return child;
         }
 
-        static MeshRenderer Renderer(GameObject target, params Material[] materials)
+        private static MeshRenderer Renderer(GameObject target, params Material[] materials)
         {
             var renderer = target.AddComponent<MeshRenderer>();
             renderer.sharedMaterials = materials;

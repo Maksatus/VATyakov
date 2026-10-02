@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace VATyakov.Editor
 {
     [CustomEditor(typeof(VatAnimator))]
-    sealed class VatAnimatorEditor : ControllerInspector
+    internal sealed class VatAnimatorEditor : ControllerInspector
     {
         protected override IEnumerable<IController> CreateControllers(VisualElement root)
         {

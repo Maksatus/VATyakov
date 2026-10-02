@@ -2,11 +2,10 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // _VatRotTex, §1.9: RGBA8 smallest-three of the frame quaternion, same texels as _VatPosTex.
-    sealed class VatRotationTexels
+    internal sealed class VatRotationTexels
     {
-        readonly VatLayoutInfo _info;
-        readonly Color32[] _texels;
+        private readonly VatLayoutInfo _info;
+        private readonly Color32[] _texels;
 
         public VatRotationTexels(VatLayoutInfo info)
         {
@@ -14,7 +13,6 @@ namespace VATyakov.Editor
             _texels = new Color32[info.Width * info.Height];
         }
 
-        // Returns q as the shader decodes it.
         public Vector4 Write(int element, int row, Vector4 rotation)
         {
             var bytes = VatSmallestThree.Encode(rotation);
@@ -23,6 +21,9 @@ namespace VATyakov.Editor
             return VatMath.DecodeRotation((Color)bytes);
         }
 
-        public Texture2D Build(string name) => VatTexture.Create(_info, VatVertexFormat.Rotation, name, _texels);
+        public Texture2D Build(string name)
+        {
+            return VatTexture.Create(_info, VatVertexFormat.Rotation, name, _texels);
+        }
     }
 }

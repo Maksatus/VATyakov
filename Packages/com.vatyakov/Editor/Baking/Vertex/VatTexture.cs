@@ -3,11 +3,12 @@ using UnityEngine.Experimental.Rendering;
 
 namespace VATyakov.Editor
 {
-    // §1.8: GraphicsFormat constructor (TextureFormat with linear = false gives sRGB), Point, Clamp, no mips.
-    static class VatTexture
+    internal static class VatTexture
     {
-        public static Texture2D Create<T>(VatLayoutInfo info, GraphicsFormat format, string name, T[] data) where T : struct =>
-            Create(info.Width, info.Height, format, name, data);
+        public static Texture2D Create<T>(VatLayoutInfo info, GraphicsFormat format, string name, T[] data) where T : struct
+        {
+            return Create(info.Width, info.Height, format, name, data);
+        }
 
         public static Texture2D Create<T>(int width, int height, GraphicsFormat format, string name, T[] data) where T : struct
         {
@@ -19,7 +20,7 @@ namespace VATyakov.Editor
                 anisoLevel = 0,
             };
             texture.SetPixelData(data, 0);
-            texture.Apply(false, false); // readable until VatAssetWriter stores it
+            texture.Apply(false, false);
             return texture;
         }
     }

@@ -4,10 +4,10 @@ using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
 {
-    sealed class VatAnimatorFieldsController : IController
+    internal sealed class VatAnimatorFieldsController : IController
     {
-        readonly SerializedObject _serializedObject;
-        readonly VatAnimatorFieldsContainer _container;
+        private readonly SerializedObject _serializedObject;
+        private readonly VatAnimatorFieldsContainer _container;
 
         public VatAnimatorFieldsController(SerializedObject serializedObject, VisualElement parent)
         {
@@ -15,12 +15,15 @@ namespace VATyakov.Editor
             _container = parent.CreateContainer<VatAnimatorFieldsContainer>();
         }
 
-        public void Activate() => _container.Root.Bind(_serializedObject);
-
         public void Deactivate()
         {
             _container.Root.Unbind();
             _container.DestroyView();
+        }
+
+        public void Activate()
+        {
+            _container.Root.Bind(_serializedObject);
         }
     }
 }

@@ -7,10 +7,13 @@ using Object = UnityEngine.Object;
 
 namespace VATyakov.Editor
 {
-    // Copy of the source prefab in a preview scene: user scenes stay clean, nothing is left behind.
-    sealed class VatBakeCopy : IDisposable
+    internal sealed class VatBakeCopy : IDisposable
     {
-        Scene _scene;
+        private Scene _scene;
+
+        public GameObject Root { get; private set; }
+        public SkinnedMeshRenderer Renderer { get; private set; }
+        public Matrix4x4 RendererToRoot => Root.transform.worldToLocalMatrix * Renderer.transform.localToWorldMatrix;
 
         public VatBakeCopy(SkinnedMeshRenderer source)
         {
@@ -25,52 +28,54 @@ namespace VATyakov.Editor
             }
         }
 
-        public GameObject Root { get; private set; }
-
-        public SkinnedMeshRenderer Renderer { get; private set; }
-
-        public Matrix4x4 RendererToRoot => Root.transform.worldToLocalMatrix * Renderer.transform.localToWorldMatrix;
-
-        // §2.1: controller off, root motion off, transform hierarchy exposed.
         public Animator PrepareAnimator()
         {
             var animator = Root.GetComponentInChildren<Animator>(true);
             if (animator == null)
+            {
                 animator = Root.AddComponent<Animator>();
+            }
+
             animator.enabled = true;
             animator.runtimeAnimatorController = null;
             animator.applyRootMotion = false;
             animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
             if (!animator.hasTransformHierarchy)
+            {
                 AnimatorUtility.DeoptimizeTransformHierarchy(animator.gameObject);
+            }
+
             return animator;
         }
 
         public void Dispose()
         {
             if (_scene.IsValid())
+            {
                 EditorSceneManager.ClosePreviewScene(_scene);
+            }
+
             Root = null;
             Renderer = null;
         }
 
-        void Create(SkinnedMeshRenderer source)
+        private void Create(SkinnedMeshRenderer source)
         {
             var sourceRoot = source.transform.root;
             _scene = EditorSceneManager.NewPreviewScene();
             Root = Instantiate(sourceRoot.gameObject, NewHolder());
             Renderer = FindRenderer(AnimationUtility.CalculateTransformPath(source.transform, sourceRoot));
-            Renderer.quality = SkinQuality.Bone4; // independent of the editor's quality level
+            Renderer.quality = SkinQuality.Bone4;
         }
 
-        Transform NewHolder()
+        private Transform NewHolder()
         {
             var holder = EditorUtility.CreateGameObjectWithHideFlags("VatBake", HideFlags.HideAndDontSave);
             SceneManager.MoveGameObjectToScene(holder, _scene);
             return holder.transform;
         }
 
-        static GameObject Instantiate(GameObject source, Transform parent)
+        private static GameObject Instantiate(GameObject source, Transform parent)
         {
             var root = Object.Instantiate(source, parent);
             root.name = source.name;
@@ -79,12 +84,15 @@ namespace VATyakov.Editor
             return root;
         }
 
-        SkinnedMeshRenderer FindRenderer(string path)
+        private SkinnedMeshRenderer FindRenderer(string path)
         {
             var transform = path.Length == 0 ? Root.transform : Root.transform.Find(path);
             var renderer = transform != null ? transform.GetComponent<SkinnedMeshRenderer>() : null;
             if (renderer == null)
+            {
                 throw new InvalidOperationException($"Renderer '{path}' not found in the bake copy of '{Root.name}'.");
+            }
+
             return renderer;
         }
     }

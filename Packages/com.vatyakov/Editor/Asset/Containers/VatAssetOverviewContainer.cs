@@ -1,8 +1,8 @@
 namespace VATyakov.Editor
 {
-    sealed class VatAssetOverviewContainer : EditorContainer
+    internal sealed class VatAssetOverviewContainer : EditorContainer
     {
-        public readonly VatAssetSummaryContainer Summary = new VatAssetSummaryContainer();
+        public readonly VatAssetSummaryContainer Summary = new();
 
         public VatAssetOverviewContainer()
         {

@@ -2,8 +2,7 @@ using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    // Topology and UVs shared by all frames.
-    sealed class VatSourceMesh
+    internal sealed class VatSourceMesh
     {
         public readonly string Name;
         public readonly int VertexCount;
@@ -24,11 +23,14 @@ namespace VATyakov.Editor
             return new VatSourceMesh(mesh.name, mesh.vertexCount, uv.Length == mesh.vertexCount ? uv : null, ReadSubMeshes(mesh));
         }
 
-        static VatSourceSubMesh[] ReadSubMeshes(Mesh mesh)
+        private static VatSourceSubMesh[] ReadSubMeshes(Mesh mesh)
         {
             var subMeshes = new VatSourceSubMesh[mesh.subMeshCount];
-            for (int i = 0; i < subMeshes.Length; i++)
+            for (var i = 0; i < subMeshes.Length; i++)
+            {
                 subMeshes[i] = new VatSourceSubMesh(mesh.GetIndices(i, true), mesh.GetTopology(i));
+            }
+
             return subMeshes;
         }
     }
