@@ -30,6 +30,9 @@ namespace VATyakov.Tests
             StringAssert.DoesNotContain("half4 _VatFrame", code);
             StringAssert.DoesNotContain("half4 _VatLayout", code);
             StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatFrame, float4)", code, "state is Hybrid Per Instance");
+            StringAssert.Contains("float4 _VatFrameB;", code);
+            StringAssert.DoesNotContain("half4 _VatFrameB", code);
+            StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatFrameB, float4)", code, "transition state is Hybrid Per Instance");
         }
 
         [Test]

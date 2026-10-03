@@ -31,6 +31,12 @@ namespace VATyakov
             _endLatch.Reset();
         }
 
+        public void Stop()
+        {
+            _playback = null;
+            _endLatch.Reset();
+        }
+
         public void SetSpeed(double time, float speed)
         {
             Speed = speed;

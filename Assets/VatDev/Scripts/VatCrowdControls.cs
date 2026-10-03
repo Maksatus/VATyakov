@@ -8,7 +8,8 @@ namespace VATyakov.Dev
         private const float CountPeriod = 0.5f;
         private const int LabelFontSize = 18;
         private const float ButtonWidth = 120f;
-        private const float AreaHeight = 140f;
+        private const float AreaHeight = 200f;
+        private const float SliderWidth = 360f;
 
         [SerializeField]
         private VatCrowd _crowd;
@@ -64,10 +65,35 @@ namespace VATyakov.Dev
                 _crowd.TogglePause();
             }
 
+            if (GUILayout.Button(FormattableString.Invariant($"Fade {_crowd.FadeDuration:0.##} s"), button, width, height))
+            {
+                _crowd.NextFadeDuration();
+            }
+
+            if (GUILayout.Button(_crowd.IsManual ? "Auto" : "Manual", button, width, height))
+            {
+                _crowd.ToggleManual();
+            }
+
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            if (_crowd.IsManual)
+            {
+                DrawWeightSlider(scale);
+            }
+
             GUILayout.Label(Status(), label);
             GUILayout.EndArea();
+        }
+
+        private void DrawWeightSlider(float scale)
+        {
+            var height = GUILayout.Height(VatDevGui.ButtonHeight * scale);
+            var weight = GUILayout.HorizontalSlider(_crowd.ManualWeight, 0f, 1f, GUILayout.Width(SliderWidth * scale), height);
+            if (!Mathf.Approximately(weight, _crowd.ManualWeight))
+            {
+                _crowd.SetManualWeight(weight);
+            }
         }
 
         private void HandleKeys(Event current)
@@ -93,13 +119,21 @@ namespace VATyakov.Dev
             {
                 _crowd.TogglePause();
             }
+            else if (current.keyCode == KeyCode.F)
+            {
+                _crowd.NextFadeDuration();
+            }
+            else if (current.keyCode == KeyCode.M)
+            {
+                _crowd.ToggleManual();
+            }
         }
 
         private string Status()
         {
             var pooled = _crowd.IsActive ? string.Empty : " (pooled)";
             return FormattableString.Invariant(
-                $"Units {_crowd.Count}{pooled}   Finished {_crowd.FinishedCount}   Doubled {_crowd.DoubledCount}   Materials {_materialCount}");
+                $"Units {_crowd.Count}{pooled}   Finished {_crowd.FinishedCount}   Doubled {_crowd.DoubledCount}   Materials {_materialCount}   Weight #0 {_crowd.FirstUnitWeight:0.00}");
         }
     }
 }

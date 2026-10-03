@@ -9,5 +9,6 @@ namespace VATyakov
         public static readonly int DriftTexture = Shader.PropertyToID("_VatDriftTex");
         public static readonly int Layout = Shader.PropertyToID("_VatLayout");
         public static readonly int Frame = Shader.PropertyToID("_VatFrame");
+        public static readonly int FrameB = Shader.PropertyToID("_VatFrameB");
     }
 }

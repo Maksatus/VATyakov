@@ -15,7 +15,7 @@
 | 1.6 Несколько клипов в одном ассете | готово | 0.6.0 |
 | 1.7 VatAnimator: материал на юнита и управление | готово | 0.7.0 |
 | Аудит: упрощение после 1.7 | готово | 0.7.1 |
-| 1.8 | следующая | — |
+| 1.8 Переходы: CrossFade и вес из кода | готово, устройства не проверены | 0.8.0 |
 | 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
 | 1.10–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
@@ -56,9 +56,14 @@
   `VatEndLatch` (событие one-shot), `VatPropertyBlockCheck` (`[Conditional]` UNITY_EDITOR/DEVELOPMENT_BUILD).
   Запись — в `LateUpdate`, событие `ClipFinished` после записи. `VatCompare` в Compare берёт копию `VatAnimator`
   из префаба и выключает его.
+  Переходы (1.8): `VatAnimator` держит `VatMixer` — два `VatPlayer` (исходный A → `_VatFrame`, целевой B →
+  `_VatFrameB = (row0, row1, frac, w)`) и `VatWeightRamp` (рампа веса, пауза её замораживает). Без B
+  `_VatFrameB = 0`. `VatTransitionWarnings` — `[Conditional]` предупреждения CrossFade посреди перехода и SetWeight
+  без B. Оба вектора пишутся вместе, если изменился любой.
 - **Шейдер:** `VatCore.hlsl` — адрес тексела, тексел и сумма дрейфа, декод smallest-three, nlerp и оси кадра;
   `VatMath.cs` — его CPU-зеркало. Дрейф пишется и читается всегда.
-  `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float`; SubGraph `vat_vertex` отдаёт
+  `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float` (вход `FrameB` последним, клип
+  целиком — `VatClipOffset`, `VatClipRotation`, бленд — один `lerp` без нормализации); SubGraph `vat_vertex` отдаёт
   Position, Normal, Tangent. Шаблон по умолчанию — `vat_lit_vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
 - **Тестовый контент** (файлы — маленькими буквами через `_`, 0.7.1): `Assets/VatDev/Content/Bow`, результаты бейка —
   `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/compare.unity`.
@@ -67,6 +72,9 @@
   каждый по `ClipFinished` играет следующий клип. Кнопки и клавиши: Pool (P, `SetActive` всех), Hit (H, `_BaseColor`
   на 0.15 с), Reverse (R), Pause (Space); счётчики Finished, Doubled (повторное событие за один Play, должно быть 0) и
   Materials (все загруженные `Material`, не должно расти при пуле).
+  1.8: Fade (F) — длительность CrossFade к следующему клипу 0 / 0.25 / 1 с (0 — `Play`); Manual (M) — каждый юнит
+  встаёт в переход «текущий → следующий», ползунок ведёт вес через `SetWeight(w, 0.1)`, авто-смена клипов выключена;
+  в статусе — вес юнита #0. Fade 1 с длиннее клипа VAT (0.83 с), поэтому даёт предупреждения CrossFade посреди перехода.
   У `weapon_landing_bow.fbx` (legacy) три клипа: `VAT` (кадры 0–25 take Fire), `Fire` (take целиком, 2.6 с), `BakeSave`
   (take целиком, 3.23 с); профили `bow_default` и `bow_upgrade` запекают все три (loop, 30 fps): 200 строк, у Upgrade
   2 блока — текстура 2265×400.
@@ -85,7 +93,7 @@
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatPlayback, VatPlayer, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatPlayback, VatPlayer, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
 - `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph
 - `Samples/UnlitVertex/` — vat_unlit_vertex.shadergraph; `Samples/LitVertex/` — vat_lit_vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV)
@@ -101,7 +109,7 @@
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -200,3 +208,17 @@
   точном совпадении типов), остальное — руками. Из старых комментариев шейдеров в CLAUDE.md перенесено: в HLSL только
   `_float`, новый вход Custom Function — последним. В `VatAnimator` убран костыль с `int.MinValue`
   (`TryGetClip` по имени и по индексу, проверка ассета в `IsAssetPlayable`). Поведение не менялось, 198 тестов зелёные.
+- **1.8:** продуктовые решения (вопросы к пользователю): `ClipFinished`, `CurrentClip`, `GetNormalizedTime` — целевого
+  клипа, исходный доигрывает молча; скорость и пауза общие; `SetWeight` без целевого клипа — ничего и предупреждение;
+  ветвления по весу нет, замер стоимости второго клипа — за пользователем. Шейдер (требование пользователя): никаких
+  `?:` и `if` — N и T смешиваются одним `lerp` без нормализации и fallback по доминантному клипу из прежнего §1.5;
+  нормализует URP (`SafeNormalize` в `TransformObjectToWorldNormal`/`Dir`), противоположные N при w = 0.5 дают ноль,
+  не NaN. Записано в §1.5, `code-style.md` §9 и CLAUDE.md. `?:` в `VatDecodeRotation` и `VatNlerp` (1.3) не трогались.
+  Сам решил: «переход незакончен» — 0 < w < 1 (при w = 0 рывка нет, предупреждения тоже); CrossFade, когда ничего не
+  играет, — это `Play`; пауза замораживает рампу веса; вес приводится к [0, 1], NaN → 0; `d ≤ 0` или NaN — сразу.
+  `VatCore.hlsl` и `VatMath.cs` не менялись: бленд — обычный `lerp` в `VatShaderGraph.hlsl`. Тест «противоположные N и T
+  без NaN» проверяет `lerp` + формулу URP `SafeNormalize` на CPU. Свойство `_VatFrameB` добавлено в SubGraph правкой
+  JSON (как `DriftTex`): родительские графы получают его сами, `vat_half_parent` объявляет `float4 _VatFrameB`.
+  Проверено в Play mode (Animator): Fade 1 с — у 43 из 100 юнитов вес в (0, 1), NaN нет, предупреждения с именами
+  клипов; Manual 0.5 — все 100 в переходе. Глазом плавность и замер `VatAnimator.Write` не смотрел — это проверяет
+  пользователь. 217 тестов зелёные.

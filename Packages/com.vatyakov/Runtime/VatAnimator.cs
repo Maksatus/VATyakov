@@ -31,10 +31,13 @@ namespace VATyakov
         private VatMaterialCopies _copies;
 
         [NonSerialized]
-        private VatPlayer _player;
+        private VatMixer _mixer;
 
         [NonSerialized]
         private Vector4 _writtenFrame;
+
+        [NonSerialized]
+        private Vector4 _writtenFrameB;
 
         [NonSerialized]
         private bool _hasWrittenFrame;
@@ -51,8 +54,9 @@ namespace VATyakov
         }
 
         public IReadOnlyList<Material> Materials => Copies?.Materials ?? (IReadOnlyList<Material>)Array.Empty<Material>();
-        public VatClip CurrentClip => _player?.Clip;
-        public bool IsPaused => Player.IsPaused;
+        public VatClip CurrentClip => _mixer?.Clip;
+        public float TransitionWeight => _mixer?.Weight(Now) ?? 0f;
+        public bool IsPaused => Mixer.IsPaused;
 
         public float Speed
         {
@@ -60,19 +64,19 @@ namespace VATyakov
             set
             {
                 _speed = value;
-                Player.SetSpeed(Now, value);
+                Mixer.SetSpeed(Now, value);
             }
         }
 
         private static double Now => Time.timeAsDouble;
-        private VatPlayer Player => _player ??= new VatPlayer(_speed);
+        private VatMixer Mixer => _mixer ??= new VatMixer(_speed);
         private VatMaterialCopies Copies => _copies ??= CreateCopies();
 
         public void Play(string clipName)
         {
             if (TryGetClip(clipName, out var clip))
             {
-                Player.Play(clip, Now);
+                Mixer.Play(clip, Now);
             }
         }
 
@@ -80,7 +84,7 @@ namespace VATyakov
         {
             if (TryGetClip(clipName, out var clip))
             {
-                Player.Play(clip, Now, normalizedTime);
+                Mixer.Play(clip, Now, normalizedTime);
             }
         }
 
@@ -88,7 +92,7 @@ namespace VATyakov
         {
             if (TryGetClip(clipIndex, out var clip))
             {
-                Player.Play(clip, Now);
+                Mixer.Play(clip, Now);
             }
         }
 
@@ -96,23 +100,47 @@ namespace VATyakov
         {
             if (TryGetClip(clipIndex, out var clip))
             {
-                Player.Play(clip, Now, normalizedTime);
+                Mixer.Play(clip, Now, normalizedTime);
+            }
+        }
+
+        public void CrossFade(string clipName, float duration)
+        {
+            if (TryGetClip(clipName, out var clip))
+            {
+                CrossFade(clip, duration);
+            }
+        }
+
+        public void CrossFade(int clipIndex, float duration)
+        {
+            if (TryGetClip(clipIndex, out var clip))
+            {
+                CrossFade(clip, duration);
+            }
+        }
+
+        public void SetWeight(float weight, float duration = 0f)
+        {
+            if (!Mixer.SetWeight(Now, weight, duration))
+            {
+                VatTransitionWarnings.ReportNoTransition(this);
             }
         }
 
         public void Pause()
         {
-            Player.Pause(Now);
+            Mixer.Pause(Now);
         }
 
         public void Resume()
         {
-            Player.Resume(Now);
+            Mixer.Resume(Now);
         }
 
         public float GetNormalizedTime()
         {
-            return Player.NormalizedTime(Now);
+            return Mixer.NormalizedTime(Now);
         }
 
         public void SetFloat(int id, float value)
@@ -164,14 +192,14 @@ namespace VATyakov
 
         private void LateUpdate()
         {
-            if (_player?.Clip == null || Copies == null)
+            if (_mixer?.Clip == null || Copies == null)
             {
                 return;
             }
 
             if (WriteFrame())
             {
-                ClipFinished?.Invoke(_player.Clip);
+                ClipFinished?.Invoke(_mixer.Clip);
             }
         }
 
@@ -206,21 +234,29 @@ namespace VATyakov
                 index = 0;
             }
 
-            Player.Play(_asset.Clips[index], Now);
+            Mixer.Play(_asset.Clips[index], Now);
+        }
+
+        private void CrossFade(VatClip clip, float duration)
+        {
+            VatTransitionWarnings.CheckCrossFade(this, Mixer, clip, Now);
+            Mixer.CrossFade(clip, Now, duration);
         }
 
         private bool WriteFrame()
         {
             using var _ = _writeMarker.Auto();
-            var isFinished = _player.Evaluate(Now, out var frame);
-            if (!_hasWrittenFrame || !frame.Equals(_writtenFrame))
+            var isFinished = _mixer.Evaluate(Now, out var frame, out var frameB);
+            if (!_hasWrittenFrame || !frame.Equals(_writtenFrame) || !frameB.Equals(_writtenFrameB))
             {
                 foreach (var material in _copies.Materials)
                 {
                     material.SetVector(VatShaderIds.Frame, frame);
+                    material.SetVector(VatShaderIds.FrameB, frameB);
                 }
 
                 _writtenFrame = frame;
+                _writtenFrameB = frameB;
                 _hasWrittenFrame = true;
             }
 
