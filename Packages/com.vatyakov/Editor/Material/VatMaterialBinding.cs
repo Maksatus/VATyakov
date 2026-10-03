@@ -49,6 +49,7 @@ namespace VATyakov.Editor
                 material.GetTexture(VatShaderIds.PositionTexture) != asset.PositionTexture ||
                 material.GetTexture(VatShaderIds.RotationTexture) != asset.RotationTexture ||
                 material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout ||
+                material.GetVector(VatShaderIds.PositionScale) != asset.PositionRange.ShaderScale ||
                 material.GetVector(VatShaderIds.Drift) != ShownDrift(material, asset, asset.Clips[clipIndex]);
         }
 

@@ -9,6 +9,8 @@ namespace VATyakov.Tests
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly VatBakeTextures Textures;
+        public readonly VatPositionFormat PositionFormat;
+        public readonly VatPositionRange PositionRange;
         public readonly Vector3[] Drift;
         public readonly VatPrecision Precision;
         public readonly string[] Warnings;
@@ -34,12 +36,20 @@ namespace VATyakov.Tests
                 var encoder = new VatVertexEncoder(layout, source.Mesh);
                 EncodeAll(source, layout, encoder);
                 Layout = encoder.Layout;
+                PositionFormat = encoder.Positions.Format;
+                PositionRange = encoder.Positions.Range;
                 Drift = encoder.Drift;
                 Precision = encoder.Precision;
                 Mesh = encoder.BuildMesh("InMemory");
                 Textures = VatBakeTextures.Build(encoder, "InMemory");
                 Warnings = source.Warnings.ToArray();
             }
+        }
+
+        public Vector3 DecodePosition(byte[] texels, Vector3 rest, int element, int row)
+        {
+            var sample = VatTestUtil.PositionSample(texels, Layout.Info, PositionFormat, element, row);
+            return VatTestUtil.ShaderPosition(rest, Drift[row] + PositionRange.Min, sample, PositionRange);
         }
 
         public void Destroy()

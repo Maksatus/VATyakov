@@ -35,7 +35,8 @@ namespace VATyakov.Editor
         {
             var info = asset.Layout;
             var clips = string.Join(", ", asset.Clips.Select(Describe));
-            var textures = FormattableString.Invariant($"textures {info.Width}×{info.Height} ({info.Blocks} blocks), {VatText.Megabytes(info)}");
+            var memory = VatText.Megabytes(info, asset.PositionFormat);
+            var textures = FormattableString.Invariant($"textures {info.Width}×{info.Height} ({info.Blocks} blocks), {memory}");
             return FormattableString.Invariant($"VAT '{asset.name}': {info.Elements} vertices, {clips}; {textures}");
         }
 
@@ -47,9 +48,12 @@ namespace VATyakov.Editor
 
         private static string Positions(VatBakeResult result)
         {
-            var error = result.Precision.Error * MillimetersPerMeter;
-            return FormattableString.Invariant(
-                $"; centroid travels {result.Precision.MaxDrift:0.###} m, max |Δ| {result.MaxOffset:0.###} m, max half error {error:0.###} mm");
+            var precision = result.Precision;
+            var format = VatText.PositionFormat(result.PositionFormat).ToLowerInvariant();
+            var travel = FormattableString.Invariant($"; centroid travels {precision.MaxDrift:0.###} m, max |Δ| {result.MaxOffset:0.###} m");
+            var error = precision.Error * MillimetersPerMeter;
+            var byteError = precision.ByteError * MillimetersPerMeter;
+            return FormattableString.Invariant($"{travel}, {format} positions, max error {error:0.###} mm, 8-bit error {byteError:0.###} mm");
         }
 
         private static string Stats(VatQuantizationStats stats)

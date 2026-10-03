@@ -66,6 +66,24 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void Drift_AddsTheMinimumOfBytePositions()
+        {
+            var minimum = new Vector3(-0.5f, 0.25f, -2f);
+            var asset = DriftAsset(new VatPositionRange(minimum, Vector3.one));
+            try
+            {
+                AssertDrift(_rows[1] + minimum, asset.Drift(VatTestUtil.Row(1)), "a whole row");
+                var frame = new Vector4(0f, 1f, 0.5f, 0f);
+                var frameB = new Vector4(2f, 3f, 0.5f, 0.25f);
+                AssertDrift(new Vector3(4.75f, 0.5f, 0.75f) + minimum, asset.Drift(frame, frameB), "the transition adds the minimum once");
+            }
+            finally
+            {
+                Object.DestroyImmediate(asset);
+            }
+        }
+
+        [Test]
         public void ApplyFrame_WritesTheFrameAndItsDrift()
         {
             var asset = DriftAsset();
@@ -120,9 +138,15 @@ namespace VATyakov.Tests
 
         private static VatAsset DriftAsset()
         {
+            return DriftAsset(VatPositionRange.Identity);
+        }
+
+        private static VatAsset DriftAsset(VatPositionRange range)
+        {
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             var clips = new[] { new VatClip("A", 0, 2, 1f, 2f, true), new VatClip("B", 2, 2, 1f, 2f, true) };
-            asset.SetData(new VatLayoutInfo(1, 1, 1, _rows.Length), null, null, null, (Vector3[])_rows.Clone(), clips, default, string.Empty);
+            asset.SetData(new VatLayoutInfo(1, 1, 1, _rows.Length), null, null, null, VatPositionFormat.Byte, range, (Vector3[])_rows.Clone(), clips, default,
+                string.Empty);
             return asset;
         }
 
@@ -183,7 +207,7 @@ namespace VATyakov.Tests
                 var layout = VatLayout.ForVertex(VertexCount, new[] { new VatClipRequest("Fly", 2f, Fps, isLooping: false) });
                 var source = new VatSourceMesh("Body", VertexCount, null,
                     new[] { new VatSourceSubMesh(Enumerable.Range(0, VertexCount).ToArray(), MeshTopology.Points) });
-                var encoder = new VatVertexEncoder(layout, source);
+                var encoder = new VatVertexEncoder(layout, source, 0f);
                 Frames = new VatFrame[layout.Clips[0].FrameCount];
                 for (var k = 0; k < Frames.Length; k++)
                 {
@@ -209,7 +233,7 @@ namespace VATyakov.Tests
                 {
                     for (var v = 0; v < VertexCount; v++)
                     {
-                        var decoded = rest[v] + Drift[k] + VatTestUtil.DecodeOffset(_positionTexels, _layout.Info, v, k);
+                        var decoded = rest[v] + Drift[k] + VatTestUtil.PositionSample(_positionTexels, _layout.Info, VatPositionFormat.Half, v, k);
                         Assert.IsTrue(bounds.Contains(decoded), $"vertex {v} of frame {k} outside bounds");
                         max = Mathf.Max(max, (decoded - Frames[k].Positions[v]).magnitude);
                     }

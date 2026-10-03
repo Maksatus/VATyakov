@@ -9,7 +9,7 @@ namespace VATyakov.Editor
         {
             using var source = VatFrameSources.Open(profile);
             var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping));
-            var encoder = new VatVertexEncoder(layout, source.Mesh);
+            var encoder = new VatVertexEncoder(layout, source.Mesh, profile.MaxPositionError);
             SampleAll(source, layout, encoder);
             return Build(encoder, name, source.Warnings);
         }

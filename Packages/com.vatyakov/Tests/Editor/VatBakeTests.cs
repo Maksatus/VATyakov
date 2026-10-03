@@ -201,7 +201,7 @@ namespace VATyakov.Tests
             CollectionAssert.AreEqual(VatVertexFormat.Attributes, bake.Mesh.GetVertexAttributes(), "vertex attributes");
             Assert.AreEqual(VatVertexFormat.Strides[0], bake.Mesh.GetVertexBufferStride(0), "stride of stream 0");
             Assert.AreEqual(VatVertexFormat.Strides[1], bake.Mesh.GetVertexBufferStride(1), "stride of stream 1");
-            Assert.AreEqual(VatVertexFormat.Position, bake.Position.graphicsFormat, "position texture format");
+            Assert.AreEqual(VatVertexFormat.Position(bake.PositionFormat), bake.Position.graphicsFormat, "position texture format");
             Assert.AreEqual(bake.Layout.Info.Width, bake.Position.width, "position texture width");
             Assert.AreEqual(bake.Layout.Info.Height, bake.Position.height, "position texture height");
             Assert.AreEqual(1, bake.Position.mipmapCount, "no mipmaps");
@@ -243,16 +243,17 @@ namespace VATyakov.Tests
             for (var k = 0; k < clip.FrameCount; k++)
             {
                 var reference = _rig.ReferencePositions(clip.FrameTime(k));
-                var frameDrift = (Vector3)asset.Drift(VatTestUtil.Row(clip.StartRow + k));
+                var frameDrift = asset.Drift(VatTestUtil.Row(clip.StartRow + k));
                 for (var v = 0; v < rest.Length; v++)
                 {
-                    var decoded = rest[v] + frameDrift + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
+                    var sample = VatTestUtil.PositionSample(texels, asset.Layout, asset.PositionFormat, v, clip.StartRow + k);
+                    var decoded = VatTestUtil.ShaderPosition(rest[v], frameDrift, sample, asset.PositionRange);
                     maxError = Mathf.Max(maxError, (decoded - reference[v]).magnitude);
                     Assert.IsTrue(Contains(asset.Mesh.bounds, decoded), $"vertex {v} of frame {k} outside bounds");
                 }
             }
 
-            Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+            Assert.Less(maxError, asset.Precision.Error + Tolerance, $"max error {maxError * 1000f:0.###} mm");
         }
 
         private static void AssertReferencesSurviveReload(VatAsset asset, string materialPath, string prefabPath)
@@ -265,6 +266,7 @@ namespace VATyakov.Tests
             Assert.AreEqual(reloaded.Mesh, prefab.GetComponent<MeshFilter>().sharedMesh, "prefab keeps the mesh");
             Assert.AreEqual(LoopFrameCount(RebakeFps), material.GetTexture(VatShaderIds.PositionTexture).height, "material sees the rebaked rows");
             Assert.AreEqual(reloaded.Layout.ShaderLayout, material.GetVector(VatShaderIds.Layout), "material layout");
+            Assert.AreEqual(reloaded.PositionRange.ShaderScale, material.GetVector(VatShaderIds.PositionScale), "material position scale");
             Assert.AreEqual(reloaded.Clips[0].Frame(0.0), material.GetVector(VatShaderIds.Frame), "material shows frame 0");
             Assert.IsFalse(material.enableInstancing, "instancing stays off");
         }

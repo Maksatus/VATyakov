@@ -7,7 +7,7 @@ namespace VATyakov
     [PreferBinarySerialization]
     public sealed class VatAsset : ScriptableObject
     {
-        public const int CurrentFormatVersion = 5;
+        public const int CurrentFormatVersion = 6;
 
         [SerializeField]
         private int _formatVersion;
@@ -19,6 +19,10 @@ namespace VATyakov
         private Texture2D _positionTexture;
         [SerializeField]
         private Texture2D _rotationTexture;
+        [SerializeField]
+        private VatPositionFormat _positionFormat;
+        [SerializeField]
+        private VatPositionRange _positionRange = VatPositionRange.Identity;
         [SerializeField]
         private Vector3[] _drift = Array.Empty<Vector3>();
         [SerializeField]
@@ -33,6 +37,8 @@ namespace VATyakov
         public Mesh Mesh => _mesh;
         public Texture2D PositionTexture => _positionTexture;
         public Texture2D RotationTexture => _rotationTexture;
+        public VatPositionFormat PositionFormat => _positionFormat;
+        public VatPositionRange PositionRange => _positionRange;
         public IReadOnlyList<VatClip> Clips => _clips;
         public VatPrecision Precision => _precision;
         public string SourceHash => _sourceHash;
@@ -68,6 +74,7 @@ namespace VATyakov
             material.SetTexture(VatShaderIds.PositionTexture, _positionTexture);
             material.SetTexture(VatShaderIds.RotationTexture, _rotationTexture);
             material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
+            material.SetVector(VatShaderIds.PositionScale, _positionRange.ShaderScale);
             ApplyFrame(material, _clips[clipIndex].Frame(0.0));
         }
 
@@ -79,7 +86,7 @@ namespace VATyakov
 
         public Vector4 Drift(Vector4 frame)
         {
-            return Vector3.LerpUnclamped(_drift[(int)frame.x], _drift[(int)frame.y], frame.z);
+            return Vector3.LerpUnclamped(_drift[(int)frame.x], _drift[(int)frame.y], frame.z) + _positionRange.Min;
         }
 
         public Vector4 Drift(Vector4 frame, Vector4 frameB)
@@ -87,14 +94,16 @@ namespace VATyakov
             return Vector4.LerpUnclamped(Drift(frame), Drift(frameB), frameB.w);
         }
 
-        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, Texture2D rotationTexture,
-            Vector3[] drift, VatClip[] clips, VatPrecision precision, string sourceHash)
+        internal void SetData(VatLayoutInfo layout, Mesh mesh, Texture2D positionTexture, Texture2D rotationTexture, VatPositionFormat positionFormat,
+            VatPositionRange positionRange, Vector3[] drift, VatClip[] clips, VatPrecision precision, string sourceHash)
         {
             _formatVersion = CurrentFormatVersion;
             _layout = layout;
             _mesh = mesh;
             _positionTexture = positionTexture;
             _rotationTexture = rotationTexture;
+            _positionFormat = positionFormat;
+            _positionRange = positionRange;
             _drift = drift;
             _clips = clips;
             _precision = precision;

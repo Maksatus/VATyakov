@@ -29,6 +29,7 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatVertexPosition_float(", code);
             StringAssert.DoesNotContain("VatVertexPosition_half", code);
             AssertFloat4(code, "_VatLayout");
+            AssertFloat4(code, "_VatPosScale");
             AssertInstanceState(code, "_VatFrame", "_VatDrift");
             StringAssert.DoesNotContain("_VatFrameB", code, "no transition without the blend subgraph");
         }
@@ -42,6 +43,7 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatVertexPositionBlend_float(", code);
             StringAssert.DoesNotContain("VatVertexPositionBlend_half", code);
             AssertFloat4(code, "_VatLayout");
+            AssertFloat4(code, "_VatPosScale");
             AssertInstanceState(code, "_VatFrame", "_VatFrameB", "_VatDrift");
         }
 

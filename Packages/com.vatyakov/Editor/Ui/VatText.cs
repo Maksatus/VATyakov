@@ -7,6 +7,8 @@ namespace VATyakov.Editor
     {
         private const float MillimetersPerMeter = 1000f;
         private const double BytesPerMegabyte = 1024.0 * 1024.0;
+        private const string ByteHint = "One byte per axis within the bounds of the animation, half the memory of half floats: " +
+            "the error stays within the Max Position Error of the profile.";
 
         public static string ClipSummary(VatClip clip)
         {
@@ -16,7 +18,7 @@ namespace VATyakov.Editor
 
         public static string Estimate(VatLayout layout)
         {
-            return $"Result: {Clips(layout.Clips.Length)}, {Count(layout.Info.TotalRows)} · texture {Size(layout.Info)} · {Megabytes(layout.Info)}";
+            return $"Result: {Clips(layout.Clips.Length)}, {Count(layout.Info.TotalRows)} · texture {Size(layout.Info)} · {MegabytesRange(layout.Info)}";
         }
 
         public static string Clips(int count)
@@ -80,9 +82,31 @@ namespace VATyakov.Editor
                 $"The centroid travels up to {meters:0.##} m from the rest pose. Positions are stored relative to it, so far-travelling bodies stay precise.");
         }
 
-        public static string Megabytes(VatLayoutInfo info)
+        public static string Megabytes(VatLayoutInfo info, VatPositionFormat format)
         {
-            return FormattableString.Invariant($"{VatMemory.TextureBytes(info) / BytesPerMegabyte:0.##} MB");
+            return FormattableString.Invariant($"{MegabytesOf(info, format):0.##} MB");
+        }
+
+        public static string MegabytesRange(VatLayoutInfo info)
+        {
+            return FormattableString.Invariant($"{MegabytesOf(info, VatPositionFormat.Byte):0.##}–{MegabytesOf(info, VatPositionFormat.Half):0.##} MB");
+        }
+
+        public static string PositionFormat(VatPositionFormat format)
+        {
+            return format == VatPositionFormat.Byte ? "8-bit" : "Half";
+        }
+
+        public static string PositionFormatHint(VatPositionFormat format, VatPrecision precision)
+        {
+            return format == VatPositionFormat.Byte
+                ? ByteHint
+                : $"8-bit positions would give {Millimeters(precision.ByteError)}, over the Max Position Error of the profile: they stay in half floats.";
+        }
+
+        private static double MegabytesOf(VatLayoutInfo info, VatPositionFormat format)
+        {
+            return VatMemory.TextureBytes(info, format) / BytesPerMegabyte;
         }
     }
 }

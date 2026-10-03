@@ -93,9 +93,10 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 0.45, g: 0.65, b: 0.85, a: 1}
-    - _VatDrift: {r: 0, g: 0, b: 0, a: 0}
+    - _VatDrift: {r: -0.4760043, g: -1.2959127, b: -0.33005044, a: 0}
     - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
     - _VatFrameB: {r: 0, g: 0, b: 0, a: 0}
     - _VatLayout: {r: 2927, g: 79, b: 0, a: 0}
+    - _VatPosScale: {r: 0.82542634, g: 2.741891, b: 0.7595752, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -84,7 +84,7 @@ namespace VATyakov.Tests
                 CollectionAssert.AreEqual(new[] { "Partial", _rig.Clip.name }, backward.Layout.Clips.Select(clip => clip.Name), "backward clip order");
 
                 var error = Mathf.Max(MaxDifference(forward, 0, backward, 1), MaxDifference(forward, 1, backward, 0));
-                Assert.Less(error, Tolerance, $"max difference {error * 1000f:0.###} mm");
+                Assert.Less(error, forward.Precision.Error + backward.Precision.Error + Tolerance, $"max difference {error * 1000f:0.###} mm");
             }
             finally
             {
@@ -187,12 +187,10 @@ namespace VATyakov.Tests
             var max = 0f;
             for (var k = 0; k < bakeA.Layout.Clips[clipA].FrameCount; k++)
             {
-                var frameDriftA = bakeA.Drift[rowA + k];
-                var frameDriftB = bakeB.Drift[rowB + k];
                 for (var v = 0; v < restA.Length; v++)
                 {
-                    var positionA = restA[v] + frameDriftA + VatTestUtil.DecodeOffset(positionsA, bakeA.Layout.Info, v, rowA + k);
-                    var positionB = restB[v] + frameDriftB + VatTestUtil.DecodeOffset(positionsB, bakeB.Layout.Info, v, rowB + k);
+                    var positionA = bakeA.DecodePosition(positionsA, restA[v], v, rowA + k);
+                    var positionB = bakeB.DecodePosition(positionsB, restB[v], v, rowB + k);
                     max = Mathf.Max(max, (positionA - positionB).magnitude);
                 }
             }

@@ -64,10 +64,11 @@ Material:
     - _Smoothness: 0.6
     m_Colors:
     - _BaseColor: {r: 0.95, g: 0.45, b: 0.35, a: 1}
-    - _VatDrift: {r: 0, g: 0, b: 0, a: 0}
+    - _VatDrift: {r: -0.07595825, g: -0.13027608, b: -0.061931103, a: 0}
     - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
     - _VatFrameB: {r: 0, g: 0, b: 0, a: 0}
     - _VatLayout: {r: 1225, g: 121, b: 0, a: 0}
+    - _VatPosScale: {r: 0.16013336, g: 0.26055217, b: 0.15132323, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &4197540168535546609

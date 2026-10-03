@@ -18,6 +18,7 @@
 | 1.8 Переходы: CrossFade и вес из кода | готово, устройства не проверены | 0.8.0 |
 | 1.8.1 Дрейф на CPU | готово, устройства не проверены | 0.8.1 |
 | 1.8.2 Шейдер без бленда и кватернион целиком | готово, устройства не проверены | 0.8.2 |
+| 1.8.3 Позиции 8 бит по габаритам ассета | готово, устройства не проверены | 0.8.3 |
 | 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
 | 1.10–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
@@ -49,10 +50,14 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   на каждом кадре `VatAlembicTopology` (ошибка «патч 2») и `VatVertexJumps` (предупреждение). Инспектор профиля
   берёт число вертексов, длину и разрыв петли из `VatAlembicProbe` (кэш до переимпорта .abc), подсказка loop —
   `VatLoopHintController`.
-  `VatVertexEncoder` за один проход пишет `_VatPosTex` (`VatPositionTexels`), `_VatRotTex` (`VatRotationTexels`,
-  кодек `VatRotationCodec`, знак — `VatRotationSigns`, 1.8.2) и дрейф по строкам (`VatDriftRows`, float32, в ассет — `Vector3[]`, 1.8.1); N и T кадра —
+  `VatVertexEncoder` за один проход пишет `_VatRotTex` (`VatRotationTexels`, кодек `VatRotationCodec`, знак —
+  `VatRotationSigns`, 1.8.2) и дрейф по строкам (`VatDriftRows`, float32, в ассет — `Vector3[]`, 1.8.1); N и T кадра —
   `VatTangentFrames`, знак бинормали — `VatChirality`. Позиции — `VatPositions`: Δ = pos − rest − d, d = центроид
-  кадра − центроид покоя, дрейф включён всегда (0.7.1). `VatPrecision` в ассете — ошибка после fp16 и путь центроида.
+  кадра − центроид покоя, дрейф включён всегда (0.7.1). С 1.8.3 `VatPositions` копит Δ всех кадров во float, а
+  `VatPositionEncoding` (лениво, при первом обращении) считает габариты и ошибку 8 бит (`VatBytePositions`, fp16-выборка
+  учтена), выбирает формат по Max Position Error профиля и пишет текстуру (`VatBytePositionTexels` или
+  `VatHalfPositionTexels`, общий `IVatPositionTexels`), ошибку и баунды. `VatPrecision` в ассете — ошибка формата,
+  ошибка 8 бит и путь центроида.
   `VatAssetWriter` при перебейке удаляет сабассеты, кроме меша и двух текстур (`_drift` ассетов формата 3).
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
@@ -70,11 +75,15 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   инспектора материала, `VatCompare`.
   Без бленда (1.8.2): `VatMaterialCopies.CanBlend` — у всех VAT-копий есть `_VatFrameB`. Иначе `CrossFade` = `Play`,
   `_VatFrameB` не пишется, `VatBlendCheck` (`[Conditional]`) один раз на компонент предупреждает с именем материала.
+  8-битные позиции (1.8.3): `VatAsset.PositionFormat` и `PositionRange` (min, size); `Drift` возвращает d + min,
+  `ApplyTo` пишет `_VatPosScale = (size, 0)`. Инспектор материала считает материал устаревшим, если `_VatPosScale` не
+  совпадает с ассетом.
 - **Шейдер:** `VatCore.hlsl` — адрес тексела, декод поворота (`t·255/127 − 128/127`) и однородные оси кадра;
   `VatMath.cs` — его CPU-зеркало. В HLSL нет `?:` и `if` (1.8.2). `VatShaderGraph.hlsl`: клип целиком —
   `VatClipOffset` и `VatClipRotation` (`lerp` текселей, потом декод); без бленда — `VatVertexPosition_float`
-  (вход `Drift` последним) и `VatVertexNormalTangent_float`; с блендом — `VatVertexPositionBlend_float` и
-  `VatVertexNormalTangentBlend_float` (вход `FrameB`, у позиции затем `Drift`), смесь клипов — один `lerp`.
+  (входы `Drift`, затем `PosScale` — последними) и `VatVertexNormalTangent_float`; с блендом — `VatVertexPositionBlend_float`
+  и `VatVertexNormalTangentBlend_float` (вход `FrameB`, у позиции затем `Drift` и `PosScale`), смесь клипов — один `lerp`,
+  позиция — `rest + Drift + смесь · PosScale`.
   SubGraph `vat_vertex` (4 выборки на вертекс) и `vat_vertex_blend` (8) отдают Position, Normal, Tangent. Шаблон по
   умолчанию — `vat_lit_vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness), с блендом — `vat_lit_vertex_blend`.
 - **Тестовый контент** (файлы — маленькими буквами через `_`, 0.7.1): `Assets/VatDev/Content/Bow`, результаты бейка —
@@ -95,6 +104,18 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   в мобильный билд не идёт) — сплит-скрин, у каждой половины своя камера с одинаковым ракурсом. `columns.fbx` — на 1.15.
   У лука нет своей normal map: `bow_test_normal.png` — процедурный рельеф (sin·sin, 24 периода), на SMR — `bow_source_lit.mat`
   (URP Lit), на VAT — `vat_lit_vertex` с той же картой и smoothness 0.6. Сцена `rot_decode` удалена в 1.8.2.
+  Сжатие (между 1.8.2 и 1.8.3, сцены `compression` и `compression_water` удалены в 1.8.3): 8 бит по габаритам ассета
+  на крупных планах лука и воды не отличались от half; ASTC 4×4 на Fire кадр 10 превращал тетиву в полосу в сантиметры
+  (до 50 мм), нормали у верхнего конца — до 21°, воду мял (до 223 мм у колонны). ASTC в 2079×200 и в 4096×256
+  (степень двойки) декодировался побайтно одинаково — степень двойки только добавляла память. Подвох dev-скриптов:
+  `CopyPropertiesFromMaterial` стирает свойства, которых нет у источника, — их выставлять после него и сохранять отдельно.
+  Замер способов ужать VAT (после 1.8.2, лук / вода, ошибка позиции max; сейчас 0.12 / 0.5 мм и 0.9°):
+  8 бит по габаритам ассета — 1.1 / 5.8 мм, по габаритам клипа — то же, по габаритам вертекса — 1.0 / 3.7 мм (в
+  среднем 0.12 / 1.2 мм); RGB565 по габаритам вертекса — 4 / 15 мм; только нормаль в RG8 в осях покоя вертекса — нормаль
+  до 0.33° (у воды 0.012% нормалей уходят дальше 90° от покоя — до 48°), тангент дугой от нормали покоя — p99 17° / 18°;
+  ключевые кадры по ошибке 1 мм и 2° — у лука 49% строк, у воды 100%; fps вдвое — p99 91 / 94 мм, не годится;
+  уникальных траекторий позиций у лука 62% (швы UV и жёсткие рёбра), у воды 100%; deflate исходных текстур (размер
+  сборки, не память) — лук 4.76 → 1.69 МБ, вода 5.29 → 2.95 МБ; у лука 4 кости — в Bone около 13 КБ.
   Дрейф (1.5): `Content/Alembic/jelly.abc` — желе 1225 вертексов, 121 кадр по 30 fps, за 1.5 с улетает на 40 м и потом
   медленно колышется (генератор — меню VATyakov → Dev → Regenerate Drift Content, `VatJellyContent`). Профиль
   `Bakes/jelly` (ошибка 0.059 мм, без дрейфа было 15.6 мм), сцена `Scenes/drift.unity` (не в сборке): Alembic и VAT
@@ -104,7 +125,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatBlendCheck, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatPlayback, VatPlayer, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatBlendCheck, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatPlayback, VatPlayer, VatPositionFormat, VatPositionRange, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
 - `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph, vat_vertex_blend.shadersubgraph
 - `Samples/UnlitVertex/` — vat_unlit_vertex.shadergraph; `Samples/LitVertex/` — vat_lit_vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexBlend/` — vat_lit_vertex_blend.shadergraph (переходы);
@@ -114,14 +135,14 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
 - `Editor/Baking/Sources/Alembic/` — VatAlembicFrameSource и VatAlembicCopy (под `#if VAT_ALEMBIC`), VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
-- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftRows, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
+- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*)
 - `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка и путь центроида — VatAssetPrecision*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -268,3 +289,20 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `CrossFade` подряд мгновенные, одно предупреждение, `_VatFrameB` у копии нет; `compare` на Fire кадр 20 — SMR и VAT
   обоих луков совпадают на снимке. Плавность глазом и замер на устройстве — за пользователем. 209 тестов зелёные
   (удалены тесты smallest-three и nlerp, добавлены кодек, `VatRotationSigns`, `CanBlend` и Half-родитель бленд-графа).
+- **1.8.3:** запрос пользователя — уменьшить память текстур. Продуктовые решения (вопросы к пользователю): один
+  габарит на ассет (не на вертекс, не на клип: на клип замер не дал выигрыша); формат выбирает бейкер по полю профиля
+  Max Position Error, по умолчанию 8 мм; размах — отдельное свойство `_VatPosScale` (не упаковка в свободные
+  компоненты); эксперименты со сжатием удалить. Записано в §0, §1.2, §1.4, §1.9, §2.2, план 1.8.3.
+  Сам решил: минимум прибавляется к дрейфу на CPU (`VatAsset.Drift`), поэтому в шейдере сложение заменилось на
+  умножение-сложение и лишних операций нет; сравнение строгое — 0 значит всегда half; ошибка 8 бит считается с
+  fp16-выборкой (`half(b / 255)`), поэтому она чуть больше замеров до 1.8.3 (лук 1.24 мм против 1.12); ось без
+  движения — size 0 и байт 0; Δ всех кадров копятся во float до конца сэмплинга (12 Б на вертекс-кадр на время
+  бейка), выбор и запись — в `VatPositionEncoding` при первом обращении к позициям; поле в хэше исходника.
+  Свойство `_VatPosScale` (Per Material, Single, по умолчанию 1) и вход `PosScale` (слот 10, последним) добавлены в оба
+  SubGraph правкой JSON. В логе бейка — формат, ошибка и ошибка 8 бит; в инспекторе ассета — стат Positions с подсказкой.
+  VatDev перезапечён, всё ушло в 8 бит: лук 1.24 мм (4.76 → 3.17 МБ), Upgrade 1.38 мм (10.37 → 6.91 МБ), вода
+  6.31 мм (5.29 → 3.53 МБ), желе 0.70 мм (1.70 → 1.13 МБ). Проверено в Play mode: `compare` на Fire кадр 20 — SMR и
+  VAT обоих луков совпадают; `animator` — 100 копий с размахом ассета, переходы идут; `drift` — `_VatDrift` на кадре 80
+  (39.92, −0.13, −0.06) = 40 м + min. Удалены сцены `compression`, `compression_water`, папки `Compression`,
+  `Shaders` и `VatDevLabel`. 214 тестов зелёные (тесты восстановления сравнивают с заявленной точностью ассета,
+  добавлены `VatPositionEncodingTests` и тест min в `Drift`). Плавность глазом и устройства — за пользователем.

@@ -9,6 +9,8 @@ namespace VATyakov.Editor
     {
         public const int MenuOrder = 400;
 
+        private const float MillimetersPerMeter = 1000f;
+
         [Tooltip("Skinned Mesh Renderer: a renderer with clips. Alembic: an .abc with constant topology (cloth, soft body, liquid).")]
         [SerializeField]
         private VatSourceKind _kind;
@@ -36,6 +38,12 @@ namespace VATyakov.Editor
         [SerializeField]
         private float _fps = 30f;
 
+        [Tooltip("Millimeters. Positions take one byte per axis within the bounds of the animation when their error stays within this value, " +
+                 "half the memory of half floats; otherwise they stay in half floats. 0 always keeps half floats.")]
+        [Min(0f)]
+        [SerializeField]
+        private float _maxPositionError = VatPositionEncoding.ByteTolerance * MillimetersPerMeter;
+
         [HideInInspector]
         [SerializeField]
         private VatAsset _asset;
@@ -59,6 +67,7 @@ namespace VATyakov.Editor
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
         public bool IsLooping { get => _isLooping; set => _isLooping = value; }
         public float Fps { get => _fps; set => _fps = value; }
+        public float MaxPositionError { get => _maxPositionError / MillimetersPerMeter; set => _maxPositionError = value * MillimetersPerMeter; }
         public VatAsset Asset { get => _asset; set => _asset = value; }
         public Material Material { get => _material; set => _material = value; }
         public Shader Shader { get => _shader; set => _shader = value; }

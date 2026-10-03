@@ -8,6 +8,8 @@ namespace VATyakov.Editor
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly VatBakeTextures Textures;
+        public readonly VatPositionFormat PositionFormat;
+        public readonly VatPositionRange PositionRange;
         public readonly Vector3[] Drift;
         public readonly VatPrecision Precision;
         public readonly float MaxOffset;
@@ -21,6 +23,8 @@ namespace VATyakov.Editor
             Layout = layout;
             Mesh = mesh;
             Textures = textures;
+            PositionFormat = encoder.Positions.Format;
+            PositionRange = encoder.Positions.Range;
             Drift = encoder.Drift;
             Precision = encoder.Precision;
             MaxOffset = encoder.MaxOffset;

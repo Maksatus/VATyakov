@@ -18,10 +18,10 @@ float4 VatClipRotation(uint id, UnityTexture2D RotTex, float4 Layout, float4 Fra
 }
 
 void VatVertexPosition_float(float VertexId, float3 RestPosition,
-    UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 Drift,
+    UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 Drift, float4 PosScale,
     out float3 Position)
 {
-    Position = RestPosition + Drift.xyz + VatClipOffset((uint)VertexId, PosTex, Layout, Frame);
+    Position = RestPosition + Drift.xyz + VatClipOffset((uint)VertexId, PosTex, Layout, Frame) * PosScale.xyz;
 }
 
 void VatVertexNormalTangent_float(float VertexId,
@@ -34,13 +34,13 @@ void VatVertexNormalTangent_float(float VertexId,
 }
 
 void VatVertexPositionBlend_float(float VertexId, float3 RestPosition,
-    UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 FrameB, float4 Drift,
+    UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 FrameB, float4 Drift, float4 PosScale,
     out float3 Position)
 {
     uint id = (uint)VertexId;
     float3 offsetA = VatClipOffset(id, PosTex, Layout, Frame);
     float3 offsetB = VatClipOffset(id, PosTex, Layout, FrameB);
-    Position = RestPosition + Drift.xyz + lerp(offsetA, offsetB, FrameB.w);
+    Position = RestPosition + Drift.xyz + lerp(offsetA, offsetB, FrameB.w) * PosScale.xyz;
 }
 
 void VatVertexNormalTangentBlend_float(float VertexId,

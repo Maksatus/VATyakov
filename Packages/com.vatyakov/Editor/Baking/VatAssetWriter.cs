@@ -18,8 +18,8 @@ namespace VATyakov.Editor
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             asset.name = Path.GetFileNameWithoutExtension(path);
             var textures = result.Textures;
-            asset.SetData(result.Layout.Info, result.Mesh, textures.Position, textures.Rotation, result.Drift, result.Layout.Clips,
-                result.Precision, sourceHash);
+            asset.SetData(result.Layout.Info, result.Mesh, textures.Position, textures.Rotation, result.PositionFormat, result.PositionRange, result.Drift,
+                result.Layout.Clips, result.Precision, sourceHash);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.AddObjectToAsset(result.Mesh, asset);
             AssetDatabase.AddObjectToAsset(textures.Position, asset);
@@ -33,7 +33,8 @@ namespace VATyakov.Editor
             var mesh = Adopt(asset, asset.Mesh, result.Mesh);
             var position = Adopt(asset, asset.PositionTexture, result.Textures.Position);
             var rotation = Adopt(asset, asset.RotationTexture, result.Textures.Rotation);
-            asset.SetData(result.Layout.Info, mesh, position, rotation, result.Drift, result.Layout.Clips, result.Precision, sourceHash);
+            asset.SetData(result.Layout.Info, mesh, position, rotation, result.PositionFormat, result.PositionRange, result.Drift, result.Layout.Clips,
+                result.Precision, sourceHash);
             RemoveStale(asset);
             Finish(asset);
             return asset;

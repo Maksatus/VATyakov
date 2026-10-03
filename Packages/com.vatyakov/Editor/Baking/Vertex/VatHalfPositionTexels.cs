@@ -1,19 +1,16 @@
-using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
 {
-    internal sealed class VatPositionTexels
+    internal sealed class VatHalfPositionTexels : IVatPositionTexels
     {
         private readonly VatLayoutInfo _info;
         private readonly ushort[] _texels;
-        private readonly bool[] _rowWritten;
 
-        public VatPositionTexels(VatLayoutInfo info)
+        public VatHalfPositionTexels(VatLayoutInfo info)
         {
             _info = info;
             _texels = new ushort[info.Width * info.Height * VatVertexFormat.ChannelCount];
-            _rowWritten = new bool[info.TotalRows];
         }
 
         public Vector3 Write(int element, int row, Vector3 delta)
@@ -23,24 +20,9 @@ namespace VATyakov.Editor
             return half.ToVector3();
         }
 
-        public void MarkRow(int row)
-        {
-            _rowWritten[row] = true;
-        }
-
         public Texture2D Build(string name)
         {
-            RequireComplete();
-            return VatTexture.Create(_info, VatVertexFormat.Position, name, _texels);
-        }
-
-        private void RequireComplete()
-        {
-            var missing = Array.IndexOf(_rowWritten, false);
-            if (missing >= 0)
-            {
-                throw new InvalidOperationException(FormattableString.Invariant($"Row {missing} of the position texture was never written."));
-            }
+            return VatTexture.Create(_info, VatVertexFormat.HalfPosition, name, _texels);
         }
 
         private int Offset(int element, int row)

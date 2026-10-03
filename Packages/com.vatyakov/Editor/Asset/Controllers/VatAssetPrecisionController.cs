@@ -22,7 +22,9 @@ namespace VATyakov.Editor
 
         public void Activate()
         {
-            var precision = _context.Asset.Precision;
+            var asset = _context.Asset;
+            var precision = asset.Precision;
+            _container.Positions.Set(VatText.PositionFormat(asset.PositionFormat), VatText.PositionFormatHint(asset.PositionFormat, precision));
             _container.Error.Set(VatText.Millimeters(precision.Error), ErrorHint);
             _container.Drift.Set(VatText.Meters(precision.MaxDrift), VatText.DriftTravel(precision.MaxDrift));
         }

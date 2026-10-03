@@ -7,7 +7,8 @@ namespace VATyakov.Editor
 {
     internal static class VatVertexFormat
     {
-        public const GraphicsFormat Position = GraphicsFormat.R16G16B16A16_SFloat;
+        public const GraphicsFormat HalfPosition = GraphicsFormat.R16G16B16A16_SFloat;
+        public const GraphicsFormat BytePosition = GraphicsFormat.R8G8B8A8_UNorm;
         public const GraphicsFormat Rotation = GraphicsFormat.R8G8B8A8_UNorm;
         public const int ChannelCount = 4;
 
@@ -20,5 +21,10 @@ namespace VATyakov.Editor
         };
 
         public static readonly int[] Strides = { Marshal.SizeOf<Vector3>(), Marshal.SizeOf<VatVertexStream1>() };
+
+        public static GraphicsFormat Position(VatPositionFormat format)
+        {
+            return format == VatPositionFormat.Byte ? BytePosition : HalfPosition;
+        }
     }
 }

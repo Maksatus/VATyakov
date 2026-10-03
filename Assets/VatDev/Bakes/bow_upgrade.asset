@@ -21,6 +21,7 @@ MonoBehaviour:
   _alembic: {fileID: 0}
   _isLooping: 1
   _fps: 30
+  _maxPositionError: 8
   _asset: {fileID: 11400000, guid: 7a412248ba856b84990548a46bf43714, type: 2}
   _material: {fileID: 2100000, guid: 415e5d7633426174caf4b156fb6b5dae, type: 2}
   _shader: {fileID: -6465566751694194690, guid: 1fbbb37d1ed3422781e3ce9ce7b5040b, type: 3}

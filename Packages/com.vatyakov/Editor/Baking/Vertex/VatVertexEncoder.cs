@@ -18,15 +18,16 @@ namespace VATyakov.Editor
 
         private VatRestPose _rest;
 
-        public VatPrecision Precision => new VatPrecision(_drift.MaxDistance, _positions.MaxError);
+        public VatPrecision Precision => new VatPrecision(_drift.MaxDistance, Positions.MaxError, Positions.ByteError);
+        public VatPositionEncoding Positions => _positions.Encoding;
         public float MaxOffset => _positions.MaxOffset;
         public Vector3[] Drift => _drift.Rows;
 
-        public VatVertexEncoder(VatLayout layout, VatSourceMesh source)
+        public VatVertexEncoder(VatLayout layout, VatSourceMesh source, float byteTolerance = VatPositionEncoding.ByteTolerance)
         {
             Layout = layout;
             _source = source;
-            _positions = new VatPositions(layout.Info, source);
+            _positions = new VatPositions(layout.Info, source, byteTolerance);
             _drift = new VatDriftRows(layout.Info);
             _rotations = new VatRotationTexels(layout.Info);
             _frames = new VatTangentFrames(source.VertexCount);
@@ -58,12 +59,12 @@ namespace VATyakov.Editor
 
         public Mesh BuildMesh(string name)
         {
-            return VatVertexMeshBuilder.Build(name, _rest, _source, _positions.SubMeshes, _positions.Bounds);
+            return VatVertexMeshBuilder.Build(name, _rest, _source, Positions.SubMeshes, Positions.Bounds);
         }
 
         public Texture2D BuildPositionTexture(string name)
         {
-            return _positions.Texels.Build(name);
+            return Positions.BuildTexture(name);
         }
 
         public Texture2D BuildRotationTexture(string name)

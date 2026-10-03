@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
+using VATyakov.Editor;
 using Object = UnityEngine.Object;
 using Random = System.Random;
 
@@ -41,10 +42,22 @@ namespace VATyakov.Tests
             }
         }
 
-        public static Vector3 DecodeOffset(byte[] texels, VatLayoutInfo layout, int element, int row)
+        public static Vector3 PositionSample(byte[] texels, VatLayoutInfo layout, VatPositionFormat format, int element, int row)
         {
             var texel = VatMath.Texel(element, layout.Width, layout.TotalRows, row);
-            return Half3(texels, (texel.y * layout.Width + texel.x) * HalfTexelSize);
+            var index = texel.y * layout.Width + texel.x;
+            if (format == VatPositionFormat.Half)
+            {
+                return Half3(texels, index * HalfTexelSize);
+            }
+
+            var offset = index * ByteTexelSize;
+            return VatBytePositions.Decode(new Color32(texels[offset], texels[offset + 1], texels[offset + 2], 0), VatPositionRange.Identity);
+        }
+
+        public static Vector3 ShaderPosition(Vector3 rest, Vector4 drift, Vector3 sample, VatPositionRange range)
+        {
+            return rest + (Vector3)drift + Vector3.Scale(sample, range.Size);
         }
 
         public static Vector4 Row(int row)

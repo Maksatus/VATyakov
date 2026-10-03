@@ -12,6 +12,10 @@
 - **RGBA8 — линейное число, не байты** (1.8.2): кватернион декодируется одним `mad`, побитной упаковки нет. Ошибка
   mediump-выборки (до 2⁻¹¹ от значения) меньше шага квантования 1/127, точность байтов на устройствах проверять не нужно.
 - **Позиции хранятся смещениями от покоя:** в Vertex — от rest-меша, в Bone и Rigid — от позы покоя кости. Ошибка half тогда пропорциональна смещению, а не расстоянию до origin.
+- **Vertex: half или 8 бит** (1.8.3). Смещение без дрейфа кладётся либо в RGBAHalf, либо байтом на ось в RGBA8 внутри
+  габаритов смещений ассета (min, size по осям). Бейкер считает максимальную ошибку 8 бит с учётом fp16-выборки и печёт
+  8 бит, если она меньше Max Position Error профиля (по умолчанию 8 мм; 0 — всегда half). Ошибка 8 бит ≈ размах
+  деформации по оси / 510; дрейф (перенос тела) в размах не входит. 8 бит вдвое уменьшают текстуру позиций.
 - **Дрейф d — float32 на CPU:** массив строк в `VatAsset`, в шейдер приходит готовым вектором `_VatDrift` (§1.4). Пары hi/lo half и `_VatDriftTex` нет с 1.8.1.
 - **VAT-SubGraph и все Custom Function — Precision Single**, обёртки только `_float`. Иначе Vertex ID станет half и сломается выше 2048.
 - **Инспектор показывает ошибку с учётом fp16-выборки**, а не точность хранения.
@@ -59,7 +63,7 @@
 ```
 _VatFrame  = (row0, row1, frac, 0)   // строки внутри блока (startRow + f0, startRow + f1) и вес второй
 _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перехода и его вес w, вес A = 1 − w
-_VatDrift  = (d, 0)                  // 1.8.1: дрейф, уже смешанный по frac обоих клипов и по w
+_VatDrift  = (d + min, 0)            // 1.8.1: дрейф, уже смешанный по frac обоих клипов и по w; 1.8.3: + min 8-битных позиций
 ```
 - **Пишет драйвер каждый кадр** (`VatCompare` сейчас, `VatAnimator` с 1.7): строки уже со `startRow`, loop, one-shot, скорость и рампы веса посчитаны на CPU. Строки — целые < 4096, во float32 точны.
 - **Дрейф** считает `VatAsset.Drift(frame, frameB)`: `d = lerp(lerp(d[A.row0], d[A.row1], A.frac), lerp(d[B.row0], d[B.row1], B.frac), w)`, при `_VatFrameB = 0` — дрейф клипа A. Пишется вместе с `_VatFrame*`, когда изменился кадр; `ApplyTo` и `ApplyFrame` пишут его в превью. Дрейф одинаков для всех вертексов draw, поэтому шейдер его не читает: до 1.8.1 это были 4 выборки на вертекс на клип.
@@ -146,7 +150,7 @@ _VatDrift  = (d, 0)                  // 1.8.1: дрейф, уже смешанн
 
 | Текстура | Режим | Формат | Элемент x | R | G | B | A |
 |---|---|---|---|---|---|---|---|
-| `_VatPosTex` | Vertex | RGBAHalf | вертекс | Δ.x | Δ.y | Δ.z | 0 |
+| `_VatPosTex` | Vertex | RGBAHalf или RGBA8 (1.8.3) | вертекс | Δ.x | Δ.y | Δ.z | 0 |
 | `_VatRotTex` | Vertex | RGBA8 | вертекс | q.x | q.y | q.z | q.w |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i | p̃.x | p̃.y | p̃.z | 0 |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i + 1 | 0 | 0 | 0 | 0 |
@@ -154,6 +158,9 @@ _VatDrift  = (d, 0)                  // 1.8.1: дрейф, уже смешанн
 | `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i + 1 | q.x | q.y | q.z | q.w |
 
 - **Vertex:** `Δ = pos − rest − d`. Строки — только кадры: `totalRows = ΣF`, первый клип с `startRow = 0`.
+- **8-битные позиции** (1.8.3, `formatVersion` 6): `b = round((Δ − min) / size · 255)`, при size = 0 байт 0; шейдер —
+  `pos = rest + _VatDrift.xyz + t · _VatPosScale.xyz`, где `_VatDrift = d + min`, `t` — выборка (у half сам Δ, size = 1,
+  min = 0). Формат и `VatPositionRange` хранит `VatAsset`.
 - **Дрейф:** не текстура, а `Vector3[]` в `VatAsset` (float32, строка `startRow + frame`, длина `totalRows`). CPU смешивает d по кадрам и переходу и пишет `_VatDrift` (§1.4), шейдер: `pos = rest + _VatDrift.xyz + lerp(Δ0, Δ1)`. Дрейф есть в каждом Vertex-ассете и включён всегда (§2.2).
 - **Bone и Rigid:** `i` — индекс кости или куска, элементов `E = 2·N`. Строка 0 каждого блока — пивоты, `totalRows = 1 + ΣF`, клипы начинаются со `startRow = 1`. `p̃` — пивот, округлённый до half; `Δ = p_pose − p̃`; `s` — равномерный масштаб, `s = 0` — кусок скрыт.
 - **Кватернион** — (x, y, z, w), w — скалярная часть. В Vertex он задаёт кадр (T, N×T, N): `N = rot(q, (0,0,1))`, `T = rot(q, (1,0,0))`, знак бинормали — `tangent.w` меша.
@@ -185,5 +192,6 @@ _VatDrift  = (d, 0)                  // 1.8.1: дрейф, уже смешанн
 | `_VatFrame` | Hybrid Per Instance | `(row0, row1, frac, 0)` — §1.4 |
 | `_VatFrameB` | Hybrid Per Instance | `(row0, row1, frac, w)` — 1.8, §1.4; только в `vat_vertex_blend` (1.8.2) |
 | `_VatLayout` | Per Material | `(W, totalRows, 0, 0)` — постоянные ассета, бейкер пишет их в шаблон |
+| `_VatPosScale` | Per Material | `(size, 0)` — размах 8-битных позиций, у half (1, 1, 1); пишет `ApplyTo` (1.8.3) |
 | `_VatDrift` | Hybrid Per Instance | `(d, 0)` — 1.8.1, §1.4 |
 | `_VatPosTex`, `_VatRotTex`, `_VatBoneTex` | Per Material | текстуры ассета |

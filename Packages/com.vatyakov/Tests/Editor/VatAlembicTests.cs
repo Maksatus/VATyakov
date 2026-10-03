@@ -69,17 +69,16 @@ namespace VATyakov.Tests
                 var mesh = reference.Sample(clip.FrameTime(k));
                 var vertices = mesh.vertices;
                 var normals = mesh.normals;
-                var frameDrift = _bake.Drift[clip.StartRow + k];
                 for (var v = 0; v < rest.Length; v++)
                 {
-                    var decoded = rest[v] + frameDrift + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);
+                    var decoded = _bake.DecodePosition(positions, rest[v], v, clip.StartRow + k);
                     var rotation = VatTestUtil.DecodeRotation(rotations, _bake.Layout.Info, v, clip.StartRow + k);
                     maxError = Mathf.Max(maxError, (decoded - vertices[v]).magnitude);
                     maxAngle = Mathf.Max(maxAngle, Vector3.Angle(normals[v], VatMath.FrameNormal(rotation)));
                 }
             }
 
-            Assert.Less(maxError, Tolerance, $"max error {maxError * 1000f:0.###} mm");
+            Assert.Less(maxError, _bake.Precision.Error + Tolerance, $"max error {maxError * 1000f:0.###} mm");
             Assert.Less(maxAngle, AngleTolerance, "normal, degrees");
         }
 
