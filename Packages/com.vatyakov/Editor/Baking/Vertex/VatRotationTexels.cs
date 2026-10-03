@@ -15,7 +15,7 @@ namespace VATyakov.Editor
 
         public Vector4 Write(int element, int row, Vector4 rotation)
         {
-            var bytes = VatSmallestThree.Encode(rotation);
+            var bytes = VatRotationCodec.Encode(rotation);
             var texel = VatMath.Texel(element, _info.Width, _info.TotalRows, row);
             _texels[texel.y * _info.Width + texel.x] = bytes;
             return VatMath.DecodeRotation((Color)bytes);

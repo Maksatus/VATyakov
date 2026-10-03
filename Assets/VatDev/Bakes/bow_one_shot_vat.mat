@@ -21,7 +21,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: bow_one_shot_vat
-  m_Shader: {fileID: -6465566751694194690, guid: 1fbbb37d1ed3422781e3ce9ce7b5040b, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 76884dce0616dae4abaa7ea7a16a8bdc, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []

@@ -9,6 +9,7 @@ namespace VATyakov.Tests
     public class VatMaterialCopiesTests
     {
         private const string UnlitShaderName = "VATyakov/vat_unlit_vertex";
+        private const string BlendShaderName = "VATyakov/vat_lit_vertex_blend";
         private const string PlainShaderName = "Universal Render Pipeline/Lit";
         private const string BaseColor = "_BaseColor";
 
@@ -16,6 +17,7 @@ namespace VATyakov.Tests
         private GameObject _root;
         private Material _vat;
         private Material _otherVat;
+        private Material _blend;
         private Material _plain;
         private VatMaterialCopies _copies;
 
@@ -26,6 +28,7 @@ namespace VATyakov.Tests
             _root = NewObject("Unit");
             _vat = new Material(Shader.Find(VatBaker.DefaultShaderName)) { name = "Vat" };
             _otherVat = new Material(Shader.Find(UnlitShaderName)) { name = "OtherVat" };
+            _blend = new Material(Shader.Find(BlendShaderName)) { name = "Blend" };
             _plain = new Material(Shader.Find(PlainShaderName)) { name = "Plain" };
         }
 
@@ -37,6 +40,7 @@ namespace VATyakov.Tests
             Object.DestroyImmediate(_root);
             Object.DestroyImmediate(_vat);
             Object.DestroyImmediate(_otherVat);
+            Object.DestroyImmediate(_blend);
             Object.DestroyImmediate(_plain);
             EditorSceneManager.ClosePreviewScene(_scene);
         }
@@ -89,6 +93,20 @@ namespace VATyakov.Tests
             Assert.AreEqual(0, animator.Materials.Count, "no copies in edit mode");
             Assert.AreSame(_vat, body.sharedMaterial, "the template stays");
             Assert.AreEqual(color, _vat.GetColor(BaseColor), "the template color stays");
+        }
+
+        [Test]
+        public void CanBlend_OnlyWhenEveryVatTemplateHasATransition()
+        {
+            var body = AddRenderer(_root, _blend, _plain);
+            var weapon = AddRenderer(Child("Weapon"), _vat);
+
+            _copies = new VatMaterialCopies(new Renderer[] { body }, _root.name);
+            Assert.IsTrue(_copies.CanBlend, "blend template and a plain material");
+            _copies.Dispose();
+
+            _copies = new VatMaterialCopies(new Renderer[] { body, weapon }, _root.name);
+            Assert.IsFalse(_copies.CanBlend, "a VAT template without a transition");
         }
 
         private GameObject NewObject(string name)

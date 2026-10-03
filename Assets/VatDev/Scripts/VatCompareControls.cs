@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace VATyakov.Dev
 {
     public sealed class VatCompareControls : MonoBehaviour
     {
-        private const string RotationDecodeScene = "rot_decode";
         private const int LabelFontSize = 20;
         private const float ButtonWidth = 110f;
         private const float AreaHeight = 72f;
@@ -53,12 +51,6 @@ namespace VATyakov.Dev
             }
 
             GUILayout.Label(Status(first), label, height);
-            GUILayout.FlexibleSpace();
-            if (GUILayout.Button("RGBA8", button, width, height))
-            {
-                SceneManager.LoadScene(RotationDecodeScene);
-            }
-
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }

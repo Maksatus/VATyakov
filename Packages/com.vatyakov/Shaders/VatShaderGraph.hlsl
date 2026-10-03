@@ -12,12 +12,28 @@ float3 VatClipOffset(uint id, UnityTexture2D PosTex, float4 Layout, float4 Frame
 
 float4 VatClipRotation(uint id, UnityTexture2D RotTex, float4 Layout, float4 Frame)
 {
-    float4 q0 = VatDecodeRotation(LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0));
-    float4 q1 = VatDecodeRotation(LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0));
-    return VatNlerp(q0, q1, Frame.z);
+    float4 texel0 = LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.x), 0);
+    float4 texel1 = LOAD_TEXTURE2D_LOD(RotTex.tex, VatTexel(id, (uint)Layout.x, (uint)Layout.y, (uint)Frame.y), 0);
+    return VatDecodeRotation(lerp(texel0, texel1, Frame.z));
 }
 
 void VatVertexPosition_float(float VertexId, float3 RestPosition,
+    UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 Drift,
+    out float3 Position)
+{
+    Position = RestPosition + Drift.xyz + VatClipOffset((uint)VertexId, PosTex, Layout, Frame);
+}
+
+void VatVertexNormalTangent_float(float VertexId,
+    UnityTexture2D RotTex, float4 Layout, float4 Frame,
+    out float3 Normal, out float3 Tangent)
+{
+    float4 q = VatClipRotation((uint)VertexId, RotTex, Layout, Frame);
+    Normal = VatFrameNormal(q);
+    Tangent = VatFrameTangent(q);
+}
+
+void VatVertexPositionBlend_float(float VertexId, float3 RestPosition,
     UnityTexture2D PosTex, float4 Layout, float4 Frame, float4 FrameB, float4 Drift,
     out float3 Position)
 {
@@ -27,7 +43,7 @@ void VatVertexPosition_float(float VertexId, float3 RestPosition,
     Position = RestPosition + Drift.xyz + lerp(offsetA, offsetB, FrameB.w);
 }
 
-void VatVertexNormalTangent_float(float VertexId,
+void VatVertexNormalTangentBlend_float(float VertexId,
     UnityTexture2D RotTex, float4 Layout, float4 Frame, float4 FrameB,
     out float3 Normal, out float3 Tangent)
 {

@@ -9,9 +9,6 @@ EditorBuildSettings:
     path: Assets/VatDev/Scenes/compare.unity
     guid: 40f042170cc219e4ba507aae6eb6c62f
   - enabled: 1
-    path: Assets/VatDev/Scenes/rot_decode.unity
-    guid: f20ee017e29b96d4fa1b5eef757a424b
-  - enabled: 1
     path: Assets/VatDev/Scenes/animator.unity
     guid: ab33477316fee0948a2552a693f39beb
   m_configObjects:

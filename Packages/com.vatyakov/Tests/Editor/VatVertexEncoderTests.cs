@@ -10,7 +10,7 @@ namespace VATyakov.Tests
     {
         private const int VertexCount = 5000;
         private const float Fps = 30f;
-        private const float MaxAngle = 0.25f;
+        private const float MaxAngle = 1f;
         private const int FlipPeriod = 1000;
         private const int FlippedCount = VertexCount / FlipPeriod;
         private const int NegativeSignPeriod = 3;

@@ -13,6 +13,7 @@ namespace VATyakov.Editor
         public readonly float MaxOffset;
         public readonly VatQuantizationStats Stats;
         public readonly VatChirality Chirality;
+        public readonly VatRotationSigns Signs;
         public readonly IReadOnlyList<string> Warnings;
 
         public VatBakeResult(VatLayout layout, Mesh mesh, VatBakeTextures textures, VatVertexEncoder encoder, IReadOnlyList<string> warnings)
@@ -25,6 +26,7 @@ namespace VATyakov.Editor
             MaxOffset = encoder.MaxOffset;
             Stats = encoder.Stats;
             Chirality = encoder.Chirality;
+            Signs = encoder.Signs;
             Warnings = warnings;
         }
     }

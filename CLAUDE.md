@@ -70,9 +70,11 @@
   переходы считает CPU (`VatPlayback`, `VatClip.Frame`) и пишет готовые строки в `_VatFrame`; валидность
   данных обеспечивает бейкер.
 - Shader Graph ассеты (`vat_vertex`, `vat_unlit_vertex`, `vat_lit_vertex`, фикстура `vat_half_parent`) сгенерированы скриптом,
-  дальше их правят в редакторе SG. Векторные свойства SubGraph — Precision Single: с Inherit в Half-графе они
-  объявляются `half4` и портят строки и W > 2048 (это проверяет тест). В HLSL — только `_float`-обёртки. Новый вход
-  Custom Function добавлять последним (как `FrameB` и `Drift`): Shader Graph сопоставляет слоты по id.
+  дальше их правят в редакторе SG. Бленд-версии (`vat_vertex_blend`, `vat_lit_vertex_blend`, `vat_half_parent_blend`, 1.8.2) —
+  копии через `AssetDatabase.CopyAsset` (новый GUID) с правкой JSON: имена функций `*Blend`, GUID сабграфа и
+  `promotedFromAssetID`. Шейдер с блендом и без — разные шейдеры, keyword нет. Векторные свойства SubGraph — Precision
+  Single: с Inherit в Half-графе они объявляются `half4` и портят строки и W > 2048 (это проверяет тест). В HLSL —
+  только `_float`-обёртки. Новый вход Custom Function добавлять последним (как `Drift`): Shader Graph сопоставляет слоты по id.
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
 - Контент — файлы ассетов (модели, текстуры, материалы, префабы, сцены, профили и результаты бейка) — маленькими
   буквами через `_`: `bow_default_vat.prefab`. Папки и код (скрипты, шейдеры, asmdef) — PascalCase, как в `D:\client`.
@@ -87,5 +89,5 @@
 - `Assets/VatDev/Content/Alembic/water.abc` — жидкость с постоянной топологией (1.4), сравнение — сцена
   `compare_alembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/compare.unity` — сравнение SMR и VAT,
-  она же первая сцена сборки; вторая — `rot_decode`, проверка RGBA8 на устройствах (1.3); третья — `animator`,
-  толпа из 100 `VatAnimator` (1.7).
+  она же первая сцена сборки; вторая — `animator`, толпа из 100 `VatAnimator` (1.7) на шаблоне с блендом
+  (`vat_lit_vertex_blend`, 1.8.2).

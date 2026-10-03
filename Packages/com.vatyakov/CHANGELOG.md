@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.8.2] — шейдер без бленда и кватернион целиком
+
+### Добавлено
+- SubGraph `vat_vertex_blend` (`VatVertexPositionBlend_float`, `VatVertexNormalTangentBlend_float`, свойство
+  `_VatFrameB`) и граф `vat_lit_vertex_blend`. Шейдер с блендом и без — разные шейдеры, keyword нет; выбирает художник
+  в шаблоне.
+- `VatAnimator` на материалах без `_VatFrameB` делает `CrossFade` мгновенным (`Play`), не пишет `_VatFrameB` и один раз
+  на компонент предупреждает в редакторе и development-сборке.
+- Предупреждение бейка о шве петли: кадр вертекса делает за цикл нечётное число оборотов.
+
+### Изменено
+- SubGraph `vat_vertex` читает один клип: 4 выборки на вертекс вместо 8, входа `FrameB` и свойства `_VatFrameB` нет.
+  `vat_lit_vertex`, `vat_unlit_vertex` и `vat_lit_vertex_triplanar` — без бленда. Шаблоны, которым нужен `CrossFade`,
+  переключить на `vat_lit_vertex_blend`.
+- `_VatRotTex` RGBA8 хранит кватернион целиком (байт `round(c·127) + 128`), знак соседних кадров выравнивает бейкер.
+  Шейдер: `lerp` текселей, декод одним `mad`, однородные N и T без нормализации. В HLSL пакета нет `?:` и `if`.
+  Ошибка поворота — до 0.9° (было 0.2°).
+- `formatVersion` 5: ассеты 0.8.1 не играют, пока их не перезапечь.
+
+### Удалено
+- Кодек smallest-three (`VatSmallestThree`), `VatMath.RotationBytes`, `RotationFields`, `Nlerp`, HLSL `VatNlerp`.
+
 ## [0.8.1] — дрейф на CPU
 
 ### Изменено

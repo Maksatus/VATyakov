@@ -26,6 +26,7 @@ namespace VATyakov
         private float _speed = 1f;
 
         private readonly VatPropertyBlockCheck _blockCheck = new();
+        private readonly VatBlendCheck _blendCheck = new();
 
         [NonSerialized]
         private VatMaterialCopies _copies;
@@ -239,6 +240,13 @@ namespace VATyakov
 
         private void CrossFade(VatClip clip, float duration)
         {
+            if (Copies != null && !Copies.CanBlend)
+            {
+                _blendCheck.ReportInstantCrossFade(this, clip, Copies.Materials);
+                Mixer.Play(clip, Now);
+                return;
+            }
+
             VatTransitionWarnings.CheckCrossFade(this, Mixer, clip, Now);
             Mixer.CrossFade(clip, Now, duration);
         }
@@ -249,14 +257,7 @@ namespace VATyakov
             var isFinished = _mixer.Evaluate(Now, out var frame, out var frameB);
             if (!_hasWrittenFrame || !frame.Equals(_writtenFrame) || !frameB.Equals(_writtenFrameB))
             {
-                var drift = _asset.Drift(frame, frameB);
-                foreach (var material in _copies.Materials)
-                {
-                    material.SetVector(VatShaderIds.Frame, frame);
-                    material.SetVector(VatShaderIds.FrameB, frameB);
-                    material.SetVector(VatShaderIds.Drift, drift);
-                }
-
+                Write(frame, frameB);
                 _writtenFrame = frame;
                 _writtenFrameB = frameB;
                 _hasWrittenFrame = true;
@@ -264,6 +265,21 @@ namespace VATyakov
 
             _blockCheck.Run(_copies.Renderers);
             return isFinished;
+        }
+
+        private void Write(Vector4 frame, Vector4 frameB)
+        {
+            var drift = _asset.Drift(frame, frameB);
+            var canBlend = _copies.CanBlend;
+            foreach (var material in _copies.Materials)
+            {
+                material.SetVector(VatShaderIds.Frame, frame);
+                material.SetVector(VatShaderIds.Drift, drift);
+                if (canBlend)
+                {
+                    material.SetVector(VatShaderIds.FrameB, frameB);
+                }
+            }
         }
 
         private bool TryGetClip(string clipName, out VatClip clip)

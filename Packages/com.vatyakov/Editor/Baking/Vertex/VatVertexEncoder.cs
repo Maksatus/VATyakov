@@ -8,6 +8,7 @@ namespace VATyakov.Editor
         public readonly VatLayout Layout;
         public readonly VatQuantizationStats Stats = new();
         public readonly VatChirality Chirality;
+        public readonly VatRotationSigns Signs;
 
         private readonly VatSourceMesh _source;
         private readonly VatPositions _positions;
@@ -30,23 +31,29 @@ namespace VATyakov.Editor
             _rotations = new VatRotationTexels(layout.Info);
             _frames = new VatTangentFrames(source.VertexCount);
             Chirality = new VatChirality(source.VertexCount);
+            Signs = new VatRotationSigns(source.VertexCount);
         }
 
         public void AddFrame(int clip, int frame, VatFrame data)
         {
+            var clipLayout = Layout.Clips[clip];
             Stats.AddDegenerate(_frames.Build(frame, data));
             _rest ??= new VatRestPose(data, _frames);
-            Chirality.Check(_rest, data, Layout.Clips[clip].Name, frame);
-            var row = Layout.Clips[clip].StartRow + frame;
+            Chirality.Check(_rest, data, clipLayout.Name, frame);
+            var row = clipLayout.StartRow + frame;
             var drift = VatCentroid.Of(data.Positions) - _rest.Centroid;
             _drift.Write(row, drift);
             for (var vertex = 0; vertex < _source.VertexCount; vertex++)
             {
                 EncodePosition(vertex, row, data.Positions[vertex], drift, clip, frame);
-                EncodeRotation(vertex, row);
+                EncodeRotation(vertex, row, frame);
             }
 
             _positions.EndRow(row);
+            if (clipLayout.IsLooping && frame == clipLayout.FrameCount - 1)
+            {
+                Signs.CloseLoop(clipLayout.Name);
+            }
         }
 
         public Mesh BuildMesh(string name)
@@ -71,11 +78,11 @@ namespace VATyakov.Editor
             _positions.Write(vertex, row, position, rest, drift);
         }
 
-        private void EncodeRotation(int vertex, int row)
+        private void EncodeRotation(int vertex, int row, int frame)
         {
             var normal = _frames.Normals[vertex];
             var tangent = _frames.Tangents[vertex];
-            var rotation = _rotations.Write(vertex, row, VatTangentFrames.Rotation(normal, tangent));
+            var rotation = _rotations.Write(vertex, row, Signs.Align(vertex, frame, VatTangentFrames.Rotation(normal, tangent)));
             Stats.AddRotation(Vector3.Angle(normal, VatMath.FrameNormal(rotation)), Vector3.Angle(tangent, VatMath.FrameTangent(rotation)));
         }
 

@@ -9,6 +9,8 @@ namespace VATyakov.Editor
         private const float MillimetersPerMeter = 1000f;
         private const string ChiralityHint =
             "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
+        private const string SeamHint =
+            "Their frame makes an odd number of turns over the loop: normal and tangent pass through zero between the last and the first frame.";
 
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
@@ -16,6 +18,11 @@ namespace VATyakov.Editor
             if (result.Chirality.Count > 0)
             {
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
+            }
+
+            if (result.Signs.SeamCount > 0)
+            {
+                Debug.LogWarning(Seams(asset, result.Signs), asset);
             }
 
             foreach (var warning in result.Warnings)
@@ -54,6 +61,12 @@ namespace VATyakov.Editor
         {
             var flipped = FormattableString.Invariant($"{chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First})");
             return $"VAT '{asset.name}': {flipped}. {ChiralityHint}";
+        }
+
+        private static string Seams(VatAsset asset, VatRotationSigns signs)
+        {
+            var seams = FormattableString.Invariant($"{signs.SeamCount} vertices flip the rotation sign at the loop seam (first: {signs.FirstSeam})");
+            return $"VAT '{asset.name}': {seams}. {SeamHint}";
         }
     }
 }

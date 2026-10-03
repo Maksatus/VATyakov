@@ -12,6 +12,7 @@ namespace VATyakov
 
         public IReadOnlyList<Material> Materials => _materials;
         public IReadOnlyList<Renderer> Renderers => _renderers;
+        public bool CanBlend { get; }
 
         public VatMaterialCopies(Renderer[] renderers, string owner)
         {
@@ -19,11 +20,18 @@ namespace VATyakov
             {
                 Replace(renderer, owner);
             }
+
+            CanBlend = _materials.TrueForAll(IsBlend);
         }
 
         public static bool IsVat(Material material)
         {
             return material != null && material.HasProperty(VatShaderIds.Frame);
+        }
+
+        public static bool IsBlend(Material material)
+        {
+            return material.HasProperty(VatShaderIds.FrameB);
         }
 
         public void Dispose()

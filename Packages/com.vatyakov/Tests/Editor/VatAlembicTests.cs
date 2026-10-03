@@ -16,7 +16,7 @@ namespace VATyakov.Tests
         private const string TempFolder = "Assets/__VatAlembicTemp";
         private const float Fps = 30f;
         private const float Tolerance = 5e-4f;
-        private const float AngleTolerance = 0.3f;
+        private const float AngleTolerance = 1f;
         private const int ClothVertexCount = 81;
 
         private Scene _scene;

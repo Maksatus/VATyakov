@@ -17,7 +17,7 @@ namespace VATyakov.Tests
         private const float Fps = 30f;
         private const float RebakeFps = 10f;
         private const float Tolerance = 5e-4f;
-        private const float AngleTolerance = 0.3f;
+        private const float AngleTolerance = 1f;
         private const float MinTopTwist = 30f;
         private const int TwoBlockVertexCount = 5000;
         private const int OneBlockVertexCount = 300;
