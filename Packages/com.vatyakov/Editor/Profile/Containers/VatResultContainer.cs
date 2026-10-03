@@ -8,11 +8,12 @@ namespace VATyakov.Editor
         public readonly VatObjectLink Asset = new("VAT Asset", "VAT asset: mesh and animation textures.");
         public readonly VatObjectLink Material = new("Material", "Template material with this animation.");
         public readonly HelpBox Invalid = VatUi.HelpBox(HelpBoxMessageType.Warning);
+        public readonly HelpBox Outdated = VatUi.HelpBox(HelpBoxMessageType.Warning);
         public readonly VatAssetSummaryContainer Summary = new();
 
         public VatResultContainer()
         {
-            Root.WithElements(NotBaked, Asset, Material, Invalid, Summary.Root);
+            Root.WithElements(NotBaked, Asset, Material, Invalid, Outdated, Summary.Root);
         }
     }
 }

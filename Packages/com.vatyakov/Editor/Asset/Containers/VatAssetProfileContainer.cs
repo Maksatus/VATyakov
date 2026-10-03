@@ -6,10 +6,11 @@ namespace VATyakov.Editor
     {
         public readonly VatObjectLink Profile = new("Bake Profile", "Change the settings and rebake here.");
         public readonly Label Missing = VatUi.Hint("No profile bakes this asset.");
+        public readonly HelpBox Outdated = VatUi.HelpBox(HelpBoxMessageType.Warning);
 
         public VatAssetProfileContainer()
         {
-            Root.Add(VatUi.Card().WithElements(Profile, Missing));
+            Root.Add(VatUi.Card().WithElements(Profile, Missing, Outdated));
         }
     }
 }

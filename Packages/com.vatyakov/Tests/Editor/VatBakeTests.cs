@@ -183,6 +183,27 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void SourceHash_ChangedSettings_OutdateTheBakeUntilRebake()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Outdated.asset");
+            Assert.IsFalse(VatSourceHash.IsOutdated(_profile, asset), "a fresh bake");
+
+            _profile.Fps = RebakeFps;
+            Assert.IsTrue(VatSourceHash.IsOutdated(_profile, asset), "fps changed");
+
+            VatBaker.Bake(_profile);
+            Assert.IsFalse(VatSourceHash.IsOutdated(_profile, asset), "rebaked");
+
+            _profile.SetClips(_rig.Clip, _rig.BuildPartialClip("Partial"));
+            Assert.IsTrue(VatSourceHash.IsOutdated(_profile, asset), "a clip added");
+
+            _profile.Source = null;
+            Assert.IsFalse(VatSourceHash.IsOutdated(_profile, asset), "an invalid profile has no hash to compare");
+        }
+
+        [Test]
         public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
         {
             var clips = new[] { new VatClipRequest("Long", 100f, Fps) };

@@ -1,11 +1,13 @@
 using System;
 using System.Globalization;
+using UnityEngine;
 
 namespace VATyakov.Editor
 {
     internal static class VatText
     {
         private const float MillimetersPerMeter = 1000f;
+        private const double BytesPerKilobyte = 1024.0;
         private const double BytesPerMegabyte = 1024.0 * 1024.0;
         private const string ByteHint = "One byte per axis within the bounds of the animation, half the memory of half floats: " +
             "the error stays within the Max Position Error of the profile.";
@@ -14,6 +16,11 @@ namespace VATyakov.Editor
         {
             var playback = clip.IsLooping ? "loop" : "once";
             return FormattableString.Invariant($"{Count(clip.FrameCount)} · {clip.FrameRate:0.##} fps · {clip.Length:0.##} s · {playback}");
+        }
+
+        public static string ClipSummary(VatClip clip, long bytes)
+        {
+            return $"{ClipSummary(clip)} · {Bytes(bytes)}";
         }
 
         public static string Estimate(VatLayout layout)
@@ -85,6 +92,27 @@ namespace VATyakov.Editor
         public static string Megabytes(VatLayoutInfo info, VatPositionFormat format)
         {
             return FormattableString.Invariant($"{MegabytesOf(info, format):0.##} MB");
+        }
+
+        public static string Bytes(long bytes)
+        {
+            if (bytes >= BytesPerMegabyte)
+            {
+                return FormattableString.Invariant($"{bytes / BytesPerMegabyte:0.##} MB");
+            }
+
+            return bytes >= BytesPerKilobyte ? FormattableString.Invariant($"{bytes / BytesPerKilobyte:0.#} KB") : FormattableString.Invariant($"{bytes} B");
+        }
+
+        public static string TextureMemory(Texture2D texture)
+        {
+            return FormattableString.Invariant($"{texture.width}×{texture.height} × {VatMemory.TexelBytes(texture)} B = {Bytes(VatMemory.Bytes(texture))}");
+        }
+
+        public static string Padding(VatAssetMemory memory)
+        {
+            var texels = memory.PaddingTexels == 1 ? "texel" : "texels";
+            return FormattableString.Invariant($"{memory.PaddingTexels} {texels} per row = {Bytes(memory.Padding)}");
         }
 
         public static string MegabytesRange(VatLayoutInfo info)

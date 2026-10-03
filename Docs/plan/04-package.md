@@ -5,7 +5,7 @@ Packages/com.vatyakov/
   Runtime/  VATyakov.asmdef — VatAsset.cs (formatVersion, раскладка, клипы), VatClip.cs, VatPlayback.cs, VatAnimator.cs, VatShaderIds.cs
   Shaders/  VatCore.hlsl (адресация), VatShaderGraph.hlsl (обёртки _float, include guard)
             SubGraphs/ vat_vertex (1.1), vat_vertex_blend (1.8.2), vat_bone (1.11, он же для rigid)
-  Editor/   VATyakov.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs, VatBuildValidator.cs
+  Editor/   VATyakov.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs
             Baking/  IVatFrameSource, VatSkinnedFrameSource, VatLayout, VatAssetWriter,
                      VatVertexEncoder (1.1), BoneEncoder (1.11, для кусков — 1.15)
             Baking/Sources/Alembic/ — VatAlembicFrameSource (1.4), RigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch), под #if VAT_ALEMBIC

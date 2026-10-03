@@ -26,6 +26,11 @@ namespace VATyakov.Editor
             return hash.ToString();
         }
 
+        public static bool IsOutdated(VatBakeProfile profile, VatAsset asset)
+        {
+            return asset.TryValidate(out _) && VatBakeValidator.Validate(profile).Count == 0 && Compute(profile) != asset.SourceHash;
+        }
+
         private static void AppendSkinned(ref Hash128 hash, VatBakeProfile profile)
         {
             hash.Append(DependencyHash(profile.Source));

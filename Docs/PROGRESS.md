@@ -20,7 +20,8 @@
 | 1.8.2 Шейдер без бленда и кватернион целиком | готово, устройства не проверены | 0.8.2 |
 | 1.8.3 Позиции 8 бит по габаритам ассета | готово, устройства не проверены | 0.8.3 |
 | 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
-| 1.10–1.16, 1.18 | не начаты | — |
+| 1.10 Инструменты: память и «бейк устарел» | готово, валидатора сборки нет (решение пользователя) | 0.10.0 |
+| 1.11–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
@@ -59,6 +60,11 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `VatHalfPositionTexels`, общий `IVatPositionTexels`), ошибку и баунды. `VatPrecision` в ассете — ошибка формата,
   ошибка 8 бит и путь центроида.
   `VatAssetWriter` при перебейке удаляет сабассеты, кроме меша и двух текстур (`_drift` ассетов формата 3).
+- **Инспекторы (1.10):** память — `VatAssetMemory` (по самим `Texture2D`: байты текстур, padding `blocks·W − E`,
+  доля клипа `blocks·W·F`), сводка `VatAssetSummary` (общая для инспектора ассета и Result профиля) пишет всего и долю
+  клипа в строку клипа (`VatInfoRow`), карточка Memory ассета — `VatAssetMemory*`. «Бейк устарел» —
+  `VatSourceHash.IsOutdated` (ассет валиден, профиль без проблем, хэш не совпал): HelpBox в `VatAssetProfile*` и в
+  `VatResult*` профиля.
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
   уникальный VAT-шаблон, VAT = есть `_VatFrame`, только в Play mode, `Dispose` в `OnDestroy`), `VatPlayer` (клип,
@@ -137,12 +143,12 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*)
-- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка и путь центроида — VatAssetPrecision*)
+- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память текстур и padding — VatAssetMemory*, ошибка и путь центроида — VatAssetPrecision*, профиль и «Out of date» — VatAssetProfile*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
-- `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatClipRow, VatEditor.uss, VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -306,3 +312,20 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   (39.92, −0.13, −0.06) = 40 м + min. Удалены сцены `compression`, `compression_water`, папки `Compression`,
   `Shaders` и `VatDevLabel`. 214 тестов зелёные (тесты восстановления сравнивают с заявленной точностью ассета,
   добавлены `VatPositionEncodingTests` и тест min в `Drift`). Плавность глазом и устройства — за пользователем.
+- **1.10:** продуктовое решение (вопрос к пользователю): валидатора сборки нет. Ассеты пишет только бейкер, поэтому
+  fp32-текстуры и `baseVertex ≠ 0` в ассете не возникают; правила для сцен — в README («Технические требования»).
+  Поэтому нет порога вариантов материалов и тестов «правило — фикстура». Записано в §0, §1.2, §1.6, §1.8, §4 и в 1.10.
+  Сам решил: память — по фактическим `Texture2D`, а не по раскладке; доля клипа — в строке клипа общей сводки
+  (видна и в Result профиля), без отдельного списка; «Out of date» — и в инспекторе ассета, и в Result профиля
+  (обновляется по `Model.Changed`, после Bake — через `_context.Refresh`); профиль с проблемами и невалидный ассет
+  «устаревшим» не считаются (у ассета старого формата своя ошибка «Rebake it»). `VatClipRow` стал общим
+  `VatInfoRow`, CSS `vat-clip*` → `vat-row*`.
+  Memory Profiler: `Profiler.GetRuntimeMemorySizeLong` у VAT-текстуры = w×h×байты + 904 Б. В редакторе после любой
+  записи в AssetDatabase (`CreateFolder`, `CreateAsset`, `SaveAssets`, в том числе внутри бейка) все загруженные
+  текстуры, даже обычный PNG, держат CPU-копию и показывают ×2, пока их не выгрузить (`Resources.UnloadAsset`).
+  Выгрузка в конце `VatAssetWriter` не помогает: бейк дальше создаёт материал и сохраняет ассеты, и копия
+  появляется снова. Поэтому сверять со сборкой; подсказка об этом — в карточке Memory.
+  VatDev: все пять бейков свежие (хэш совпадает в 6000.4.1f1); лук 3.17 МБ, Upgrade 6.91 МБ (padding 1 тексел в
+  строке = 1.6 КБ), вода 3.53 МБ (632 Б), желе 1.13 МБ. Смена fps профиля в памяти даёт «Out of date» в обоих
+  инспекторах (проверено по дереву UI), возврат убирает. 219 тестов зелёные (добавлены 4 теста памяти и тест «устарел»).
+  Сверку с Memory Profiler сборки делает пользователь.

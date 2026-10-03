@@ -15,6 +15,7 @@ namespace VATyakov.Editor
             yield return isValid ? new VatAssetOverviewController(context, root) : new VatAssetErrorController(context, root);
             if (isValid)
             {
+                yield return new VatAssetMemoryController(context, root);
                 yield return new VatAssetPrecisionController(context, root);
             }
 
