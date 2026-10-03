@@ -5,41 +5,46 @@ namespace VATyakov.Editor
 {
     internal sealed class VatRotationSigns
     {
+        public const string Vertex = "vertex";
+        public const string Bone = "bone";
+
+        private readonly string _element;
         private readonly Vector4[] _first;
         private readonly Vector4[] _previous;
 
         public int SeamCount { get; private set; }
         public string FirstSeam { get; private set; }
 
-        public VatRotationSigns(int vertexCount)
+        public VatRotationSigns(int count, string element = Vertex)
         {
-            _first = new Vector4[vertexCount];
-            _previous = new Vector4[vertexCount];
+            _element = element;
+            _first = new Vector4[count];
+            _previous = new Vector4[count];
         }
 
-        public Vector4 Align(int vertex, int frame, Vector4 rotation)
+        public Vector4 Align(int index, int frame, Vector4 rotation)
         {
             if (frame == 0)
             {
-                _first[vertex] = rotation;
+                _first[index] = rotation;
             }
-            else if (Vector4.Dot(_previous[vertex], rotation) < 0f)
+            else if (Vector4.Dot(_previous[index], rotation) < 0f)
             {
                 rotation = -rotation;
             }
 
-            _previous[vertex] = rotation;
+            _previous[index] = rotation;
             return rotation;
         }
 
         public void CloseLoop(string clip)
         {
-            for (var vertex = 0; vertex < _first.Length; vertex++)
+            for (var index = 0; index < _first.Length; index++)
             {
-                if (Vector4.Dot(_previous[vertex], _first[vertex]) < 0f)
+                if (Vector4.Dot(_previous[index], _first[index]) < 0f)
                 {
                     SeamCount++;
-                    FirstSeam ??= FormattableString.Invariant($"vertex {vertex}, clip '{clip}'");
+                    FirstSeam ??= FormattableString.Invariant($"{_element} {index}, clip '{clip}'");
                 }
             }
         }

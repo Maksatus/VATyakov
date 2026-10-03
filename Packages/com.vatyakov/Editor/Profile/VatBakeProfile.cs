@@ -19,6 +19,12 @@ namespace VATyakov.Editor
         [SerializeField]
         private SkinnedMeshRenderer _source;
 
+        [Tooltip("Vertex: positions and rotations of every vertex per frame, any deformation. " +
+                 "Bone: rotation, uniform scale and offset of every bone per frame, two bones per vertex, much less memory. " +
+                 "A bone that scales non-uniformly or a blend shape bakes the asset as Vertex.")]
+        [SerializeField]
+        private VatMode _mode;
+
         [Tooltip("Animation clips baked one under another into one texture. Transitions work only between clips of one VAT asset.")]
         [SerializeField]
         private AnimationClip[] _clips = Array.Empty<AnimationClip>();
@@ -53,7 +59,7 @@ namespace VATyakov.Editor
         [SerializeField]
         private Material _material;
 
-        [Tooltip("Shader of a new template material.")]
+        [Tooltip("Shader of a new template material. A template whose shader does not fit the baked mode gets the default shader of that mode.")]
         [SerializeField]
         private Shader _shader;
 
@@ -62,6 +68,7 @@ namespace VATyakov.Editor
         private GameObject _prefab;
 
         public VatSourceKind Kind { get => _kind; set => _kind = value; }
+        public VatMode Mode { get => _mode; set => _mode = value; }
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
         public IReadOnlyList<AnimationClip> Clips => _clips;
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
@@ -72,6 +79,7 @@ namespace VATyakov.Editor
         public Material Material { get => _material; set => _material = value; }
         public Shader Shader { get => _shader; set => _shader = value; }
         public GameObject Prefab { get => _prefab; set => _prefab = value; }
+        public bool IsBone => _kind == VatSourceKind.Skinned && _mode == VatMode.Bone;
         public bool IsBaked => _asset != null && _asset.TryValidate(out _) && _material != null;
 
         public void SetClips(params AnimationClip[] clips)

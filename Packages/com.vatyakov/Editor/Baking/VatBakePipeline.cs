@@ -8,10 +8,26 @@ namespace VATyakov.Editor
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
             using var source = VatFrameSources.Open(profile);
-            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping));
-            var encoder = new VatVertexEncoder(layout, source.Mesh, profile.MaxPositionError);
+            var requests = VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping);
+            string fallback = null;
+            if (profile.IsBone && source is VatSkinnedFrameSource skinned)
+            {
+                var bone = VatBonePipeline.Run(skinned, requests, name, out fallback);
+                if (bone != null)
+                {
+                    return bone;
+                }
+            }
+
+            return RunVertex(source, requests, profile.MaxPositionError, name, fallback);
+        }
+
+        private static VatBakeResult RunVertex(IVatFrameSource source, VatClipRequest[] requests, float maxPositionError, string name, string fallback)
+        {
+            var layout = VatLayout.ForVertex(source.Mesh.VertexCount, requests);
+            var encoder = new VatVertexEncoder(layout, source.Mesh, maxPositionError);
             SampleAll(source, layout, encoder);
-            return Build(encoder, name, source.Warnings);
+            return Build(encoder, name, source.Warnings, fallback);
         }
 
         private static void SampleAll(IVatFrameSource source, VatLayout layout, VatVertexEncoder encoder)
@@ -40,12 +56,12 @@ namespace VATyakov.Editor
             }
         }
 
-        private static VatBakeResult Build(VatVertexEncoder encoder, string name, IReadOnlyList<string> warnings)
+        private static VatBakeResult Build(VatVertexEncoder encoder, string name, IReadOnlyList<string> warnings, string fallback)
         {
             var mesh = encoder.BuildMesh($"{name}{VatAssetPath.MeshSuffix}");
             try
             {
-                return new VatBakeResult(encoder.Layout, mesh, VatBakeTextures.Build(encoder, name), encoder, warnings);
+                return new VatBakeResult(encoder, mesh, VatBakeTextures.Build(encoder, name), warnings, fallback);
             }
             catch
             {

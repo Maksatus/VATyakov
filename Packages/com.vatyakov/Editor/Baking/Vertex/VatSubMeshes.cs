@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace VATyakov.Editor
 {
@@ -8,6 +9,8 @@ namespace VATyakov.Editor
     {
         private readonly int[][] _vertices;
         private readonly VatBoundsBuilder[] _bounds;
+
+        public int Count => _vertices.Length;
 
         public VatSubMeshes(VatSourceMesh source)
         {
@@ -26,6 +29,16 @@ namespace VATyakov.Editor
             }
         }
 
+        public void Encapsulate(int subMesh, Vector3 point)
+        {
+            _bounds[subMesh].Add(point);
+        }
+
+        public IReadOnlyList<int> Vertices(int subMesh)
+        {
+            return _vertices[subMesh];
+        }
+
         public Bounds Bounds(int subMesh)
         {
             return _bounds[subMesh].Bounds;
@@ -40,6 +53,28 @@ namespace VATyakov.Editor
         {
             var vertices = _vertices[subMesh];
             return vertices.Length > 0 ? vertices[vertices.Length - 1] - vertices[0] + 1 : 0;
+        }
+
+        public void Apply(Mesh mesh, VatSourceSubMesh[] source, MeshUpdateFlags flags)
+        {
+            mesh.subMeshCount = source.Length;
+            var start = 0;
+            for (var subMesh = 0; subMesh < source.Length; subMesh++)
+            {
+                mesh.SetSubMesh(subMesh, Descriptor(source[subMesh], subMesh, start), flags);
+                start += source[subMesh].Indices.Length;
+            }
+        }
+
+        private SubMeshDescriptor Descriptor(VatSourceSubMesh source, int subMesh, int start)
+        {
+            return new SubMeshDescriptor(start, source.Indices.Length, source.Topology)
+            {
+                baseVertex = 0,
+                bounds = Bounds(subMesh),
+                firstVertex = FirstVertex(subMesh),
+                vertexCount = VertexCount(subMesh),
+            };
         }
 
         private static int[] UniqueSorted(int[] indices)

@@ -5,6 +5,8 @@ namespace VATyakov.Editor
     internal sealed class VatAssetPrecisionController : IVatController
     {
         private const string ErrorHint = "Max position error the shader reconstructs, fp16 sampling included.";
+        private const string BoneErrorHint =
+            "Max position error the shader reconstructs on the baked frames against Skin Weights = 2 Bones skinning, half precision included.";
 
         private readonly VatAssetContext _context;
         private readonly VatAssetPrecisionContainer _container;
@@ -24,8 +26,11 @@ namespace VATyakov.Editor
         {
             var asset = _context.Asset;
             var precision = asset.Precision;
+            var isVertex = asset.Mode == VatMode.Vertex;
+            _container.Positions.SetVisible(isVertex);
+            _container.Drift.SetVisible(isVertex);
             _container.Positions.Set(VatText.PositionFormat(asset.PositionFormat), VatText.PositionFormatHint(asset.PositionFormat, precision));
-            _container.Error.Set(VatText.Millimeters(precision.Error), ErrorHint);
+            _container.Error.Set(VatText.Millimeters(precision.Error), isVertex ? ErrorHint : BoneErrorHint);
             _container.Drift.Set(VatText.Meters(precision.MaxDrift), VatText.DriftTravel(precision.MaxDrift));
         }
     }

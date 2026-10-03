@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace VATyakov.Editor
@@ -22,8 +23,15 @@ namespace VATyakov.Editor
         {
             var asset = _context.Asset;
             _container.Mesh.Set(asset.Mesh);
-            _container.PositionTexture.Set(asset.PositionTexture);
-            _container.RotationTexture.Set(asset.RotationTexture);
+            Show(_container.PositionTexture, asset.PositionTexture);
+            Show(_container.RotationTexture, asset.RotationTexture);
+            Show(_container.BoneTexture, asset.BoneTexture);
+        }
+
+        private static void Show(VatObjectLink link, Texture2D texture)
+        {
+            link.SetVisible(texture != null);
+            link.Set(texture);
         }
     }
 }

@@ -1,12 +1,16 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using Random = System.Random;
 
 namespace VATyakov.Tests
 {
     public class VatMathTests
     {
         private const float UrpFloatMin = 1.175494351e-38f;
+        private const int RotateSeed = 5;
+        private const int RotateSamples = 100;
+        private const float HalfWeightTolerance = 1e-3f;
 
         [TestCase(1, 1, 1)]
         [TestCase(2079, 1, 2079)]
@@ -60,6 +64,89 @@ namespace VATyakov.Tests
 
             AssertFinite(normal);
             AssertFinite(tangent);
+        }
+
+        [Test]
+        public void Rotate_IsTheQuaternionRotationTimesItsSquaredLength()
+        {
+            var random = new Random(RotateSeed);
+            for (var i = 0; i < RotateSamples; i++)
+            {
+                var q = VatTestUtil.RandomRotation(random);
+                var rotation = new Quaternion(q.x, q.y, q.z, q.w);
+                var vector = VatTestUtil.NextSignedVector(random);
+                var length = 0.5f + (float)random.NextDouble();
+
+                Assert.Less(Vector3.Distance(rotation * vector, VatMath.Rotate(q, vector)), 1e-5f, $"unit quaternion {i}");
+                Assert.Less(Vector3.Distance(length * length * (rotation * vector), VatMath.Rotate(q * length, vector)), 1e-4f, $"scaled quaternion {i}");
+                Assert.Less(Vector3.Distance(VatMath.FrameNormal(q), VatMath.Rotate(q, Vector3.forward)), 1e-5f, $"frame normal {i}");
+            }
+        }
+
+        [Test]
+        public void BonePoint_LerpedQuaternion_KeepsTheDistanceToThePivot()
+        {
+            var pivot = new Vector3(0.3f, 1.2f, -0.4f);
+            var rest = pivot + new Vector3(0.5f, 0.1f, 0.2f);
+            var offsetScale = new Vector4(0.1f, -0.2f, 0.3f, 1.5f);
+            var from = Quaternion.Euler(0f, 0f, -30f);
+            var to = Quaternion.Euler(0f, 0f, 90f);
+            var halfway = Vector4.Lerp(new Vector4(from.x, from.y, from.z, from.w), new Vector4(to.x, to.y, to.z, to.w), 0.5f);
+
+            var point = VatMath.BonePoint(offsetScale, halfway, pivot, rest);
+
+            var center = pivot + (Vector3)offsetScale;
+            Assert.AreEqual(offsetScale.w * Vector3.Distance(rest, pivot), Vector3.Distance(point, center), 1e-5f, "s · |rest − pivot|");
+            Assert.Less(Vector3.Distance(center + Quaternion.Euler(0f, 0f, 30f) * (rest - pivot) * offsetScale.w, point), 1e-5f, "nlerp halfway is 30°");
+        }
+
+        [Test]
+        public void BoneIndex_SurvivesHalfPrecision_ForEveryBone()
+        {
+            for (var bone = 0; bone <= byte.MaxValue; bone++)
+            {
+                Assert.AreEqual(bone, VatMath.BoneIndex(HalfByte(bone)), $"bone {bone}");
+            }
+        }
+
+        [Test]
+        public void BoneWeight_SurvivesHalfPrecision_ForEvery16BitValue()
+        {
+            for (var bits = 0; bits <= ushort.MaxValue; bits++)
+            {
+                var weight = VatMath.BoneWeight(HalfByte(bits >> 8), HalfByte(bits & byte.MaxValue));
+                if (Mathf.RoundToInt(weight * VatMath.BoneWeightMax) != bits)
+                {
+                    Assert.Fail($"weight bits {bits} decode to {weight}");
+                }
+            }
+        }
+
+        [Test]
+        public void BoneWeight_InHalfArithmetic_StaysFiniteAndClose()
+        {
+            var high = Half(Half(byte.MaxValue / (float)byte.MaxValue) * byte.MaxValue + 0.5f);
+            Assert.IsTrue(float.IsInfinity(Half(Mathf.Floor(high) * 256f + byte.MaxValue)), "control: hi·256 + lo overflows half at weight 1");
+            for (var bits = 0; bits <= ushort.MaxValue; bits++)
+            {
+                var hi = Mathf.Floor(Half(HalfByte(bits >> 8) * byte.MaxValue + 0.5f));
+                var lo = Mathf.Floor(Half(HalfByte(bits & byte.MaxValue) * byte.MaxValue + 0.5f));
+                var weight = Half(Half(hi * Half(256f / VatMath.BoneWeightMax)) + Half(lo * Half(1f / VatMath.BoneWeightMax)));
+                if (!float.IsFinite(weight) || Mathf.Abs(weight - bits / VatMath.BoneWeightMax) > HalfWeightTolerance)
+                {
+                    Assert.Fail($"weight bits {bits} decode to {weight} in half arithmetic");
+                }
+            }
+        }
+
+        private static float Half(float value)
+        {
+            return Mathf.HalfToFloat(Mathf.FloatToHalf(value));
+        }
+
+        private static float HalfByte(int value)
+        {
+            return Half(value / (float)byte.MaxValue);
         }
 
         private static Vector3 UrpSafeNormalize(Vector3 v)

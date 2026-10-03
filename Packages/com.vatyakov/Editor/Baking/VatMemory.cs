@@ -10,6 +10,11 @@ namespace VATyakov.Editor
             return Bytes(info.Width, info.Height, VatVertexFormat.Position(format)) + Bytes(info.Width, info.Height, VatVertexFormat.Rotation);
         }
 
+        public static long BoneTextureBytes(VatLayoutInfo info)
+        {
+            return Bytes(info.Width, info.Height, VatBoneFormat.Texture);
+        }
+
         public static long Bytes(Texture2D texture)
         {
             return Bytes(texture.width, texture.height, texture.graphicsFormat);

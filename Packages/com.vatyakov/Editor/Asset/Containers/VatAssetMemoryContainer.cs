@@ -4,6 +4,7 @@ namespace VATyakov.Editor
     {
         public readonly VatInfoRow PositionTexture = new("Position Texture");
         public readonly VatInfoRow RotationTexture = new("Rotation Texture");
+        public readonly VatInfoRow BoneTexture = new("Bone Texture");
         public readonly VatInfoRow Padding = new("Padding");
 
         public VatAssetMemoryContainer()
@@ -13,6 +14,7 @@ namespace VATyakov.Editor
                     "a CPU copy of any loaded texture and show twice as much."),
                 PositionTexture,
                 RotationTexture,
+                BoneTexture,
                 Padding));
         }
     }

@@ -269,12 +269,17 @@ namespace VATyakov
 
         private void Write(Vector4 frame, Vector4 frameB)
         {
-            var drift = _asset.Drift(frame, frameB);
+            var hasDrift = _asset.HasDrift;
+            var drift = hasDrift ? _asset.Drift(frame, frameB) : Vector4.zero;
             var canBlend = _copies.CanBlend;
             foreach (var material in _copies.Materials)
             {
                 material.SetVector(VatShaderIds.Frame, frame);
-                material.SetVector(VatShaderIds.Drift, drift);
+                if (hasDrift)
+                {
+                    material.SetVector(VatShaderIds.Drift, drift);
+                }
+
                 if (canBlend)
                 {
                     material.SetVector(VatShaderIds.FrameB, frameB);

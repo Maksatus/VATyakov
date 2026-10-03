@@ -42,7 +42,7 @@ namespace VATyakov.Editor
                 return;
             }
 
-            _container.Text.text = estimate.IsWithinLimits ? VatText.Estimate(estimate.Layout) : estimate.Error;
+            _container.Text.text = estimate.IsWithinLimits ? VatText.Estimate(estimate) : estimate.Error;
             _container.Text.EnableInClassList(ErrorClass, !estimate.IsWithinLimits);
         }
     }

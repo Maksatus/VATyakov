@@ -32,7 +32,13 @@ namespace VATyakov.Editor
 
         private static void AddSkinned(List<string> problems, VatBakeProfile profile)
         {
-            Add(problems, SourceProblem(profile));
+            var sourceProblem = SourceProblem(profile);
+            Add(problems, sourceProblem);
+            if (sourceProblem == null && profile.IsBone)
+            {
+                Add(problems, VatBoneRig.Problem(profile.Source));
+            }
+
             problems.AddRange(VatClipListProblems.Find(profile.Clips));
         }
 

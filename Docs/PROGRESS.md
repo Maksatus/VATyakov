@@ -21,7 +21,9 @@
 | 1.8.3 Позиции 8 бит по габаритам ассета | готово, устройства не проверены | 0.8.3 |
 | 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
 | 1.10 Инструменты: память и «бейк устарел» | готово, валидатора сборки нет (решение пользователя) | 0.10.0 |
-| 1.11–1.16, 1.18 | не начаты | — |
+| 1.11 Bone с одной костью на вертекс | готово, устройства не проверены | 0.11.0 |
+| 1.12 Bone с двумя influences | готово, устройства не проверены | 0.12.0 |
+| 1.13–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
@@ -60,6 +62,28 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `VatHalfPositionTexels`, общий `IVatPositionTexels`), ошибку и баунды. `VatPrecision` в ассете — ошибка формата,
   ошибка 8 бит и путь центроида.
   `VatAssetWriter` при перебейке удаляет сабассеты, кроме меша и двух текстур (`_drift` ассетов формата 3).
+- **Bone (1.11, две кости — 1.12):** профиль — поле Mode (`VatMode`, только у Skinned; `VatBakeProfile.IsBone`).
+  `VatBakePipeline.Run` при IsBone зовёт `VatBonePipeline.Run` (`Editor/Baking/Bone/`): `VatBoneRig` читает из копии
+  бейка кости, bindposes, A = renderer→root, bind-позу в пространстве корня (`VatRestPose` через `VatTangentFrames`),
+  влияния вертекса (`VatBoneInfluence`: первые два слота `BoneWeight` с перенормировкой, вес первой кости в 16 бит) и
+  пивоты в half; `VatSkinnedFrameSource.Pose` ставит клип без `BakeMesh`, `VatBoneRig.ReadSkin` — матрицы
+  `M = root⁻¹·L2W·bindpose·A⁻¹`. `VatBoneEncoder.AddFrame`: `VatSimilarity` (det, s = cbrt, полярное разложение в
+  double — `VatMatrix3d`, остаток), `VatBoneCheck` для костей с вертексами, знак q — `VatRotationSigns` (элемент
+  «bone»), запись — `VatBoneTexels` (возвращает half-значения), ошибка восстановления — по вертексам после кодирования всех костей кадра: `lerp` двух `VatMath.BonePoint` по
+  сохранённому весу против `lerp(M1·v, M0·v)` по точному; капсулы — `VatBoneBounds` (на вертекс, обе кости). Проблема (кость или `VatBlendShapeCheck`) →
+  строка-причина, `source.Rewind()`, Vertex-путь с `VatBakeResult.Fallback`. Меш — `VatBoneMeshBuilder`
+  (`VatBoneStream0`: позиция + 4 байта `(i0, i1, вес_hi, вес_lo)` в TexCoord6, поток 1 как у Vertex), раскладка — `VatLayout.ForBone`
+  (один блок, W = 2N, клипы с 0, строка пивотов последняя), формат — `VatBoneFormat`.
+  `VatAsset`: `Mode`, `BoneTexture`, `Fallback`, `BoneCount`, `HasDrift`; `SetBoneData` / `SetData` (Vertex) /
+  `SetFallback`; `ApplyTo` пишет `_VatLayout` обоим режимам, `_VatPosTex`/`_VatRotTex`/`_VatPosScale` — Vertex,
+  `_VatBoneTex` — Bone; `ApplyFrame` и `VatAnimator.Write` пишут `_VatDrift` только при `HasDrift`. `VatAssetWriter`
+  приживляет сабассеты обоих режимов и удаляет лишние при смене режима. `VatTemplateShader` подбирает шаблону шейдер
+  режима (с блендом, если был `_VatFrameB`). Хэш: режим добавляется только для Bone (хэши Vertex-бейков не изменились).
+  Шейдер: `VatCore.hlsl` — `VatBoneTexels` (два индекса из байтов), `VatBoneWeight` (без промежуточного 65535),
+  `VatRotate` (однородный), `VatBonePoint`, `VatBoneDirection` (`rot / |q|²`); `VatShaderGraph.hlsl` — `VatBoneSkin`
+  (одна кость, пивот — строка `Layout.y − 1`), `VatBonePose` (`lerp` двух костей), `VatBoneVertex_float` и
+  `VatBoneVertexBlend_float` (одна функция отдаёт Position, Normal, Tangent). SubGraph `vat_bone`/`vat_bone_blend`: UV-нода канала 6, Position/Normal/Tangent Vector в Object,
+  свойства `_VatBoneTex`, `_VatLayout` (Per Material), `_VatFrame` (и `_VatFrameB`).
 - **Инспекторы (1.10):** память — `VatAssetMemory` (по самим `Texture2D`: байты текстур, padding `blocks·W − E`,
   доля клипа `blocks·W·F`), сводка `VatAssetSummary` (общая для инспектора ассета и Result профиля) пишет всего и долю
   клипа в строку клипа (`VatInfoRow`), карточка Memory ассета — `VatAssetMemory*`. «Бейк устарел» —
@@ -128,15 +152,27 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   (x = 40), камера вплотную к силуэтам.
   Разрушение (на 1.15): `Content/RBDDestroy/rbd_test_rig.fbx` — меши-куски с анимацией трансформов, legacy-клип, без
   скиннинга; сейчас его не печёт ни один источник. `rbd_test_cell.fbx` побайтно совпадает с ним — похоже, не тот файл.
+  Bone (1.11): персонажа для толпы в проекте нет, проверка на луке (решение пользователя). Профиль `Bakes/bow_bone` —
+  копия `bow_default` с Mode = Bone (три клипа, loop, 30 fps): 4 кости, текстура 8×201 (12.6 КБ), ошибка 0.235 мм против Skin Weights = 2 Bones (1.12; у 2061 из 2079
+  вертексов два веса и больше, у 349 — три, третий отбрасывается, как у Unity);
+  шаблон `bow_bone_vat.mat` на `vat_lit_bone_blend` с картами и smoothness `bow_default_vat.mat`, префаб `bow_bone_vat`.
+  Сцена `compare`: третья пара «SMR Bone» (экземпляр FBX, у обоих SMR `quality = Bone2` с 1.12) на z = 3.34 и «VAT Bone» на
+  z = 4.54, `Compare Bone` в `Controls`; камера отодвинута на (4.6, 0.05, 1.57), чтобы видны были все шесть луков.
+  Откат в Vertex: клип `Content/Bow/bow_squash.anim` (legacy, loop 1 с) неравномерно растягивает `BowUp_jnt` до
+  (2, 1, 0.5) к середине; профиль `Bakes/bow_squash` (Mode = Bone, клипы VAT и bow_squash) оставлен неиспечённым —
+  его Bake даёт Vertex-ассет и предупреждение «Clip 'bow_squash', frame 1: bone 'BowUp_jnt' scales non-uniformly
+  (residual 0.0137, error 5.074 mm)».
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatBlendCheck, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatPlayback, VatPlayer, VatPositionFormat, VatPositionRange, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
-- `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph, vat_vertex_blend.shadersubgraph
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatBlendCheck, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatMode, VatPlayback, VatPlayer, VatPositionFormat, VatPositionRange, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
+- `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph, vat_vertex_blend.shadersubgraph, vat_bone.shadersubgraph, vat_bone_blend.shadersubgraph (1.11)
 - `Samples/UnlitVertex/` — vat_unlit_vertex.shadergraph; `Samples/LitVertex/` — vat_lit_vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexBlend/` — vat_lit_vertex_blend.shadergraph (переходы);
-  `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV)
-- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTestPrefab
+  `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV);
+  `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11)
+- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader, VatTestPrefab
+- `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
 - `Editor/Baking/Sources/Alembic/` — VatAlembicFrameSource и VatAlembicCopy (под `#if VAT_ALEMBIC`), VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
@@ -148,7 +184,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -329,3 +365,52 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   строке = 1.6 КБ), вода 3.53 МБ (632 Б), желе 1.13 МБ. Смена fps профиля в памяти даёт «Out of date» в обоих
   инспекторах (проверено по дереву UI), возврат убирает. 219 тестов зелёные (добавлены 4 теста памяти и тест «устарел»).
   Сверку с Memory Profiler сборки делает пользователь.
+- **1.11:** продуктовые решения (вопросы к пользователю): режим — поле Mode профиля, при неразложимой кости или
+  блендшейпе весь ассет печётся в Vertex с сообщением (поклипового отката нет: один меш и один шейдер на ассет);
+  ключа `_VAT_BONES_1` нет, выбор 1/2 influences — в 1.12; бленд-граф есть (`vat_lit_bone_blend`), как у Vertex;
+  проверка на луке; пивоты — в последней строке bone-текстуры. Записано в §0, §1.4–§1.9, §2.1, §2.3, §4, 1.11, 1.12.
+  Отклонения от плана, найденные в работе: (1) индекс кости — TexCoord6 Float16 `(i, 0)`, а не TexCoord4 UNorm16:
+  TEXCOORD4 занимает `positionOld` прохода MotionVectors URP (граф с `uv4` не компилировался), а Shader Graph
+  объявляет UV в привязках сабграфа `half4` при любой точности — `i/65535` в fp16 путает кости от 1024, целое ≤ 2048
+  во Float16 точно (тест `BoneIndex_SurvivesHalfPrecision_ForEveryBone`); (2) пивоты не в строке 0: бленд-шейдер без
+  перехода читает `_VatFrameB = 0`, в строке пивотов q = 0, деление на |q|² давало NaN, и меш пропадал (видно было в
+  `compare`); теперь клипы со строки 0, пивоты — `_VatLayout.y − 1`, второй тексел строки пивотов — единичный q.
+  Сам решил: в HLSL позиция делится на |q|² однородной формулы вместо `normalize(q)` (без ветвлений, то же число
+  операций); радиус капсулы — на каждый вертекс; хранятся все `smr.bones` (индексы рига общие, 1.13), кости без
+  вертексов не проверяются (при det ≤ 0 пишется q = 1, s = 1); ошибка ассета — восстановление по half-данным против
+  скиннинга на одну кость, больше 1 мм — предупреждение в логе; `formatVersion` не менялся (новое поле `_mode` у старых
+  ассетов — Vertex), режим в хэше только у Bone, чтобы Vertex-бейки не стали «Out of date»; шаблон с шейдером не того
+  режима переключается на шейдер режима с сохранением бленда (лог); сабассет текстуры — `_bone`.
+  Сабграфы `vat_bone*` сгенерированы скриптом по образцу `vat_vertex` (UV-нода канала 6, Normal/Tangent Vector в
+  Object; скрипт, как и прежние, не сохранён — дальше графы правятся в редакторе SG), `vat_lit_bone*` — копии
+  `vat_lit_vertex*` через `CopyAsset` с заменой GUID сабграфа. Unity BakeMesh учитывает `smr.quality` — тест восстановления сверяет с ним напрямую (контроль: Bone4
+  отличается больше чем на 10 мм).
+  Проверено в Play mode: `compare` на Fire кадр 10 и 20 — «SMR Bone» и «VAT Bone» совпадают на снимке; юнит из
+  префаба `bow_bone_vat`: `CrossFade("Fire", 2)` — вес 0.6, `_VatFrameB` пишется, `_VatDrift` нет, меш виден.
+  Бейк лука в Bone — 0.3 с. Устройства и плавность глазом — за пользователем. 235 тестов зелёные (16 новых: разложение,
+  откат по масштабу и блендшейпу, капсула, восстановление против BakeMesh, раскладка меша и строк, перебейк
+  Vertex → Bone, `ApplyFrame` без дрейфа, `VatMath.Rotate`/`BonePoint`/`BoneIndex`, графы `vat_lit_bone*`).
+- **1.12:** продуктовые решения (вопросы к пользователю): шейдер один — всегда две кости на вертекс (однокостный из
+  1.11 переделан; поля Skin Weights, ключа `_VAT_BONES_*` и отдельных графов нет; имена и GUID `vat_bone*`,
+  `vat_lit_bone*` прежние, Custom Function и SubGraph не менялись — поменялся только HLSL); индексы — байты, до 256
+  костей. Записано в §0, §1.5–§1.9, §2.1, §2.3, 1.12.
+  Отклонения от плана, найденные в работе: (1) выбор влияний — не «два наибольших, при равенстве меньший индекс», а как
+  Unity: проба `BakeMesh` (у каждой кости смещение по своей оси, позиция = веса) показала, что Unity берёт первые N
+  слотов как записаны, не сортирует, при 2 Bones перенормирует, при 4 — нет; при равных весах решает порядок слотов.
+  Для импортированных FBX (веса по убыванию) это и есть два наибольших. Тест «равные веса» сверяет обе раскладки слотов
+  и неотсортированные слоты с `BakeMesh`. (2) Вес собирается как `dot(bytes, (256, 1)/65535)`, а не
+  `(hi·256 + lo)/65535`: в редакторе (D3D11) у вертексов с весом 1 (тетива, концы плеч) `hi·256 + lo = 65535`
+  переполнял half и давал бесконечность — GPU считает выражения от UV сабграфа (`half4` в привязках) в half, хотя
+  функция объявлена с `float`. Нашлось только на снимке: CPU-декод данных ассета совпадал с SMR (0.021 мм), опыты
+  «вес 1 / вес 0 / вес = старший байт» сузили до склейки веса. Тест `BoneWeight_InHalfArithmetic_StaysFiniteAndClose`
+  эмулирует half на каждом шаге (и показывает переполнение старой формулы); на устройствах 16-битный вес в half
+  точен до ~1e-3 — это и есть пункт «веса декодируются точно» для пользователя.
+  Сам решил: нормаль и тангент кости делятся на |q|² (`VatBoneDirection`), иначе вклад двух костей с разной |q|
+  перекашивался бы; вертекс с одним весом — обе кости на ней (те же тексели, кэш); капсула вертекса — объединение
+  коробок обеих костей (выпуклая комбинация двух точек лежит в их AABB); формат меша 1.11 (Float16-индекс) не
+  выпускался, поэтому `formatVersion` не менялся, `bow_bone` перепечён.
+  Проверено в Play mode: `compare` на Fire 10 — «SMR Bone» (2 Bones) и «VAT Bone» совпадают, тетива и концы плеч на
+  месте; юнит из `bow_bone_vat` — `CrossFade("Fire", 2)`, вес 0.74, поза смешана, меш целый. 238 тестов зелёные
+  (новые: две кости против `BakeMesh` на полоске с весом 0.5 и на риге из трёх костей с равными весами в обоих
+  порядках, неотсортированными слотами и рычагом ~1 м; 16-битный вес через half — все 65536 значений, в том числе в
+  half-арифметике; индекс-байт через half). Устройства — за пользователем.

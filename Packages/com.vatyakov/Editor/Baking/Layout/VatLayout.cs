@@ -19,26 +19,48 @@ namespace VATyakov.Editor
 
         public static VatLayout ForVertex(int vertexCount, IReadOnlyList<VatClipRequest> requests)
         {
-            RequireInput(vertexCount, requests);
-            var blocks = VatMath.BlockCount(vertexCount);
-            var clips = StackClips(requests, blocks);
-            return new VatLayout(VertexInfo(vertexCount, blocks, RowCount(clips)), clips);
-        }
-
-        private static void RequireInput(int vertexCount, IReadOnlyList<VatClipRequest> requests)
-        {
             if (vertexCount < 1)
             {
                 throw new VatBakeException("The mesh has no vertices.");
             }
 
+            RequireClips(requests);
+            var blocks = VatMath.BlockCount(vertexCount);
+            var clips = StackClips(requests, blocks, 0);
+            return new VatLayout(new VatLayoutInfo(vertexCount, VatMath.TextureWidth(vertexCount), blocks, RowCount(clips)), clips);
+        }
+
+        public static VatLayout ForBone(int boneCount, IReadOnlyList<VatClipRequest> requests)
+        {
+            RequireBones(boneCount);
+            RequireClips(requests);
+            var clips = StackClips(requests, 1, VatBoneFormat.PivotRows);
+            var elements = boneCount * VatMath.TexelsPerBone;
+            return new VatLayout(new VatLayoutInfo(elements, elements, 1, RowCount(clips) + VatBoneFormat.PivotRows), clips);
+        }
+
+        private static void RequireBones(int boneCount)
+        {
+            if (boneCount < 1)
+            {
+                throw new VatBakeException("The mesh has no bones.");
+            }
+
+            if (boneCount > VatBoneFormat.MaxBones)
+            {
+                throw new VatBakeException(FormattableString.Invariant($"The mesh has {boneCount} bones, Bone mode takes up to {VatBoneFormat.MaxBones}."));
+            }
+        }
+
+        private static void RequireClips(IReadOnlyList<VatClipRequest> requests)
+        {
             if (requests.Count == 0)
             {
                 throw new VatBakeException("No clips to bake.");
             }
         }
 
-        private static VatClip[] StackClips(IReadOnlyList<VatClipRequest> requests, int blocks)
+        private static VatClip[] StackClips(IReadOnlyList<VatClipRequest> requests, int blocks, int pivotRows)
         {
             var frames = new int[requests.Count];
             var rows = 0L;
@@ -48,7 +70,7 @@ namespace VATyakov.Editor
                 rows += frames[i];
             }
 
-            RequireHeight(blocks, rows, frames.Length);
+            RequireHeight(blocks, pivotRows, rows, frames.Length);
 
             var clips = new VatClip[requests.Count];
             var row = 0;
@@ -79,13 +101,20 @@ namespace VATyakov.Editor
             }
         }
 
-        private static void RequireHeight(int blocks, long rows, int clips)
+        private static void RequireHeight(int blocks, int pivotRows, long frames, int clips)
         {
-            if (blocks * rows > VatMath.MaxTextureSize)
+            var height = blocks * (frames + pivotRows);
+            if (height > VatMath.MaxTextureSize)
             {
-                var height = FormattableString.Invariant($"{Blocks(blocks)} × {rows} frames of {VatText.Clips(clips)} = {blocks * rows} rows");
-                throw new VatBakeException(FormattableString.Invariant($"VAT texture height {height}, the limit is {VatMath.MaxTextureSize}. {HeightHint}"));
+                var rows = FormattableString.Invariant($"{Rows(blocks, pivotRows, frames, clips)} = {height} rows");
+                throw new VatBakeException(FormattableString.Invariant($"VAT texture height {rows}, the limit is {VatMath.MaxTextureSize}. {HeightHint}"));
             }
+        }
+
+        private static string Rows(int blocks, int pivotRows, long frames, int clips)
+        {
+            var clipFrames = FormattableString.Invariant($"{frames} frames of {VatText.Clips(clips)}");
+            return pivotRows > 0 ? FormattableString.Invariant($"{clipFrames} + {pivotRows} pivot row") : $"{Blocks(blocks)} × {clipFrames}";
         }
 
         private static string Blocks(int blocks)
@@ -97,11 +126,6 @@ namespace VATyakov.Editor
         {
             var last = clips[clips.Length - 1];
             return last.StartRow + last.FrameCount;
-        }
-
-        private static VatLayoutInfo VertexInfo(int vertexCount, int blocks, int rows)
-        {
-            return new VatLayoutInfo(vertexCount, VatMath.TextureWidth(vertexCount), blocks, rows);
         }
     }
 }

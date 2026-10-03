@@ -33,6 +33,11 @@ namespace VATyakov.Editor
 
         private static void AppendSkinned(ref Hash128 hash, VatBakeProfile profile)
         {
+            if (profile.IsBone)
+            {
+                hash.Append((int)VatMode.Bone);
+            }
+
             hash.Append(DependencyHash(profile.Source));
             hash.Append(AnimationUtility.CalculateTransformPath(profile.Source.transform, profile.Source.transform.root));
             hash.Append(profile.Clips.Count);

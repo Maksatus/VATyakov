@@ -19,6 +19,7 @@ namespace VATyakov.Editor
         public VatSourceMesh Mesh { get; }
         public IReadOnlyList<VatSourceClip> Clips => _clipInfos;
         public IReadOnlyList<string> Warnings => Array.Empty<string>();
+        public VatBakeCopy Copy => _copy;
 
         public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
         {
@@ -38,13 +39,23 @@ namespace VATyakov.Editor
 
         public void Sample(int clip, double time, VatFrame frame)
         {
+            Pose(clip, time);
+            _reader.Read(_copy, frame);
+        }
+
+        public void Pose(int clip, double time)
+        {
             if (clip != _clip)
             {
                 StartClip(clip);
             }
 
             _player.Sample(_clips[clip], time);
-            _reader.Read(_copy, frame);
+        }
+
+        public void Rewind()
+        {
+            _clip = null;
         }
 
         public void Dispose()

@@ -6,6 +6,7 @@ namespace VATyakov
     {
         public static readonly int PositionTexture = Shader.PropertyToID("_VatPosTex");
         public static readonly int RotationTexture = Shader.PropertyToID("_VatRotTex");
+        public static readonly int BoneTexture = Shader.PropertyToID("_VatBoneTex");
         public static readonly int Drift = Shader.PropertyToID("_VatDrift");
         public static readonly int PositionScale = Shader.PropertyToID("_VatPosScale");
         public static readonly int Layout = Shader.PropertyToID("_VatLayout");

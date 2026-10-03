@@ -26,12 +26,17 @@ namespace VATyakov.Editor
             var asset = _context.Asset;
             ShowTexture(_container.PositionTexture, asset.PositionTexture);
             ShowTexture(_container.RotationTexture, asset.RotationTexture);
+            ShowTexture(_container.BoneTexture, asset.BoneTexture);
             _container.Padding.Set(VatText.Padding(new VatAssetMemory(asset)), PaddingHint);
         }
 
         private static void ShowTexture(VatInfoRow row, Texture2D texture)
         {
-            row.Set(VatText.TextureMemory(texture), texture.graphicsFormat.ToString());
+            row.SetVisible(texture != null);
+            if (texture != null)
+            {
+                row.Set(VatText.TextureMemory(texture), texture.graphicsFormat.ToString());
+            }
         }
     }
 }

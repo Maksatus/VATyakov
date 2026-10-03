@@ -18,6 +18,8 @@ namespace VATyakov.Tests
         private const string LitSample = "Packages/com.vatyakov/Samples/LitVertex/vat_lit_vertex.shadergraph";
         private const string LitBlendSample = "Packages/com.vatyakov/Samples/LitVertexBlend/vat_lit_vertex_blend.shadergraph";
         private const string TriplanarSample = "Packages/com.vatyakov/Samples/LitVertexTriplanar/vat_lit_vertex_triplanar.shadergraph";
+        private const string LitBoneSample = "Packages/com.vatyakov/Samples/LitBone/vat_lit_bone.shadergraph";
+        private const string LitBoneBlendSample = "Packages/com.vatyakov/Samples/LitBoneBlend/vat_lit_bone_blend.shadergraph";
         private const string LitBlendShaderName = "VATyakov/vat_lit_vertex_blend";
 
         [Test]
@@ -74,6 +76,37 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatVertexNormalTangentBlend_float(", code);
             AssertInstanceState(code, "_VatFrameB");
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
+        }
+
+        [Test]
+        public void LitBoneSample_CompilesAndSkinsTwoBonesFromTexCoord6()
+        {
+            AssertCompiles(LitBoneSample);
+            Assert.AreEqual(VatBaker.BoneShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitBoneSample).name, "bone template shader");
+
+            var code = RequireGeneratedCode(LitBoneSample);
+            StringAssert.Contains("VatBoneVertex_float(", code);
+            StringAssert.DoesNotContain("VatBoneVertex_half", code);
+            StringAssert.DoesNotContain("Blend_float(", code, "the bone template reads one clip");
+            StringAssert.Contains("TEXTURE2D(_VatBoneTex)", code);
+            StringAssert.Contains("IN.uv6", code, "the bone index comes from TexCoord6");
+            StringAssert.DoesNotContain("_VatPosTex", code, "no vertex textures");
+            StringAssert.DoesNotContain("_VatDrift", code, "no drift in Bone mode");
+            AssertFloat4(code, "_VatLayout");
+            AssertInstanceState(code, "_VatFrame");
+            StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
+        }
+
+        [Test]
+        public void LitBoneBlendSample_CompilesAndReadsTheTransitionClip()
+        {
+            AssertCompiles(LitBoneBlendSample);
+            Assert.AreEqual(VatBaker.BoneBlendShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitBoneBlendSample).name, "bone blend template shader");
+
+            var code = RequireGeneratedCode(LitBoneBlendSample);
+            StringAssert.Contains("VatBoneVertexBlend_float(", code);
+            AssertInstanceState(code, "_VatFrame", "_VatFrameB");
+            StringAssert.Contains("TEXTURE2D(_VatBoneTex)", code);
         }
 
         [Test]

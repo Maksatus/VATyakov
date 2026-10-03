@@ -22,20 +22,26 @@ namespace VATyakov.Editor
 
         public static VatMaterialBinding Read(Material material)
         {
-            var texture = material.GetTexture(VatShaderIds.PositionTexture);
+            var texture = AnimationTexture(material);
             if (texture == null)
             {
                 return new VatMaterialBinding(VatMaterialStatus.NotAssigned);
             }
 
             var asset = OwnerOf(texture);
-            if (asset == null || !asset.TryValidate(out _))
+            if (asset == null || !asset.TryValidate(out _) || !VatTemplateShader.Fits(material, asset.Mode))
             {
                 return new VatMaterialBinding(VatMaterialStatus.Foreign);
             }
 
             var hasClip = VatClipLookup.TryFind(asset, material.GetVector(VatShaderIds.Frame), out var clipIndex);
             return new VatMaterialBinding(VatMaterialStatus.Bound, asset, hasClip, clipIndex, IsStaleFor(material, asset, hasClip, clipIndex));
+        }
+
+        private static Texture AnimationTexture(Material material)
+        {
+            var id = material.HasTexture(VatShaderIds.BoneTexture) ? VatShaderIds.BoneTexture : VatShaderIds.PositionTexture;
+            return material.GetTexture(id);
         }
 
         private static VatAsset OwnerOf(Texture texture)
@@ -45,10 +51,23 @@ namespace VATyakov.Editor
 
         private static bool IsStaleFor(Material material, VatAsset asset, bool hasClip, int clipIndex)
         {
-            return !hasClip ||
-                material.GetTexture(VatShaderIds.PositionTexture) != asset.PositionTexture ||
+            if (!hasClip)
+            {
+                return true;
+            }
+
+            if (material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout)
+            {
+                return true;
+            }
+
+            return asset.Mode == VatMode.Bone ? material.GetTexture(VatShaderIds.BoneTexture) != asset.BoneTexture : IsVertexStale(material, asset, clipIndex);
+        }
+
+        private static bool IsVertexStale(Material material, VatAsset asset, int clipIndex)
+        {
+            return material.GetTexture(VatShaderIds.PositionTexture) != asset.PositionTexture ||
                 material.GetTexture(VatShaderIds.RotationTexture) != asset.RotationTexture ||
-                material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout ||
                 material.GetVector(VatShaderIds.PositionScale) != asset.PositionRange.ShaderScale ||
                 material.GetVector(VatShaderIds.Drift) != ShownDrift(material, asset, asset.Clips[clipIndex]);
         }

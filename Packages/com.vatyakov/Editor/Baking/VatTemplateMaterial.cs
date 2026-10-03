@@ -27,19 +27,30 @@ namespace VATyakov.Editor
 
         public static void Apply(VatBakeProfile profile, VatAsset asset, string assetPath, string clipName)
         {
-            var material = profile.Material != null ? profile.Material : Create(profile, assetPath);
+            var material = profile.Material != null ? profile.Material : Create(profile, asset.Mode, assetPath);
             material.enableInstancing = false;
+            if (VatTemplateShader.TryFit(material, asset.Mode, out var previous))
+            {
+                Debug.Log($"VAT '{asset.name}': {ShaderSwitch(material, previous, asset.Mode)}", material);
+            }
+
             asset.ApplyTo(material, asset.TryFindClip(clipName, out var clipIndex) ? clipIndex : 0);
             EditorUtility.SetDirty(material);
         }
 
-        private static Material Create(VatBakeProfile profile, string assetPath)
+        private static Material Create(VatBakeProfile profile, VatMode mode, string assetPath)
         {
             var material = new Material(ResolveShader(profile));
+            VatTemplateShader.TryFit(material, mode, out _);
             CopyMaps(SourceMaterial(profile), material);
             AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(assetPath, ".mat")));
             profile.Material = material;
             return material;
+        }
+
+        private static string ShaderSwitch(Material material, Shader previous, VatMode mode)
+        {
+            return $"the shader '{previous.name}' of '{material.name}' does not play {mode} assets, the template now uses '{material.shader.name}'.";
         }
 
         private static Material SourceMaterial(VatBakeProfile profile)

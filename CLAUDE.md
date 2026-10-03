@@ -75,10 +75,15 @@
   `promotedFromAssetID`. Шейдер с блендом и без — разные шейдеры, keyword нет. Векторные свойства SubGraph — Precision
   Single: с Inherit в Half-графе они объявляются `half4` и портят строки и W > 2048 (это проверяет тест). В HLSL —
   только `_float`-обёртки. Новый вход Custom Function добавлять последним (как `Drift`): Shader Graph сопоставляет слоты по id.
+  Bone (1.11): `vat_bone` и `vat_bone_blend` сгенерированы скриптом (UV-нода канала 6, Normal/Tangent Vector в Object),
+  `vat_lit_bone` и `vat_lit_bone_blend` — копии `vat_lit_vertex*` с заменой GUID сабграфа. UV-каналы в привязках
+  сабграфа всегда `half4`, и GPU считает выражения от них в half — в UV только байты, промежуточные значения ≤ 65504
+  (вес — `dot(bytes, (256, 1)/65535)`, не `hi·256 + lo`);
+  TEXCOORD4 и TEXCOORD5 занимает проход MotionVectors URP — VAT-данные туда не класть.
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
 - Контент — файлы ассетов (модели, текстуры, материалы, префабы, сцены, профили и результаты бейка) — маленькими
   буквами через `_`: `bow_default_vat.prefab`. Папки и код (скрипты, шейдеры, asmdef) — PascalCase, как в `D:\client`.
-  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot` (дрейф — массив в самом ассете, 1.8.1).
+  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot`, у Bone — `_mesh`, `_bone` (дрейф — массив в самом ассете, 1.8.1).
   Переименовывать через Unity (`AssetDatabase.RenameAsset`), а в git смену одного регистра фиксировать заново
   (`git rm --cached` + `git add`): `core.ignorecase = true` её не видит.
 
@@ -90,4 +95,5 @@
   `compare_alembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
 - `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/compare.unity` — сравнение SMR и VAT,
   она же первая сцена сборки; вторая — `animator`, толпа из 100 `VatAnimator` (1.7) на шаблоне с блендом
-  (`vat_lit_vertex_blend`, 1.8.2).
+  (`vat_lit_vertex_blend`, 1.8.2). В `compare` третья пара — Bone (1.11–1.12): `bow_bone` (SMR с Skin Weights = 2 Bones и
+  `bow_bone_vat`); `bow_squash` — неиспечённый Bone-профиль с неравномерным масштабом кости, его бейк откатывается в Vertex.

@@ -9,6 +9,9 @@ namespace VATyakov.Editor
     {
         public const string DefaultShaderName = "VATyakov/vat_lit_vertex";
         public const string TriplanarShaderName = "VATyakov/vat_lit_vertex_triplanar";
+        public const string BlendShaderName = "VATyakov/vat_lit_vertex_blend";
+        public const string BoneShaderName = "VATyakov/vat_lit_bone";
+        public const string BoneBlendShaderName = "VATyakov/vat_lit_bone_blend";
 
         public static List<string> Validate(VatBakeProfile profile)
         {

@@ -7,22 +7,37 @@ namespace VATyakov.Editor
     internal static class VatBakeLog
     {
         private const float MillimetersPerMeter = 1000f;
+        private const float BoneErrorBudget = 1e-3f;
         private const string ChiralityHint =
             "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
         private const string SeamHint =
             "Their frame makes an odd number of turns over the loop: normal and tangent pass through zero between the last and the first frame.";
+        private const string BoneSeamHint =
+            "They make an odd number of turns over the loop: between the last and the first frame they spin the long way round.";
+        private const string BoneErrorHint =
+            "The joints are far from the root or the bones scale a lot: half precision of the bone texture does not hold 1 mm.";
 
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
-            Debug.Log($"{Describe(asset)}{Positions(result)}{Stats(result.Stats)}", asset);
-            if (result.Chirality.Count > 0)
+            Debug.Log(result.Mode == VatMode.Bone ? DescribeBones(asset) : $"{Describe(asset)}{Positions(result)}{Stats(result.Stats)}", asset);
+            if (!string.IsNullOrEmpty(result.Fallback))
+            {
+                Debug.LogWarning($"VAT '{asset.name}': {result.Fallback}", asset);
+            }
+
+            if (result.Chirality != null && result.Chirality.Count > 0)
             {
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
             }
 
             if (result.Signs.SeamCount > 0)
             {
-                Debug.LogWarning(Seams(asset, result.Signs), asset);
+                Debug.LogWarning(Seams(asset, result), asset);
+            }
+
+            if (result.Mode == VatMode.Bone && result.Precision.Error > BoneErrorBudget)
+            {
+                Debug.LogWarning($"VAT '{asset.name}': max error {VatText.Millimeters(result.Precision.Error)} is over 1 mm. {BoneErrorHint}", asset);
             }
 
             foreach (var warning in result.Warnings)
@@ -34,10 +49,22 @@ namespace VATyakov.Editor
         private static string Describe(VatAsset asset)
         {
             var info = asset.Layout;
-            var clips = string.Join(", ", asset.Clips.Select(Describe));
             var memory = VatText.Megabytes(info, asset.PositionFormat);
             var textures = FormattableString.Invariant($"textures {info.Width}×{info.Height} ({info.Blocks} blocks), {memory}");
-            return FormattableString.Invariant($"VAT '{asset.name}': {info.Elements} vertices, {clips}; {textures}");
+            return FormattableString.Invariant($"VAT '{asset.name}': {info.Elements} vertices, {Clips(asset)}; {textures}");
+        }
+
+        private static string DescribeBones(VatAsset asset)
+        {
+            var info = asset.Layout;
+            var texture = $"texture {VatText.Size(info)}, {VatText.Bytes(VatMemory.Bytes(asset.BoneTexture))}";
+            var mesh = FormattableString.Invariant($"{asset.BoneCount} bones, {asset.Mesh.vertexCount} vertices");
+            return $"VAT '{asset.name}': Bone, {mesh}, {Clips(asset)}; {texture}; max error {VatText.Millimeters(asset.Precision.Error)}";
+        }
+
+        private static string Clips(VatAsset asset)
+        {
+            return string.Join(", ", asset.Clips.Select(Describe));
         }
 
         private static string Describe(VatClip clip)
@@ -67,10 +94,13 @@ namespace VATyakov.Editor
             return $"VAT '{asset.name}': {flipped}. {ChiralityHint}";
         }
 
-        private static string Seams(VatAsset asset, VatRotationSigns signs)
+        private static string Seams(VatAsset asset, VatBakeResult result)
         {
-            var seams = FormattableString.Invariant($"{signs.SeamCount} vertices flip the rotation sign at the loop seam (first: {signs.FirstSeam})");
-            return $"VAT '{asset.name}': {seams}. {SeamHint}";
+            var signs = result.Signs;
+            var elements = result.Mode == VatMode.Bone ? "bones" : "vertices";
+            var hint = result.Mode == VatMode.Bone ? BoneSeamHint : SeamHint;
+            var seams = FormattableString.Invariant($"{signs.SeamCount} {elements} flip the rotation sign at the loop seam (first: {signs.FirstSeam})");
+            return $"VAT '{asset.name}': {seams}. {hint}";
         }
     }
 }
