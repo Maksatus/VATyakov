@@ -35,7 +35,7 @@ namespace VATyakov.Editor
             }
 
             var hasClip = VatClipLookup.TryFind(asset, material.GetVector(VatShaderIds.Frame), out var clipIndex);
-            return new VatMaterialBinding(VatMaterialStatus.Bound, asset, hasClip, clipIndex, IsStaleFor(material, asset, hasClip));
+            return new VatMaterialBinding(VatMaterialStatus.Bound, asset, hasClip, clipIndex, IsStaleFor(material, asset, hasClip, clipIndex));
         }
 
         private static VatAsset OwnerOf(Texture texture)
@@ -43,13 +43,21 @@ namespace VATyakov.Editor
             return AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(texture)) as VatAsset;
         }
 
-        private static bool IsStaleFor(Material material, VatAsset asset, bool hasClip)
+        private static bool IsStaleFor(Material material, VatAsset asset, bool hasClip, int clipIndex)
         {
             return !hasClip ||
                 material.GetTexture(VatShaderIds.PositionTexture) != asset.PositionTexture ||
                 material.GetTexture(VatShaderIds.RotationTexture) != asset.RotationTexture ||
-                material.GetTexture(VatShaderIds.DriftTexture) != asset.DriftTexture ||
-                material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout;
+                material.GetVector(VatShaderIds.Layout) != asset.Layout.ShaderLayout ||
+                material.GetVector(VatShaderIds.Drift) != ShownDrift(material, asset, asset.Clips[clipIndex]);
+        }
+
+        private static Vector4 ShownDrift(Material material, VatAsset asset, VatClip clip)
+        {
+            var frame = material.GetVector(VatShaderIds.Frame);
+            var rows = clip.Frame(frame.x - clip.StartRow);
+            rows.z = frame.z;
+            return asset.Drift(rows);
         }
     }
 }

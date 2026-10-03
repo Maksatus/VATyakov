@@ -24,7 +24,6 @@ namespace VATyakov.Editor
             _container.Mesh.Set(asset.Mesh);
             _container.PositionTexture.Set(asset.PositionTexture);
             _container.RotationTexture.Set(asset.RotationTexture);
-            _container.DriftTexture.Set(asset.DriftTexture);
         }
     }
 }

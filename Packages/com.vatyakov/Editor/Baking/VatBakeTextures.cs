@@ -6,30 +6,25 @@ namespace VATyakov.Editor
     {
         public readonly Texture2D Position;
         public readonly Texture2D Rotation;
-        public readonly Texture2D Drift;
 
-        private VatBakeTextures(Texture2D position, Texture2D rotation, Texture2D drift)
+        private VatBakeTextures(Texture2D position, Texture2D rotation)
         {
             Position = position;
             Rotation = rotation;
-            Drift = drift;
         }
 
         public static VatBakeTextures Build(VatVertexEncoder encoder, string name)
         {
             Texture2D position = null;
-            Texture2D rotation = null;
             try
             {
                 position = encoder.BuildPositionTexture($"{name}{VatAssetPath.PositionSuffix}");
-                rotation = encoder.BuildRotationTexture($"{name}{VatAssetPath.RotationSuffix}");
-                var drift = encoder.BuildDriftTexture($"{name}{VatAssetPath.DriftSuffix}");
-                return new VatBakeTextures(position, rotation, drift);
+                var rotation = encoder.BuildRotationTexture($"{name}{VatAssetPath.RotationSuffix}");
+                return new VatBakeTextures(position, rotation);
             }
             catch
             {
                 DestroyImmediate(position);
-                DestroyImmediate(rotation);
                 throw;
             }
         }
@@ -38,7 +33,6 @@ namespace VATyakov.Editor
         {
             DestroyImmediate(Position);
             DestroyImmediate(Rotation);
-            DestroyImmediate(Drift);
         }
 
         private static void DestroyImmediate(Object target)

@@ -17,16 +17,6 @@ int2 VatTexel(uint element, uint width, uint totalRows, uint row)
     return int2(element - block * width, block * totalRows + row);
 }
 
-int2 VatDriftTexel(uint part, uint row)
-{
-    return int2(part, row);
-}
-
-float3 VatDrift(float3 hi, float3 lo)
-{
-    return hi + lo;
-}
-
 uint4 VatRotationBytes(float4 texel)
 {
     return (uint4)round(texel * VAT_BYTE_MAX);

@@ -5,7 +5,6 @@ namespace VATyakov.Editor
         public readonly VatObjectLink Mesh = new("Mesh");
         public readonly VatObjectLink PositionTexture = new("Position Texture");
         public readonly VatObjectLink RotationTexture = new("Rotation Texture");
-        public readonly VatObjectLink DriftTexture = new("Drift Texture");
 
         public VatAssetContentsContainer()
         {
@@ -13,8 +12,7 @@ namespace VATyakov.Editor
                 VatUi.Hint("Created by the baker. Do not edit or reimport the mesh and textures by hand."),
                 Mesh,
                 PositionTexture,
-                RotationTexture,
-                DriftTexture));
+                RotationTexture));
         }
     }
 }

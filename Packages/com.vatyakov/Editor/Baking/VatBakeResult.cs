@@ -8,6 +8,7 @@ namespace VATyakov.Editor
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly VatBakeTextures Textures;
+        public readonly Vector3[] Drift;
         public readonly VatPrecision Precision;
         public readonly float MaxOffset;
         public readonly VatQuantizationStats Stats;
@@ -19,6 +20,7 @@ namespace VATyakov.Editor
             Layout = layout;
             Mesh = mesh;
             Textures = textures;
+            Drift = encoder.Drift;
             Precision = encoder.Precision;
             MaxOffset = encoder.MaxOffset;
             Stats = encoder.Stats;

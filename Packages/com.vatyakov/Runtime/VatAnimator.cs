@@ -249,10 +249,12 @@ namespace VATyakov
             var isFinished = _mixer.Evaluate(Now, out var frame, out var frameB);
             if (!_hasWrittenFrame || !frame.Equals(_writtenFrame) || !frameB.Equals(_writtenFrameB))
             {
+                var drift = _asset.Drift(frame, frameB);
                 foreach (var material in _copies.Materials)
                 {
                     material.SetVector(VatShaderIds.Frame, frame);
                     material.SetVector(VatShaderIds.FrameB, frameB);
+                    material.SetVector(VatShaderIds.Drift, drift);
                 }
 
                 _writtenFrame = frame;

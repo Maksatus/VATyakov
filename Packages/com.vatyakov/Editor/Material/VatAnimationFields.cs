@@ -43,7 +43,7 @@ namespace VATyakov.Editor
             VatClipField.Draw(material, binding);
             if (binding.HasClip)
             {
-                VatFrameField.Draw(material, binding.Asset.Clips[binding.ClipIndex]);
+                VatFrameField.Draw(material, binding);
             }
 
             if (binding.IsStale)

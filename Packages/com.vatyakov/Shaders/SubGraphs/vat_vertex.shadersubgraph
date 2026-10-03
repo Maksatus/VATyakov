@@ -106,7 +106,7 @@
                 "m_Node": {
                     "m_Id": "8f4f57f27c0848f1945526da80d4b264"
                 },
-                "m_SlotId": 7
+                "m_SlotId": 9
             }
         },
         {
@@ -725,10 +725,10 @@
             "m_Id": "eb8c53f96ccc413786d4418bb39bc3e1"
         },
         {
-            "m_Id": "6a4c9d3f2e5b4c0d9f8a4b5c6d7e8f90"
+            "m_Id": "ad4f6b8c2e5a4f7b9d3e4f5a6b7c8d9e"
         },
         {
-            "m_Id": "ad4f6b8c2e5a4f7b9d3e4f5a6b7c8d9e"
+            "m_Id": "e2c4a6f8b0d14e3a9c5b7d9f1a3c5e7b"
         },
         {
             "m_Id": "fe9f945140f94561b3b0a6704fa4d658"
@@ -1292,38 +1292,36 @@
 }
 
 {
-    "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Internal.Texture2DShaderProperty",
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.Internal.Vector4ShaderProperty",
     "m_ObjectId": "3d1f6a0c9b2e4f7a8c5d1e2f3a4b5c6d",
     "m_Guid": {
-        "m_GuidSerialized": "b7c1d2e3-f405-4a16-9b27-c8d9e0f1a2b3"
+        "m_GuidSerialized": "d9e3f4a5-b627-4c38-9d49-e0f1a2b3c4d5"
     },
     "promotedFromAssetID": "6bc70e76217844309f768e0e6c463ce0",
     "promotedFromCategoryName": "",
     "promotedOrdering": -1,
-    "m_Name": "VatDriftTex",
+    "m_Name": "VatDrift",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "VatDriftTex",
-    "m_DefaultReferenceName": "_VatDriftTex",
+    "m_RefNameGeneratedByDisplayName": "VatDrift",
+    "m_DefaultReferenceName": "_VatDrift",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,
     "m_CustomSlotLabel": "",
     "m_DismissedVersion": 0,
-    "m_Precision": 0,
-    "overrideHLSLDeclaration": false,
-    "hlslDeclarationOverride": 0,
+    "m_Precision": 1,
+    "overrideHLSLDeclaration": true,
+    "hlslDeclarationOverride": 3,
     "m_Hidden": true,
     "m_PerRendererData": false,
     "m_customAttributes": [],
     "m_Value": {
-        "m_SerializedTexture": "",
-        "m_Guid": ""
-    },
-    "isMainTexture": false,
-    "useTilingAndOffset": false,
-    "m_Modifiable": true,
-    "m_DefaultType": 1
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    }
 }
 
 {
@@ -1364,33 +1362,52 @@
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Texture2DMaterialSlot",
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "5f3b8c2e1d4a4b9c8e7f3a4b5c6d7e8f",
     "m_Id": 0,
-    "m_DisplayName": "VatDriftTex",
+    "m_DisplayName": "VatDrift",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
     "m_StageCapability": 3,
-    "m_BareResource": false
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_Labels": []
 }
 
 {
     "m_SGVersion": 0,
-    "m_Type": "UnityEditor.ShaderGraph.Texture2DInputMaterialSlot",
-    "m_ObjectId": "6a4c9d3f2e5b4c0d9f8a4b5c6d7e8f90",
-    "m_Id": 7,
-    "m_DisplayName": "DriftTex",
+    "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
+    "m_ObjectId": "e2c4a6f8b0d14e3a9c5b7d9f1a3c5e7b",
+    "m_Id": 9,
+    "m_DisplayName": "Drift",
     "m_SlotType": 0,
     "m_Hidden": false,
-    "m_ShaderOutputName": "DriftTex",
+    "m_ShaderOutputName": "Drift",
     "m_StageCapability": 3,
-    "m_BareResource": false,
-    "m_Texture": {
-        "m_SerializedTexture": "{\"texture\":{\"instanceID\":0}}",
-        "m_Guid": ""
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
     },
-    "m_DefaultType": 0
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0,
+        "w": 0.0
+    },
+    "m_Labels": []
 }
 
 {

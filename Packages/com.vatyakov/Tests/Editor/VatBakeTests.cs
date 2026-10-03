@@ -12,6 +12,8 @@ namespace VATyakov.Tests
     public class VatBakeTests
     {
         private const string TempFolder = "Assets/__VatTestTemp";
+        private const string FormatVersionProperty = "_formatVersion";
+        private const int FormatThree = 3;
         private const float Fps = 30f;
         private const float RebakeFps = 10f;
         private const float Tolerance = 5e-4f;
@@ -86,8 +88,9 @@ namespace VATyakov.Tests
             Assert.IsFalse(reloaded.PositionTexture.isReadable, "position texture is not readable");
             Assert.IsFalse(reloaded.RotationTexture.isReadable, "rotation texture is not readable");
             Assert.IsFalse(reloaded.Mesh.isReadable, "mesh is not readable");
-            Assert.IsFalse(reloaded.DriftTexture.isReadable, "drift texture is not readable");
-            Assert.AreEqual(reloaded.DriftTexture, _profile.Material.GetTexture(VatShaderIds.DriftTexture), "template gets _VatDriftTex");
+            Assert.IsTrue(reloaded.TryValidate(out var error), error);
+            var template = _profile.Material;
+            Assert.AreEqual(reloaded.Drift(template.GetVector(VatShaderIds.Frame)), template.GetVector(VatShaderIds.Drift), "template gets _VatDrift");
             Assert.AreEqual(VatAsset.CurrentFormatVersion, reloaded.FormatVersion, "format version");
             AssertDecodesToReference(reloaded, after);
         }
@@ -163,6 +166,23 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void Rebake_FormatThreeAsset_PlaysAgainWithoutTheDriftTexture()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/FormatThree.asset");
+            MakeFormatThree(asset);
+            Assert.IsFalse(asset.TryValidate(out var error), "format 3 does not play");
+            StringAssert.Contains("Rebake", error);
+
+            var rebaked = VatBaker.Bake(_profile);
+
+            Assert.IsTrue(rebaked.TryValidate(out error), error);
+            var parts = AssetDatabase.LoadAllAssetRepresentationsAtPath(AssetDatabase.GetAssetPath(rebaked));
+            CollectionAssert.AreEquivalent(new Object[] { rebaked.Mesh, rebaked.PositionTexture, rebaked.RotationTexture }, parts, "no drift texture left");
+        }
+
+        [Test]
         public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
         {
             var clips = new[] { new VatClipRequest("Long", 100f, Fps) };
@@ -219,12 +239,11 @@ namespace VATyakov.Tests
         {
             var clip = asset.Clips[0];
             var rest = asset.Mesh.vertices;
-            var drift = VatTestUtil.ReadGpu(asset.DriftTexture);
             var maxError = 0f;
             for (var k = 0; k < clip.FrameCount; k++)
             {
                 var reference = _rig.ReferencePositions(clip.FrameTime(k));
-                var frameDrift = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
+                var frameDrift = (Vector3)asset.Drift(VatTestUtil.Row(clip.StartRow + k));
                 for (var v = 0; v < rest.Length; v++)
                 {
                     var decoded = rest[v] + frameDrift + VatTestUtil.DecodeOffset(texels, asset.Layout, v, clip.StartRow + k);
@@ -258,6 +277,17 @@ namespace VATyakov.Tests
             profile.Fps = Fps;
             profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return profile;
+        }
+
+        private static void MakeFormatThree(VatAsset asset)
+        {
+            var drift = new Texture2D(2, 1, TextureFormat.RGBAHalf, false) { name = $"{asset.name}_drift" };
+            AssetDatabase.AddObjectToAsset(drift, asset);
+            using var serialized = new SerializedObject(asset);
+            serialized.FindProperty(FormatVersionProperty).intValue = FormatThree;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(asset);
+            AssetDatabase.SaveAssetIfDirty(asset);
         }
 
         private static VatAsset Reload(VatAsset asset)

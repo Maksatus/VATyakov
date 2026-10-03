@@ -122,7 +122,7 @@ namespace VATyakov.Dev
             {
                 _frame = Mathf.Clamp(_frame, 0, clip.FrameCount - 1);
                 time = clip.FrameTime(_frame);
-                _material.SetVector(VatShaderIds.Frame, clip.Frame(_frame));
+                _asset.ApplyFrame(_material, clip.Frame(_frame));
             }
             else
             {
@@ -134,7 +134,7 @@ namespace VATyakov.Dev
 
                 var position = clip.Wrap(_playback.Position(Time.timeAsDouble));
                 time = clip.FrameRate > 0f ? position / clip.FrameRate : 0.0;
-                _material.SetVector(VatShaderIds.Frame, clip.Frame(position));
+                _asset.ApplyFrame(_material, clip.Frame(position));
             }
 
             Sample(time);

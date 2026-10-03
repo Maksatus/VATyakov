@@ -60,7 +60,6 @@ namespace VATyakov.Tests
 
             var positions = VatTestUtil.ReadGpu(_bake.Position);
             var rotations = VatTestUtil.ReadGpu(_bake.Rotation);
-            var drift = VatTestUtil.ReadGpu(_bake.Drift);
             var rest = _bake.Mesh.vertices;
             var reference = new AlembicReference(cloth, _scene);
             var maxError = 0f;
@@ -70,7 +69,7 @@ namespace VATyakov.Tests
                 var mesh = reference.Sample(clip.FrameTime(k));
                 var vertices = mesh.vertices;
                 var normals = mesh.normals;
-                var frameDrift = VatTestUtil.DecodeDrift(drift, clip.StartRow + k);
+                var frameDrift = _bake.Drift[clip.StartRow + k];
                 for (var v = 0; v < rest.Length; v++)
                 {
                     var decoded = rest[v] + frameDrift + VatTestUtil.DecodeOffset(positions, _bake.Layout.Info, v, clip.StartRow + k);

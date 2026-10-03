@@ -33,7 +33,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VatDriftTex:
-        m_Texture: {fileID: 1088864762214815557, guid: d93ac3c19c36fad4a8175e44b5d8e50e, type: 2}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VatPosTex:
@@ -65,7 +65,9 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _VatClipA: {r: 25, g: 29.999998, b: 0, a: 0}
+    - _VatDrift: {r: 0, g: 0, b: 0, a: 0}
     - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
+    - _VatFrameB: {r: 0, g: 0, b: 0, a: 0}
     - _VatLayout: {r: 2079, g: 200, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

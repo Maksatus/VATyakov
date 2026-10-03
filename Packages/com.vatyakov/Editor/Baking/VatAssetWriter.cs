@@ -18,13 +18,12 @@ namespace VATyakov.Editor
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             asset.name = Path.GetFileNameWithoutExtension(path);
             var textures = result.Textures;
-            asset.SetData(result.Layout.Info, result.Mesh, textures.Position, textures.Rotation, textures.Drift, result.Layout.Clips,
+            asset.SetData(result.Layout.Info, result.Mesh, textures.Position, textures.Rotation, result.Drift, result.Layout.Clips,
                 result.Precision, sourceHash);
             AssetDatabase.CreateAsset(asset, path);
             AssetDatabase.AddObjectToAsset(result.Mesh, asset);
             AssetDatabase.AddObjectToAsset(textures.Position, asset);
             AssetDatabase.AddObjectToAsset(textures.Rotation, asset);
-            AssetDatabase.AddObjectToAsset(textures.Drift, asset);
             Finish(asset);
             return asset;
         }
@@ -34,8 +33,8 @@ namespace VATyakov.Editor
             var mesh = Adopt(asset, asset.Mesh, result.Mesh);
             var position = Adopt(asset, asset.PositionTexture, result.Textures.Position);
             var rotation = Adopt(asset, asset.RotationTexture, result.Textures.Rotation);
-            var drift = Adopt(asset, asset.DriftTexture, result.Textures.Drift);
-            asset.SetData(result.Layout.Info, mesh, position, rotation, drift, result.Layout.Clips, result.Precision, sourceHash);
+            asset.SetData(result.Layout.Info, mesh, position, rotation, result.Drift, result.Layout.Clips, result.Precision, sourceHash);
+            RemoveStale(asset);
             Finish(asset);
             return asset;
         }
@@ -53,12 +52,23 @@ namespace VATyakov.Editor
             return existing;
         }
 
+        private static void RemoveStale(VatAsset asset)
+        {
+            foreach (var part in AssetDatabase.LoadAllAssetRepresentationsAtPath(AssetDatabase.GetAssetPath(asset)))
+            {
+                if (part != asset.Mesh && part != asset.PositionTexture && part != asset.RotationTexture)
+                {
+                    AssetDatabase.RemoveObjectFromAsset(part);
+                    Object.DestroyImmediate(part, true);
+                }
+            }
+        }
+
         private static void Finish(VatAsset asset)
         {
             MakeNonReadable(asset.Mesh);
             MakeNonReadable(asset.PositionTexture);
             MakeNonReadable(asset.RotationTexture);
-            MakeNonReadable(asset.DriftTexture);
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
         }

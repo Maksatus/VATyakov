@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.8.1] — дрейф на CPU
+
+### Изменено
+- Дрейф (сдвиг всего тела) больше не читается шейдером: он одинаков для всех вертексов, а стоил 4 выборки на
+  вертекс на клип, 8 во время перехода. `VatAsset` хранит d по строкам во float32, `VatAnimator` смешивает его по
+  кадрам и весу перехода (`VatAsset.Drift(frame, frameB)`) и пишет в новое свойство `_VatDrift` вместе с
+  `_VatFrame*`. Вершинная стадия — 4 выборки на клип (2 позиции, 2 поворота), позиция без поворота — 2.
+- SubGraph `vat_vertex`: свойство `_VatDrift` (Precision Single, Hybrid Per Instance) вместо `_VatDriftTex`, вход
+  `Drift` — последним у `VatVertexPosition`, вход `DriftTex` удалён. Родительские графы менять не нужно.
+- `VatAsset.ApplyFrame(material, frame)` пишет кадр и его дрейф — для превью и своих драйверов вместо
+  `SetVector(_VatFrame)`. Инспектор материала считает материал устаревшим, если его `_VatDrift` не совпадает с кадром.
+- `formatVersion` 4: ассеты 0.8.0 не играют, пока их не перезапечь. Перебейк удаляет старый сабассет `_drift`.
+
+### Удалено
+- `_VatDriftTex`, сабассет `_drift`, кодек hi/lo (`VatDriftCodec`, `VatDriftTexels`), `VatMath.Drift`,
+  `VatMath.DriftTexel`, `VatMath.DriftWidth`, `VatAsset.DriftTexture`.
+
 ## [0.8.0] — переходы между клипами
 
 ### Добавлено

@@ -6,8 +6,7 @@ namespace VATyakov.Editor
     {
         public static long TextureBytes(VatLayoutInfo info)
         {
-            return Bytes(info.Width, info.Height, VatVertexFormat.Position) + Bytes(info.Width, info.Height, VatVertexFormat.Rotation) +
-                Bytes(VatMath.DriftWidth, info.TotalRows, VatVertexFormat.Drift);
+            return Bytes(info.Width, info.Height, VatVertexFormat.Position) + Bytes(info.Width, info.Height, VatVertexFormat.Rotation);
         }
 
         private static long Bytes(int width, int height, GraphicsFormat format)

@@ -47,9 +47,9 @@ namespace VATyakov.Tests
             return Half3(texels, (texel.y * layout.Width + texel.x) * HalfTexelSize);
         }
 
-        public static Vector3 DecodeDrift(byte[] texels, int row)
+        public static Vector4 Row(int row)
         {
-            return VatMath.Drift(DriftPart(texels, 0, row), DriftPart(texels, 1, row));
+            return new Vector4(row, row, 0f, 0f);
         }
 
         public static Vector4 DecodeRotation(byte[] texels, VatLayoutInfo layout, int element, int row)
@@ -97,12 +97,6 @@ namespace VATyakov.Tests
         private static float NextSigned(Random random)
         {
             return (float)(random.NextDouble() * 2.0 - 1.0);
-        }
-
-        private static Vector3 DriftPart(byte[] texels, int part, int row)
-        {
-            var texel = VatMath.DriftTexel(part, row);
-            return Half3(texels, (texel.y * VatMath.DriftWidth + texel.x) * HalfTexelSize);
         }
 
         private static Vector3 Half3(byte[] texels, int offset)

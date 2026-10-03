@@ -7,8 +7,6 @@ namespace VATyakov
     {
         public const int MaxTextureSize = 4096;
 
-        public const int DriftWidth = 2;
-
         private const float ByteMax = 255f;
         private const float FieldMax = 1023f;
         private const float MaxComponent = 0.70710678f;
@@ -39,16 +37,6 @@ namespace VATyakov
         {
             var block = element / width;
             return new Vector2Int(element - block * width, block * totalRows + row);
-        }
-
-        public static Vector2Int DriftTexel(int part, int row)
-        {
-            return new Vector2Int(part, row);
-        }
-
-        public static Vector3 Drift(Vector3 hi, Vector3 lo)
-        {
-            return hi + lo;
         }
 
         public static Color32 RotationBytes(Vector4 texel)

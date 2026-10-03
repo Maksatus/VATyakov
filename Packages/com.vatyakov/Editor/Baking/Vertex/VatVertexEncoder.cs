@@ -11,7 +11,7 @@ namespace VATyakov.Editor
 
         private readonly VatSourceMesh _source;
         private readonly VatPositions _positions;
-        private readonly VatDriftTexels _drift;
+        private readonly VatDriftRows _drift;
         private readonly VatRotationTexels _rotations;
         private readonly VatTangentFrames _frames;
 
@@ -19,13 +19,14 @@ namespace VATyakov.Editor
 
         public VatPrecision Precision => new VatPrecision(_drift.MaxDistance, _positions.MaxError);
         public float MaxOffset => _positions.MaxOffset;
+        public Vector3[] Drift => _drift.Rows;
 
         public VatVertexEncoder(VatLayout layout, VatSourceMesh source)
         {
             Layout = layout;
             _source = source;
             _positions = new VatPositions(layout.Info, source);
-            _drift = new VatDriftTexels(layout.Info);
+            _drift = new VatDriftRows(layout.Info);
             _rotations = new VatRotationTexels(layout.Info);
             _frames = new VatTangentFrames(source.VertexCount);
             Chirality = new VatChirality(source.VertexCount);
@@ -37,7 +38,8 @@ namespace VATyakov.Editor
             _rest ??= new VatRestPose(data, _frames);
             Chirality.Check(_rest, data, Layout.Clips[clip].Name, frame);
             var row = Layout.Clips[clip].StartRow + frame;
-            var drift = _drift.Write(row, VatCentroid.Of(data.Positions) - _rest.Centroid);
+            var drift = VatCentroid.Of(data.Positions) - _rest.Centroid;
+            _drift.Write(row, drift);
             for (var vertex = 0; vertex < _source.VertexCount; vertex++)
             {
                 EncodePosition(vertex, row, data.Positions[vertex], drift, clip, frame);
@@ -60,11 +62,6 @@ namespace VATyakov.Editor
         public Texture2D BuildRotationTexture(string name)
         {
             return _rotations.Build(name);
-        }
-
-        public Texture2D BuildDriftTexture(string name)
-        {
-            return _drift.Build(name);
         }
 
         private void EncodePosition(int vertex, int row, Vector3 position, Vector3 drift, int clip, int frame)

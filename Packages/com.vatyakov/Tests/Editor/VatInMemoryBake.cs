@@ -9,6 +9,7 @@ namespace VATyakov.Tests
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
         public readonly VatBakeTextures Textures;
+        public readonly Vector3[] Drift;
         public readonly VatPrecision Precision;
         public readonly string[] Warnings;
 
@@ -16,7 +17,6 @@ namespace VATyakov.Tests
         public Vector3[] RestNormals { get; private set; }
         public Texture2D Position => Textures.Position;
         public Texture2D Rotation => Textures.Rotation;
-        public Texture2D Drift => Textures.Drift;
 
         public VatInMemoryBake(VatTestRig rig, float fps) : this(rig, fps, rig.Clip)
         {
@@ -34,6 +34,7 @@ namespace VATyakov.Tests
                 var encoder = new VatVertexEncoder(layout, source.Mesh);
                 EncodeAll(source, layout, encoder);
                 Layout = encoder.Layout;
+                Drift = encoder.Drift;
                 Precision = encoder.Precision;
                 Mesh = encoder.BuildMesh("InMemory");
                 Textures = VatBakeTextures.Build(encoder, "InMemory");

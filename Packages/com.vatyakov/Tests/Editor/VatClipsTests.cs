@@ -180,8 +180,6 @@ namespace VATyakov.Tests
         {
             var positionsA = VatTestUtil.ReadGpu(bakeA.Position);
             var positionsB = VatTestUtil.ReadGpu(bakeB.Position);
-            var driftA = VatTestUtil.ReadGpu(bakeA.Drift);
-            var driftB = VatTestUtil.ReadGpu(bakeB.Drift);
             var restA = bakeA.Mesh.vertices;
             var restB = bakeB.Mesh.vertices;
             var rowA = bakeA.Layout.Clips[clipA].StartRow;
@@ -189,8 +187,8 @@ namespace VATyakov.Tests
             var max = 0f;
             for (var k = 0; k < bakeA.Layout.Clips[clipA].FrameCount; k++)
             {
-                var frameDriftA = VatTestUtil.DecodeDrift(driftA, rowA + k);
-                var frameDriftB = VatTestUtil.DecodeDrift(driftB, rowB + k);
+                var frameDriftA = bakeA.Drift[rowA + k];
+                var frameDriftB = bakeB.Drift[rowB + k];
                 for (var v = 0; v < restA.Length; v++)
                 {
                     var positionA = restA[v] + frameDriftA + VatTestUtil.DecodeOffset(positionsA, bakeA.Layout.Info, v, rowA + k);

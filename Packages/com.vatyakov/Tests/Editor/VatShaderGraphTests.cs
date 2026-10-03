@@ -33,6 +33,9 @@ namespace VATyakov.Tests
             StringAssert.Contains("float4 _VatFrameB;", code);
             StringAssert.DoesNotContain("half4 _VatFrameB", code);
             StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatFrameB, float4)", code, "transition state is Hybrid Per Instance");
+            StringAssert.Contains("float4 _VatDrift;", code);
+            StringAssert.DoesNotContain("half4 _VatDrift", code);
+            StringAssert.Contains("UNITY_ACCESS_HYBRID_INSTANCED_PROP(_VatDrift, float4)", code, "drift is Hybrid Per Instance");
         }
 
         [Test]
@@ -45,7 +48,7 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatVertexNormalTangent_float(", code);
             StringAssert.DoesNotContain("VatVertexNormalTangent_half", code);
             StringAssert.Contains("TEXTURE2D(_VatRotTex)", code);
-            StringAssert.Contains("TEXTURE2D(_VatDriftTex)", code, "drift is always sampled");
+            StringAssert.DoesNotContain("_VatDriftTex", code, "drift comes from the CPU, not a texture");
             StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 

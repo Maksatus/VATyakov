@@ -16,12 +16,15 @@
 | 1.7 VatAnimator: материал на юнита и управление | готово | 0.7.0 |
 | Аудит: упрощение после 1.7 | готово | 0.7.1 |
 | 1.8 Переходы: CrossFade и вес из кода | готово, устройства не проверены | 0.8.0 |
+| 1.8.1 Дрейф на CPU | готово, устройства не проверены | 0.8.1 |
 | 1.9 Motion vectors | перенесена в патч 2 (§6) | — |
 | 1.10–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
 Проверки на устройствах (iPhone 12, Adreno, Mali): результаты не записаны — дописать сюда при следующем прогоне.
+Слабое целевое устройство — Redmi 9A (Helio G25, PowerVR GE8320, 2–3 ГБ): под него шейдер экономит выборки (1.8.1);
+PowerVR — отдельный вендор, `rot_decode` прогнать и на нём.
 1.3 на устройствах: сцена `rot_decode` (кнопка RGBA8 в `compare`) — «RGBA8: OK» или число неверных текселей и API.
 
 ## Как устроено сейчас
@@ -46,9 +49,10 @@
   берёт число вертексов, длину и разрыв петли из `VatAlembicProbe` (кэш до переимпорта .abc), подсказка loop —
   `VatLoopHintController`.
   `VatVertexEncoder` за один проход пишет `_VatPosTex` (`VatPositionTexels`), `_VatRotTex` (`VatRotationTexels`,
-  кодек `VatSmallestThree`) и `_VatDriftTex` (`VatDriftTexels`, кодек `VatDriftCodec`); N и T кадра — `VatTangentFrames`,
-  знак бинормали — `VatChirality`. Позиции — `VatPositions`: Δ = pos − rest − d, d = центроид кадра − центроид покоя,
-  дрейф включён всегда (0.7.1). `VatPrecision` в ассете — ошибка после fp16 и путь центроида.
+  кодек `VatSmallestThree`) и дрейф по строкам (`VatDriftRows`, float32, в ассет — `Vector3[]`, 1.8.1); N и T кадра —
+  `VatTangentFrames`, знак бинормали — `VatChirality`. Позиции — `VatPositions`: Δ = pos − rest − d, d = центроид
+  кадра − центроид покоя, дрейф включён всегда (0.7.1). `VatPrecision` в ассете — ошибка после fp16 и путь центроида.
+  `VatAssetWriter` при перебейке удаляет сабассеты, кроме меша и двух текстур (`_drift` ассетов формата 3).
 - **Рантайм:** время, loop/one-shot и скорость считает CPU (`VatPlayback`, `VatClip.Frame`, `VatTiming`) и пишет
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
   уникальный VAT-шаблон, VAT = есть `_VatFrame`, только в Play mode, `Dispose` в `OnDestroy`), `VatPlayer` (клип,
@@ -60,11 +64,15 @@
   `_VatFrameB = (row0, row1, frac, w)`) и `VatWeightRamp` (рампа веса, пауза её замораживает). Без B
   `_VatFrameB = 0`. `VatTransitionWarnings` — `[Conditional]` предупреждения CrossFade посреди перехода и SetWeight
   без B. Оба вектора пишутся вместе, если изменился любой.
-- **Шейдер:** `VatCore.hlsl` — адрес тексела, тексел и сумма дрейфа, декод smallest-three, nlerp и оси кадра;
-  `VatMath.cs` — его CPU-зеркало. Дрейф пишется и читается всегда.
-  `VatShaderGraph.hlsl`: `VatVertexPosition_float` и `VatVertexNormalTangent_float` (вход `FrameB` последним, клип
-  целиком — `VatClipOffset`, `VatClipRotation`, бленд — один `lerp` без нормализации); SubGraph `vat_vertex` отдаёт
-  Position, Normal, Tangent. Шаблон по умолчанию — `vat_lit_vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
+  Дрейф (1.8.1): вместе с ними пишется `_VatDrift = VatAsset.Drift(frame, frameB)` — d, смешанный по frac обоих
+  клипов и по w. Превью и свои драйверы пишут кадр через `VatAsset.ApplyFrame` (кадр + дрейф): `ApplyTo`, поле Frame
+  инспектора материала, `VatCompare`.
+- **Шейдер:** `VatCore.hlsl` — адрес тексела, декод smallest-three, nlerp и оси кадра; `VatMath.cs` — его CPU-зеркало.
+  Дрейф шейдер не читает (1.8.1): `pos = rest + _VatDrift.xyz + lerp(Δ_A, Δ_B, w)`, 4 выборки на вертекс на клип.
+  `VatShaderGraph.hlsl`: `VatVertexPosition_float` (входы `FrameB`, затем `Drift` — последними) и
+  `VatVertexNormalTangent_float` (вход `FrameB` последним); клип целиком — `VatClipOffset`, `VatClipRotation`, бленд —
+  один `lerp` без нормализации. SubGraph `vat_vertex` отдаёт Position, Normal, Tangent. Шаблон по умолчанию —
+  `vat_lit_vertex` (BaseMap, NormalMap `_BumpMap`, Metallic, Smoothness).
 - **Тестовый контент** (файлы — маленькими буквами через `_`, 0.7.1): `Assets/VatDev/Content/Bow`, результаты бейка —
   `Assets/VatDev/Bakes`, сцена `Assets/VatDev/Scenes/compare.unity`.
   Толпа (1.7): профиль `Bakes/bow_one_shot` — те же три клипа лука, но one-shot (VAT 26, Fire 79, BakeSave 98 кадров),
@@ -102,7 +110,7 @@
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
 - `Editor/Baking/Sources/Alembic/` — VatAlembicFrameSource и VatAlembicCopy (под `#if VAT_ALEMBIC`), VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
-- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftCodec, VatDriftTexels, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositions, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
+- `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatChirality, VatDriftRows, VatHalf3, VatIndexBuffer, VatPositionTexels, VatPositions, VatQuantizationStats, VatRestPose, VatRotationTexels, VatSmallestThree, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*)
 - `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (ошибка и путь центроида — VatAssetPrecision*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
@@ -222,3 +230,18 @@
   Проверено в Play mode (Animator): Fade 1 с — у 43 из 100 юнитов вес в (0, 1), NaN нет, предупреждения с именами
   клипов; Manual 0.5 — все 100 в переходе. Глазом плавность и замер `VatAnimator.Write` не смотрел — это проверяет
   пользователь. 217 тестов зелёные.
+- **1.8.1:** запрос пользователя — облегчить шейдер для слабых телефонов (Redmi 9A). Дрейф одинаков для всех вертексов
+  draw, а стоил 4 выборки на вертекс на клип (8 с переходом) — половину выборок и 2/3 выборок позиции. Теперь d —
+  `Vector3[]` во float32 в `VatAsset`, CPU пишет готовый `_VatDrift`; `formatVersion` 4. Ветвление по w не делалось:
+  `if` и `?:` в шейдере запрещены решением 1.8. Сам решил: `ApplyFrame` (кадр + дрейф) — один путь записи для превью и
+  `VatCompare`; `_VatDrift` пишется в том же блоке, что `_VatFrame*`, у всех ассетов (у реальных d ≠ 0: дрейф включён
+  всегда, у лука центроид ходит на 3–8 см), то есть +1 `SetVector` на материал за изменившийся кадр. Инспектор
+  материала сравнивает `_VatDrift` с дрейфом кадра (строки берутся из клипа по `_VatFrame.x`, а не из `.y` — так
+  индекс всегда в массиве) и предлагает Update from Asset. Вход SubGraph `DriftTex` (слот 7) удалён, `Drift` (слот 9)
+  добавлен после `FrameB`, как в 1.8 — правкой JSON; свойство переиспользует объект `_VatDriftTex`, сменив тип.
+  В старых `.mat` VatDev осталась пустая запись `_VatDriftTex` (как и `_VatClipA`) — безвредна.
+  VatDev перезапечён: лук 0.122 мм, желе 0.059 мм, вода 0.503 мм — как до 1.8.1; в ассетах по 3 сабассета.
+  Проверено в Play mode: `drift` кадр 80 — VAT-желе на x ≈ 40 (без дрейфа было бы у нуля), `_VatDrift` = (40, 0, 0);
+  `animator` — у 100 юнитов `_VatDrift` совпадает с `VatAsset.Drift(frame, frameB)` (расхождение 0), в том числе у
+  16 юнитов в переходе. Сравнение с SMR в `compare` и плавность глазом не смотрел — это проверяет пользователь.
+  216 тестов зелёные (удалены 6 тестов кодека hi/lo, добавлены 4 теста `Drift`/`ApplyFrame` и тест перебейка формата 3).

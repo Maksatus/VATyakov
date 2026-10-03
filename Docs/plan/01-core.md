@@ -11,7 +11,7 @@
 - **Текстуры с Blackboard** Shader Graph на мобилках читаются через mediump-сэмплер (Shader Precision Model = Platform Default, как в проекте). Поэтому VAT-текстуры — **только RGBAHalf и RGBA8**. fp32 точности не добавляет и стоит дороже, валидатор его запрещает.
 - **RGBA8 читается как байты:** `round(v·255)` точен и через mediump.
 - **Позиции хранятся смещениями от покоя:** в Vertex — от rest-меша, в Bone и Rigid — от позы покоя кости. Ошибка half тогда пропорциональна смещению, а не расстоянию до origin.
-- **Пара hi/lo half** (`hi = half(p)`, `lo = half(p − hi)`) — только в `_VatDriftTex` (§1.9).
+- **Дрейф d — float32 на CPU:** массив строк в `VatAsset`, в шейдер приходит готовым вектором `_VatDrift` (§1.4). Пары hi/lo half и `_VatDriftTex` нет с 1.8.1.
 - **VAT-SubGraph и все Custom Function — Precision Single**, обёртки только `_float`. Иначе Vertex ID станет half и сломается выше 2048.
 - **Инспектор показывает ошибку с учётом fp16-выборки**, а не точность хранения.
 
@@ -54,8 +54,10 @@
 ```
 _VatFrame  = (row0, row1, frac, 0)   // строки внутри блока (startRow + f0, startRow + f1) и вес второй
 _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перехода и его вес w, вес A = 1 − w
+_VatDrift  = (d, 0)                  // 1.8.1: дрейф, уже смешанный по frac обоих клипов и по w
 ```
 - **Пишет драйвер каждый кадр** (`VatCompare` сейчас, `VatAnimator` с 1.7): строки уже со `startRow`, loop, one-shot, скорость и рампы веса посчитаны на CPU. Строки — целые < 4096, во float32 точны.
+- **Дрейф** считает `VatAsset.Drift(frame, frameB)`: `d = lerp(lerp(d[A.row0], d[A.row1], A.frac), lerp(d[B.row0], d[B.row1], B.frac), w)`, при `_VatFrameB = 0` — дрейф клипа A. Пишется вместе с `_VatFrame*`, когда изменился кадр; `ApplyTo` и `ApplyFrame` пишут его в превью. Дрейф одинаков для всех вертексов draw, поэтому шейдер его не читает: до 1.8.1 это были 4 выборки на вертекс на клип.
 - **Шейдер не проверяет ничего:** ни диапазон строк, ни ширину, ни конечность. Корректность данных обеспечивают бейкер и CPU-код.
 - **Значение по умолчанию** `(0, 0, 0, 0)` — кадр 0 первого клипа, так что материал без драйвера показывает валидную позу.
 - **Постоянные ассета** (ширина текстуры, число строк) лежат в `_VatLayout` (§1.9), их пишет бейкер в шаблон.
@@ -63,8 +65,8 @@ _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перех�
 ### 1.5 Бленд и переходы
 Сценарий один: клип переходит в другой клип.
 
-**Шейдер.** Каждый клип считается целиком по своему `_VatFrame*` (смещение с дрейфом, кватернион через nlerp), затем:
-- `P = rest + lerp(Δ_A, Δ_B, w)`, `N = lerp(N_A, N_B, w)`, `T = lerp(T_A, T_B, w)` — и всё. Без `?:`, `if`,
+**Шейдер.** Каждый клип считается целиком по своему `_VatFrame*` (смещение Δ, кватернион через nlerp), затем:
+- `P = rest + _VatDrift.xyz + lerp(Δ_A, Δ_B, w)`, `N = lerp(N_A, N_B, w)`, `T = lerp(T_A, T_B, w)` — и всё. Без `?:`, `if`,
   нормализации, ортогонализации и fallback по доминантному клипу: шейдер для слабых телефонов, ветвления и выбор
   запрещены (решение пользователя в 1.8).
 - Нормализует URP: вершинный проход переводит Normal и Tangent в мир через `TransformObjectToWorldNormal` и
@@ -135,14 +137,13 @@ _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перех�
 |---|---|---|---|---|---|---|---|
 | `_VatPosTex` | Vertex | RGBAHalf | вертекс | Δ.x | Δ.y | Δ.z | 0 |
 | `_VatRotTex` | Vertex | RGBA8 | вертекс | байт a | байт b | байт c | старшие биты и индекс (ниже) |
-| `_VatDriftTex` | Vertex | RGBAHalf | 0 — hi, 1 — lo | d.x | d.y | d.z | 0 |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i | p̃.x | p̃.y | p̃.z | 0 |
 | `_VatBoneTex`, строка 0 | Bone, Rigid | RGBAHalf | 2i + 1 | 0 | 0 | 0 | 0 |
 | `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i | Δ.x | Δ.y | Δ.z | s |
 | `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i + 1 | q.x | q.y | q.z | q.w |
 
 - **Vertex:** `Δ = pos − rest − d`. Строки — только кадры: `totalRows = ΣF`, первый клип с `startRow = 0`.
-- **Дрейф:** `_VatDriftTex` без блоков — ширина 2, высота ΣF, строка `startRow + frame`. `d = hi + lo`, в шейдере `pos = rest + lerp(d0, d1) + lerp(Δ0, Δ1)`. Дрейф есть в каждом Vertex-ассете и включён всегда (§2.2), шейдер прибавляет d без ветки.
+- **Дрейф:** не текстура, а `Vector3[]` в `VatAsset` (float32, строка `startRow + frame`, длина `totalRows`). CPU смешивает d по кадрам и переходу и пишет `_VatDrift` (§1.4), шейдер: `pos = rest + _VatDrift.xyz + lerp(Δ0, Δ1)`. Дрейф есть в каждом Vertex-ассете и включён всегда (§2.2).
 - **Bone и Rigid:** `i` — индекс кости или куска, элементов `E = 2·N`. Строка 0 каждого блока — пивоты, `totalRows = 1 + ΣF`, клипы начинаются со `startRow = 1`. `p̃` — пивот, округлённый до half; `Δ = p_pose − p̃`; `s` — равномерный масштаб, `s = 0` — кусок скрыт.
 - **Кватернион** — (x, y, z, w), w — скалярная часть. В Vertex он задаёт кадр (T, N×T, N): `N = rot(q, (0,0,1))`, `T = rot(q, (1,0,0))`, знак бинормали — `tangent.w` меша.
 - **`_VatRotTex`, smallest-three:**
@@ -174,4 +175,5 @@ _VatFrameB = (row0, row1, frac, w)   // 1.8: целевой клип перех�
 | `_VatFrame` | Hybrid Per Instance | `(row0, row1, frac, 0)` — §1.4 |
 | `_VatFrameB` | Hybrid Per Instance | `(row0, row1, frac, w)` — 1.8, §1.4 |
 | `_VatLayout` | Per Material | `(W, totalRows, 0, 0)` — постоянные ассета, бейкер пишет их в шаблон |
-| `_VatPosTex`, `_VatRotTex`, `_VatDriftTex`, `_VatBoneTex` | Per Material | текстуры ассета |
+| `_VatDrift` | Hybrid Per Instance | `(d, 0)` — 1.8.1, §1.4 |
+| `_VatPosTex`, `_VatRotTex`, `_VatBoneTex` | Per Material | текстуры ассета |

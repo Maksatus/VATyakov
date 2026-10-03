@@ -46,7 +46,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VatDriftTex:
-        m_Texture: {fileID: -3305523251676717620, guid: 546e8085c037ac442a92e5e151f5e90c, type: 2}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _VatPosTex:
@@ -93,7 +93,9 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _BaseColor: {r: 0.45, g: 0.65, b: 0.85, a: 1}
+    - _VatDrift: {r: 0, g: 0, b: 0, a: 0}
     - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
+    - _VatFrameB: {r: 0, g: 0, b: 0, a: 0}
     - _VatLayout: {r: 2927, g: 79, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

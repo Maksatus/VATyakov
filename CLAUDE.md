@@ -72,11 +72,11 @@
 - Shader Graph ассеты (`vat_vertex`, `vat_unlit_vertex`, `vat_lit_vertex`, фикстура `vat_half_parent`) сгенерированы скриптом,
   дальше их правят в редакторе SG. Векторные свойства SubGraph — Precision Single: с Inherit в Half-графе они
   объявляются `half4` и портят строки и W > 2048 (это проверяет тест). В HLSL — только `_float`-обёртки. Новый вход
-  Custom Function добавлять последним (как `DriftTex`): Shader Graph сопоставляет слоты по id.
+  Custom Function добавлять последним (как `FrameB` и `Drift`): Shader Graph сопоставляет слоты по id.
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
 - Контент — файлы ассетов (модели, текстуры, материалы, префабы, сцены, профили и результаты бейка) — маленькими
   буквами через `_`: `bow_default_vat.prefab`. Папки и код (скрипты, шейдеры, asmdef) — PascalCase, как в `D:\client`.
-  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot`, `_drift`.
+  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot` (дрейф — массив в самом ассете, 1.8.1).
   Переименовывать через Unity (`AssetDatabase.RenameAsset`), а в git смену одного регистра фиксировать заново
   (`git rm --cached` + `git add`): `core.ignorecase = true` её не видит.
 
