@@ -5,7 +5,6 @@ using UnityEngine.Animations;
 using UnityEngine.Formats.Alembic.Importer;
 #endif
 using UnityEngine.Playables;
-using UnityEngine.Serialization;
 
 namespace VATyakov.Dev
 {
@@ -35,7 +34,6 @@ namespace VATyakov.Dev
         [SerializeField]
         private int _clipIndex;
 
-        [FormerlySerializedAs("_step")]
         [SerializeField]
         private bool _isStepping = true;
 

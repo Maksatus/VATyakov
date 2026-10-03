@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace VATyakov.Dev
@@ -21,7 +20,6 @@ namespace VATyakov.Dev
         [SerializeField]
         private float _spacing = 1.5f;
 
-        [FormerlySerializedAs("_flash")]
         [SerializeField]
         private Color _flashColor = new(1f, 0.15f, 0.1f);
 

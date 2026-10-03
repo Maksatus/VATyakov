@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace VATyakov
 {
@@ -17,7 +16,6 @@ namespace VATyakov
         private float _length;
         [SerializeField]
         private float _frameRate;
-        [FormerlySerializedAs("_loop")]
         [SerializeField]
         private bool _isLooping;
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace VATyakov.Editor
 {
@@ -29,7 +28,6 @@ namespace VATyakov.Editor
 
         [Tooltip("For every clip. On: the clip loops, the last frame does not repeat the first. " +
                  "Off: the clip plays once and stops on the last frame.")]
-        [FormerlySerializedAs("_loop")]
         [SerializeField]
         private bool _isLooping = true;
 
