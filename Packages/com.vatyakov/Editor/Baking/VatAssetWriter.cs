@@ -111,6 +111,18 @@ namespace VATyakov.Editor
 
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
+            UnloadMeshes(asset);
+        }
+
+        private static void UnloadMeshes(VatAsset asset)
+        {
+            foreach (var part in Parts(asset))
+            {
+                if (part is Mesh)
+                {
+                    Resources.UnloadAsset(part);
+                }
+            }
         }
 
         private static Object[] Parts(VatAsset asset)

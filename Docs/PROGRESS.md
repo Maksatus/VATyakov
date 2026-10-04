@@ -25,7 +25,8 @@
 | 1.12 Bone с двумя influences | готово, устройства не проверены | 0.12.0 |
 | Аудит: пакет как конструктор | готово | 0.12.1 |
 | 1.13 Bone в игре: LOD и экипировка | готово, устройства не проверены | 0.13.0 |
-| 1.14–1.16, 1.18 | не начаты | — |
+| 1.14 Замер толпы и бюджеты | инструмент и сцена готовы, замер на устройствах — за пользователем | 0.14.0 |
+| 1.15–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
@@ -213,6 +214,14 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
 - `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatExtraRendererTests (1.13), VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- Вне пакета, замер толпы (1.14): `Assets/VatDev/Scripts/Stress/` (сборка `VATyakov.Dev`, в билде) — VatStress (толпа, `Select`
+  варианта, маркер `VatStress.Drive`), VatStressVariant и VatStressMode (варианты `empty`, `smr`, `vat`, `smr_crossfade`,
+  `vat_crossfade`, `smr_lod0`, `vat_lod0`), IVatStressUnit, VatStressVatUnit, VatStressSmrUnit, VatStressInfo (конфигурация и счётчики сцены для отчёта), VatStressRemote и VatStressMessages
+  (PlayerConnection), VatStressControls (кнопки вариантов на экране); `Assets/VatDev/Editor/Stress/` (сборка
+  `VATyakov.Dev.Stress.Editor`) — VatStressWindow (меню VATyakov → Dev → Stress Measurement), VatStressRunner (шаги сессии),
+  VatStressPlayer (запросы к плееру), VatStressAnalyzer, VatStressMetric, VatStressMetrics, VatStressStats, VatStressCapture,
+  VatStressSettings, VatStressSummary, VatStressCsv, VatStressMarkdown, VatStressFormat, VatStressThermal (слежение за Thermal Status), VatThrottlingException,
+  VatAndroidThermal и VatThermalState (adb: батарея, Thermal Status, SoC, корпус)
 - Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте или его родителе есть `VatAnimator`, выключает его и пишет кадр во все его копии; кнопка LOD и клавиша L — `ForceLOD` списка `_lodGroups`, 1.13); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
@@ -481,3 +490,53 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   bones of the rig»). Проверено в Play mode: `warrior`, Mowing кадр 14 — SMR и VAT совпадают на LOD 0 и LOD 1, топор в
   руке у обоих. В клипах воина нет `Warrior_Attack`: Loop общий, а Attack не петля — бейк давал предупреждение о шве у
   19 костей. Плавность переключения LOD на ходу и устройства — за пользователем. 234 теста зелёные (5 новых).
+- **1.14:** запрос пользователя — толпа 500, а не 100, на воине; топор нормально в руку; кнопка в редакторе: подключил
+  устройство, нажал — всё замерено и получена таблица (по образцу `D:\client\Assets\Editor\Performance`, ветка
+  `experiments/test-perfomance-firework`). Решения по ходу (продуктовых вопросов не было): инструмент — в VatDev, не в
+  пакете (пакет — конструктор); сравнение на том же воине: SMR — `warrior.prefab` с контроллером `warrior.controller`
+  (4 состояния = клипы VAT-ассета), Skin Weights = 2 Bones у всех SMR, `fireEvents = false` (у Run есть события
+  Footprint без получателя, VAT событий не шлёт); Mesh Deformation проекта уже GPU (Batched). Шаги сессии — ABBA, чтобы
+  нагрев телефона не перекосил сравнение: `empty, smr, vat, smr_crossfade, vat_crossfade, smr_lod0, vat_lod0`
+  и обратно — 14 захватов (варианты `*_c1` с 1 каскадом убраны по решению пользователя: в проекте теперь 1 каскад). `*_crossfade` — худший случай плана (каждый юнит `CrossFade` каждый
+  кадр), обычный вариант — случайный клип каждые 1–4 с с переходом 0.25 с (в переходе около 10%), `*_lod0` — `ForceLOD(0)` у всех (с камеры сцены все юниты на LOD1, а цена
+  вершины LOD0 нужна для бюджета). Доля «в переходе» считается по таймеру перехода в драйвере, одинаково для SMR и VAT:
+  у VAT при `CrossFade` каждый кадр вес всегда 0. LODGroup `warrior_vat.prefab` выровнен по SMR (size 2.18 и reference
+  point вместо 3.76 по раздутым баундам анимации): иначе VAT дольше держал LOD0 (55 юнитов против 0).
+  Метрики: счётчики `CPU Main Thread Active Time`, `CPU Render Thread Active Time`, `GPU Frame Time` (нужен Frame Timing
+  Stats — включён в Player Settings), SetPass, SRP Batcher и Standard Draw Calls, Vertices, Shadow Casters — медианы;
+  маркеры `VatStress.Drive`, `VatAnimator.Write`, `DirectorUpdateAnimationBegin/End` (Animator), `UpdateAllSkinnedMeshes`
+  (скиннинг) — средние; «Animation CPU» — их сумма. С плеера по запросу Info после захвата — устройство, API,
+  разрешение, MSAA, HDR, каскады, юниты в кадре (frustum), юниты на LOD0, вершины LOD0/LOD1, доля в переходе, память
+  (`Profiler.GetTotalAllocatedMemoryLong`, `GetTotalReservedMemoryLong`, `GetAllocatedMemoryForGraphicsDriver`: счётчики
+  памяти из плеера в Profiler не приходят даже с областью Memory); с adb — температура батареи до и после захвата (на
+  iOS пусто). Отчёт: `Docs/perf/stress_*.md` (конфигурация, таблица вариантов, VAT против SMR за вычетом `empty`) и
+  `.csv`, захваты Profiler — `Logs/VatStress/`. Окно включает в Profiler области CPU и Rendering и выключает GPU.
+  Сцена `Scenes/stress.unity` — первая в сборке (до неё были `compare`, `animator`): 500 юнитов сеткой 25×20 через 1.4 м,
+  камера видит всех, земля `Content/Stress/stress_ground.mat`, `Application.runInBackground` выставляется в рантайме.
+  Топор: под RPalm в (−0.19, −0.03, 0), поворот 180° вокруг (1, 1, 0) — топорище к большому пальцу, лезвие по пальцам,
+  рукоять проходит в кулаке (центр кулака посчитан по вертексам пальцев в позе клипа); `warrior` перепечён — ошибка
+  0.55 мм (было 0.631).
+  Баг пакета, найденный по пути: после перебейка в той же сессии меш рисовался со старыми вертексами — `CopySerialized`
+  меняет данные меша на CPU, но не вершинный буфер на GPU (`UploadMeshData` и `MarkModified` не помогают). Текстуры так не
+  страдают. `VatAssetWriter.Finish` теперь выгружает меши ассета (`Resources.UnloadAsset`), и Unity перечитывает их с диска.
+  Тест `Rebake_OfAMovedEquipment_PutsTheNewVerticesOnTheGpu` читает вершинный буфер с GPU (`GetVertexBuffer`); без
+  исправления он падал (сдвиг 0.374 м).
+  Проверено: сессия целиком на Windows-плеере (Development, Mono, тот же ПК, RTX 4060, 1280×720, 60 fps) — 18 захватов
+  без ошибок. Это проверка инструмента, не замер: отчёт в `Docs/perf` не положен. Что видно уже на ПК (за вычетом
+  `empty`): CPU main VAT 3.2 мс против SMR 6.6 мс (×2.1), «Animation CPU» 0.9 против 5.2 мс (×6), с `CrossFade` каждый
+  кадр — 1.05 против 6.7 мс; render thread наоборот — VAT 2.2 мс против 1.0 мс: у каждого юнита свои копии материалов, и
+  SRP Batcher на каждый draw обновляет данные материала, а SMR делят один материал. Gfx-память 45 МБ против 70 (99 на
+  LOD0): буферы скиннинга. GPU на десктопе с капом 60 fps шумит (частоты плавают) — смотреть на телефоне. Все draw
+  воинов — SRP Batcher: Standard Draw Calls во всех вариантах 22, как в `empty` (IMGUI и земля). На телефоне замер
+  делает пользователь. 235 тестов зелёные.
+  Сборка под Android падала на `VatCompare` (с 1.4, под Android VatDev раньше не собирали): `VAT_ALEMBIC` включается по
+  наличию пакета, а `Unity.Formats.Alembic.Runtime` есть только в Editor и десктопном Standalone. В `VatCompare` условие —
+  `VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)`; скрипты плеера под Android собираются.
+  Троттлинг (первый прогон на Galaxy S21+, SM-G996B, Exynos 2100): за ~8 минут при капе 60 батарея 27 → 41 °C, SoC 62 °C,
+  корпус 44.5 °C, Thermal Status 3 (SEVERE) — захваты несравнимы. Решения пользователя: не ждать остывания, а следить —
+  Thermal Status читается через adb на старте и каждые 5 с прогрева и захвата; выше 0 — сессия останавливается, отчёт
+  пишется с пометкой INVALID и суффиксом `_invalid`; горячий телефон сессию не начинает. Кап 60 FPS, 500 юнитов, захват
+  400 кадров (по умолчанию в окне); нагрев (тени, HDR и пр.) пользователь выключает сам в настройках проекта. Thermal
+  Status, батарея, SoC (максимум сенсоров CPU и GPU) и корпус до и после захвата — в CSV, батарея после — в таблице. Без
+  adb (iOS) статус не отслеживается — одна
+  запись в лог. У Samsung нет сенсора GPU: `Math.Max` с NaN давал NaN, максимум считается только по найденным.

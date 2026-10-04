@@ -3,7 +3,9 @@
     "rootNamespace": "VATyakov.Dev",
     "references": [
         "VATyakov",
-        "Unity.Formats.Alembic.Runtime"
+        "Unity.Formats.Alembic.Runtime",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

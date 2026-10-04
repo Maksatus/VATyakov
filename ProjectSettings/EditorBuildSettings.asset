@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/VatDev/Scenes/stress.unity
+    guid: 6c4b2e8c3bc2eb244950498c4c022fdd
+  - enabled: 1
     path: Assets/VatDev/Scenes/compare.unity
     guid: 40f042170cc219e4ba507aae6eb6c62f
   - enabled: 1

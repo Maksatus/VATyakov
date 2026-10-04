@@ -92,9 +92,10 @@
 - `Assets/VatDev/Content/Bow/weapon_landing_bow.fbx` — тестовый лук: меши `Bow_default_main` на 2079 вертексов,
   `Bow_upgrade_main` на 4529 (два блока), три legacy-клипа: VAT, Fire, BakeSave.
 - `Assets/VatDev/Content/Alembic/water.abc` — жидкость с постоянной топологией (1.4), сравнение — сцена
-  `compare_alembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`).
-- `Assets/VatDev/Bakes` — профили бейка и результаты. `Assets/VatDev/Scenes/compare.unity` — сравнение SMR и VAT,
-  она же первая сцена сборки; вторая — `animator`, толпа из 100 `VatAnimator` (1.7) на шаблоне с блендом
+  `compare_alembic` (не в сборке). Без `com.unity.formats.alembic` Alembic-код пакета и VatDev выключен (`VAT_ALEMBIC`); рантайм Alembic есть только в Editor и десктопном Standalone, поэтому в рантайм-коде VatDev условие — `VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)`.
+- `Assets/VatDev/Bakes` — профили бейка и результаты. Первая сцена сборки — `stress` (1.14): 500 воинов, VAT против SMR,
+  замер — окно VATyakov → Dev → Stress Measurement, отчёты в `Docs/perf/`, бюджеты — `Docs/budgets.md`.
+  `Assets/VatDev/Scenes/compare.unity` — сравнение SMR и VAT, вторая сцена сборки; третья — `animator`, толпа из 100 `VatAnimator` (1.7) на шаблоне с блендом
   (`vat_lit_vertex_blend`, 1.8.2). В `compare` третья пара — Bone (1.11–1.12): `bow_bone` (SMR с Skin Weights = 2 Bones и
   `bow_bone_vat`); `bow_squash` — неиспечённый Bone-профиль с неравномерным масштабом кости, его бейк откатывается в Vertex.
 - `Assets/VatDev/Content/Characters` — воин (Humanoid, 57 костей, 10 скинов, топоры — MeshRenderer в осях кисти) и его клипы;

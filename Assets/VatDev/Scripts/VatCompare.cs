@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
-#if VAT_ALEMBIC
+#if VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)
 using UnityEngine.Formats.Alembic.Importer;
 #endif
 using UnityEngine.Playables;
@@ -22,7 +22,7 @@ namespace VATyakov.Dev
         [SerializeField]
         private AnimationClip[] _clips = Array.Empty<AnimationClip>();
 
-#if VAT_ALEMBIC
+#if VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)
         [Tooltip("Alembic source instead of _source and _clips.")]
         [SerializeField]
         private AlembicStreamPlayer _alembic;
@@ -194,7 +194,7 @@ namespace VATyakov.Dev
             return HasAlembic() || _source != null && _clips.Length > 0;
         }
 
-#if VAT_ALEMBIC
+#if VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)
         private bool HasAlembic()
         {
             return _alembic != null;
@@ -253,7 +253,7 @@ namespace VATyakov.Dev
 
         private void Sample(double time)
         {
-#if VAT_ALEMBIC
+#if VAT_ALEMBIC && (UNITY_EDITOR || UNITY_STANDALONE)
             if (_alembic != null)
             {
                 _alembic.UpdateImmediately((float)time);

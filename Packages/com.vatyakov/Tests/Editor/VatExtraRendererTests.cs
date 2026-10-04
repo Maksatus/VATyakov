@@ -28,6 +28,7 @@ namespace VATyakov.Tests
         private static readonly Vector3 _equipmentOffset = new(0.2f, 0.05f, 0.1f);
         private static readonly Vector3 _equipmentTurn = new(30f, -45f, 60f);
         private static readonly Vector3 _nonUniformScale = new(2f, 1f, 0.5f);
+        private static readonly Vector3 _equipmentShift = new(0.1f, -0.2f, 0.3f);
 
         private readonly List<Object> _created = new();
 
@@ -206,6 +207,28 @@ namespace VATyakov.Tests
             CollectionAssert.AreEquivalent(new Object[] { rebaked.Mesh, rebaked.ExtraMeshes[0], rebaked.BoneTexture }, parts, "the dropped mesh is removed");
         }
 
+        [Test]
+        public void Rebake_OfAMovedEquipment_PutsTheNewVerticesOnTheGpu()
+        {
+            AssetDatabase.CreateFolder("Assets", TempFolder.Substring("Assets/".Length));
+            _triad = Triad();
+            var equipment = Equipment(_triad.Root.transform.Find("Bone1"));
+            var profile = Profile(_triad.Renderer, _triad.Clip, equipment);
+            var asset = VatBaker.Bake(profile, $"{TempFolder}/moved.asset");
+            var before = GpuPositions(asset.ExtraMeshes[0]);
+            equipment.transform.localPosition += _equipmentShift;
+
+            var rebaked = VatBaker.Bake(profile);
+
+            var rest = rebaked.ExtraMeshes[0].vertices;
+            var gpu = GpuPositions(rebaked.ExtraMeshes[0]);
+            Assert.That(Vector3.Distance(before[0], rest[0]), Is.GreaterThan(Millimeter), "the move changes the rest pose");
+            for (var v = 0; v < rest.Length; v++)
+            {
+                Assert.That(Vector3.Distance(gpu[v], rest[v]), Is.LessThan(BoundsTolerance), $"vertex {v} on the GPU is the rebaked one");
+            }
+        }
+
         private VatTriadRig Triad()
         {
             return new VatTriadRig(_scene, Weight(0, 0.5f, 1, 0.5f), Weight(1, 0.7f, 2, 0.3f), Weight(2, 1f));
@@ -320,6 +343,21 @@ namespace VATyakov.Tests
         private static void AssertProblem(List<string> problems, string expected)
         {
             Assert.That(problems.Any(problem => problem.StartsWith(expected, StringComparison.Ordinal)), $"'{expected}' in:\n{string.Join("\n", problems)}");
+        }
+
+        private static Vector3[] GpuPositions(Mesh mesh)
+        {
+            using var buffer = mesh.GetVertexBuffer(0);
+            var stride = buffer.stride / sizeof(float);
+            var data = new float[buffer.count * stride];
+            buffer.GetData(data);
+            var positions = new Vector3[buffer.count];
+            for (var v = 0; v < positions.Length; v++)
+            {
+                positions[v] = new Vector3(data[v * stride], data[v * stride + 1], data[v * stride + 2]);
+            }
+
+            return positions;
         }
 
         private static long Id(Object target)
