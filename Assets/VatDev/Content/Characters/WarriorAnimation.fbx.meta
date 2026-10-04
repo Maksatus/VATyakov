@@ -1,0 +1,2872 @@
+fileFormatVersion: 2
+guid: 737aff139c0585045b1ac384edccafaf
+ModelImporter:
+  serializedVersion: 21300
+  internalIDToNameTable:
+  - first:
+      74: -4355742904469378283
+    second: Warrior_BindPose
+  - first:
+      74: 6394796885149368626
+    second: Warrior_Idle
+  - first:
+      74: 6710490354924901666
+    second: Warrior_Run_Attack
+  - first:
+      74: -5178957620353875854
+    second: Warrior_Run
+  - first:
+      74: -4446824323575080193
+    second: Warrior_Attack_Jump
+  - first:
+      74: -6584892025769830812
+    second: Warrior_Attack_Cleave
+  - first:
+      74: 1523876671194871612
+    second: Warrior_Production
+  - first:
+      74: -8799096810464562647
+    second: Warrior_Stuned
+  - first:
+      74: -455277469124072959
+    second: Warrior_Attack
+  - first:
+      74: 3012392024595009210
+    second: Warrior_Walk_Mowing
+  - first:
+      74: -9009526262329929909
+    second: Warrior_Mowing
+  - first:
+      74: -5211156736510414097
+    second: Warrior_Sowing
+  - first:
+      74: 5780444279647834533
+    second: Warrior_Walk_Sowing
+  externalObjects: {}
+  materials:
+    materialImportMode: 0
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    removeConstantScaleCurves: 1
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: "\nClip 'Warrior_Idle' has import animation warnings
+      that might lower retargeting quality:\nNote: Activate translation DOF on avatar
+      to improve retargeting quality.\n\t'LCollarbone' has translation animation
+      that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms and
+      has rotation animation that will be discarded.\n\nClip 'Warrior_Run_Attack'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Run' has
+      import animation warnings that might lower retargeting quality:\nNote: Activate
+      translation DOF on avatar to improve retargeting quality.\n\t'Neck' has translation
+      animation that will be discarded.\n\t'LCollarbone' has translation animation
+      that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms and
+      has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Attack_Jump'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Attack_Cleave'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Production'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Stuned'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'LCollarbone'
+      has translation animation that will be discarded.\n\t'LForearm2' is inbetween
+      humanoid transforms and has rotation animation that will be discarded.\n\t'RCollarbone'
+      has translation animation that will be discarded.\n\nClip 'Warrior_Attack'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Sowing'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Walk_Sowing'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Mowing'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\nClip 'Warrior_Walk_Mowing'
+      has import animation warnings that might lower retargeting quality:\nNote:
+      Activate translation DOF on avatar to improve retargeting quality.\n\t'Neck'
+      has translation animation that will be discarded.\n\t'LCollarbone' has translation
+      animation that will be discarded.\n\t'LForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n\t'RCollarbone' has translation
+      animation that will be discarded.\n\t'RForearm2' is inbetween humanoid transforms
+      and has rotation animation that will be discarded.\n"
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 3
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Warrior_BindPose
+      takeName: Warrior_BindPose
+      internalID: 0
+      firstFrame: 0
+      lastFrame: 10
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Warrior_Idle
+      takeName: Warrior_Idle
+      internalID: 0
+      firstFrame: 40
+      lastFrame: 80
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 39.9
+    - serializedVersion: 16
+      name: Warrior_Run_Attack
+      takeName: Warrior_Run_Attack
+      internalID: 0
+      firstFrame: 190
+      lastFrame: 220
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.120300636
+        functionName: RightFootprint
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.36466166
+        functionName: LeftFootprint
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 180
+    - serializedVersion: 16
+      name: Warrior_Run
+      takeName: Warrior_Run
+      internalID: 0
+      firstFrame: 240
+      lastFrame: 260
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.2406019
+        functionName: RightFootprint
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      - time: 0.74436057
+        functionName: LeftFootprint
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 240
+    - serializedVersion: 16
+      name: Warrior_Attack_Jump
+      takeName: Warrior_Attack_Jump
+      internalID: 0
+      firstFrame: 290
+      lastFrame: 309
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 279.9
+    - serializedVersion: 16
+      name: Warrior_Attack_Cleave
+      takeName: Warrior_Attack_Cleave
+      internalID: 0
+      firstFrame: 370
+      lastFrame: 383
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 360
+    - serializedVersion: 16
+      name: Warrior_Production
+      takeName: Warrior_Production
+      internalID: 0
+      firstFrame: 425
+      lastFrame: 451
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 420
+    - serializedVersion: 16
+      name: Warrior_Stuned
+      takeName: Warrior_Stuned
+      internalID: 0
+      firstFrame: 580
+      lastFrame: 620
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 579.9
+    - serializedVersion: 16
+      name: Warrior_Attack
+      takeName: Warrior_Attack
+      internalID: 0
+      firstFrame: 110
+      lastFrame: 138
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.17302798
+        functionName: SlashAnimation
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 99.899994
+    - serializedVersion: 16
+      name: Warrior_Walk_Mowing
+      takeName: Warrior_Walk_Mowing
+      internalID: 0
+      firstFrame: 880
+      lastFrame: 920
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 879.9
+    - serializedVersion: 16
+      name: Warrior_Mowing
+      takeName: Warrior_Mowing
+      internalID: 0
+      firstFrame: 800
+      lastFrame: 840
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 841
+    - serializedVersion: 16
+      name: Warrior_Sowing
+      takeName: Warrior_Sowing
+      internalID: 0
+      firstFrame: 650
+      lastFrame: 680
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.15571173
+        functionName: PlantingSeeds
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 3
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 681
+    - serializedVersion: 16
+      name: Warrior_Walk_Sowing
+      takeName: Warrior_Walk_Sowing
+      internalID: 0
+      firstFrame: 720
+      lastFrame: 760
+      wrapMode: 0
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 1
+      loopBlend: 0
+      loopBlendOrientation: 1
+      loopBlendPositionY: 1
+      loopBlendPositionXZ: 1
+      keepOriginalOrientation: 1
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 1
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events:
+      - time: 0.37581664
+        functionName: PlantingSeeds
+        data: 
+        objectReferenceParameter: {instanceID: 0}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
+      transformMask:
+      - path: 
+        weight: 1
+      - path: Root
+        weight: 1
+      - path: Root/Pelvis
+        weight: 1
+      - path: Root/Pelvis/LThigh
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot
+        weight: 1
+      - path: Root/Pelvis/LThigh/LCalf/LFoot/LToe
+        weight: 1
+      - path: Root/Pelvis/RThigh
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot
+        weight: 1
+      - path: Root/Pelvis/RThigh/RCalf/RFoot/RToe
+        weight: 1
+      - path: Root/Pelvis/Spine1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit11/LDigit12/LDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit21/LDigit22/LDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit31/LDigit32/LDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit41/LDigit42/LDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/LCollarbone/LUpperarm/LForearm1/LForearm2/LPalm/LDigit51/LDigit52/LDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Eyebrow
+        weight: 0
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Neck/Head/Jaw
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit11/RDigit12/RDigit13
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit21/RDigit22/RDigit23
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit31/RDigit32/RDigit33
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit41/RDigit42/RDigit43
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/RCollarbone/RUpperarm/RForearm1/RForearm2/RPalm/RDigit51/RDigit52/RDigit53
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2
+        weight: 1
+      - path: Root/Pelvis/Spine1/Spine2/Spine3/Tail1/Tail2/Tail3
+        weight: 1
+      - path: Warrior_body
+        weight: 0
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 720
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.6
+    meshCompression: 2
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 0
+    importBlendShapes: 0
+    importCameras: 0
+    importLights: 0
+    nodeNameCollisionStrategy: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    optimizeBones: 1
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human:
+    - boneName: Pelvis
+      humanName: Hips
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LThigh
+      humanName: LeftUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RThigh
+      humanName: RightUpperLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LCalf
+      humanName: LeftLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RCalf
+      humanName: RightLowerLeg
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LFoot
+      humanName: LeftFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RFoot
+      humanName: RightFoot
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Spine1
+      humanName: Spine
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Spine2
+      humanName: Chest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Neck
+      humanName: Neck
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Head
+      humanName: Head
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LCollarbone
+      humanName: LeftShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RCollarbone
+      humanName: RightShoulder
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LUpperarm
+      humanName: LeftUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RUpperarm
+      humanName: RightUpperArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LForearm1
+      humanName: LeftLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RForearm1
+      humanName: RightLowerArm
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LPalm
+      humanName: LeftHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RPalm
+      humanName: RightHand
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LToe
+      humanName: LeftToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RToe
+      humanName: RightToes
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Jaw
+      humanName: Jaw
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit11
+      humanName: Left Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit12
+      humanName: Left Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit13
+      humanName: Left Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit21
+      humanName: Left Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit22
+      humanName: Left Index Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit23
+      humanName: Left Index Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit31
+      humanName: Left Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit32
+      humanName: Left Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit33
+      humanName: Left Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit41
+      humanName: Left Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit42
+      humanName: Left Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit43
+      humanName: Left Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit51
+      humanName: Left Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit52
+      humanName: Left Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: LDigit53
+      humanName: Left Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit11
+      humanName: Right Thumb Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit12
+      humanName: Right Thumb Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit13
+      humanName: Right Thumb Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit21
+      humanName: Right Index Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit22
+      humanName: Right Index Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit23
+      humanName: Right Index Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit31
+      humanName: Right Middle Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit32
+      humanName: Right Middle Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit33
+      humanName: Right Middle Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit41
+      humanName: Right Ring Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit42
+      humanName: Right Ring Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit43
+      humanName: Right Ring Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit51
+      humanName: Right Little Proximal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit52
+      humanName: Right Little Intermediate
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: RDigit53
+      humanName: Right Little Distal
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    - boneName: Spine3
+      humanName: UpperChest
+      limit:
+        min: {x: 0, y: 0, z: 0}
+        max: {x: 0, y: 0, z: 0}
+        value: {x: 0, y: 0, z: 0}
+        length: 0
+        modified: 0
+    skeleton:
+    - name: Minilife_Warrior(Clone)
+      parentName: 
+      position: {x: 0, y: 0, z: 0}
+      rotation: {x: 0, y: 0, z: 0, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Root
+      parentName: Minilife_Warrior(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.7071068, y: 0.0000005057623, z: 0.0000005057623, w: 0.7071068}
+      scale: {x: 1, y: 1, z: 1}
+    - name: Pelvis
+      parentName: Root
+      position: {x: 0.000000032013375, y: -0.005871356, z: 0.73750776}
+      rotation: {x: 0.70710576, y: -0.0012281358, z: -0.70710564, w: 0.001239152}
+      scale: {x: 1.0000001, y: 0.99999976, z: 0.99999994}
+    - name: Spine1
+      parentName: Pelvis
+      position: {x: -0.032982662, y: -0.002523529, z: -0.000000006265998}
+      rotation: {x: -0.000008824872, y: 0.0000006362684, z: 0.03732551, w: 0.99930316}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: Spine2
+      parentName: Spine1
+      position: {x: -0.21587084, y: 0.0000000044703485, z: -0.000000022460611}
+      rotation: {x: -0.000002331125, y: 0.0000037126574, z: 0.10664756, w: 0.9942969}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1}
+    - name: Spine3
+      parentName: Spine2
+      position: {x: -0.18389311, y: -0.00000003576279, z: -0.0000000027945135}
+      rotation: {x: 0.00000205271, y: -0.0000027621047, z: -0.1120566, w: 0.9937018}
+      scale: {x: 1.0000001, y: 1, z: 1}
+    - name: Neck
+      parentName: Spine3
+      position: {x: -0.19835788, y: -0.0024792866, z: -0.00000006767787}
+      rotation: {x: 0.0000092871705, y: 0.00000076874596, z: -0.2783762, w: 0.96047217}
+      scale: {x: 1.0000001, y: 1.0000002, z: 1.0000002}
+    - name: Head
+      parentName: Neck
+      position: {x: -0.16965316, y: 0.00000007152558, z: 0.000000046108383}
+      rotation: {x: -0.000000003906975, y: 0.000000007623905, z: 0.26759234, w: 0.9635322}
+      scale: {x: 0.9999999, y: 1.0000001, z: 0.9999999}
+    - name: Jaw
+      parentName: Head
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.000000049761898, y: 0.00000012487128, z: 0.86602545, w: -0.49999994}
+      scale: {x: 1.0000002, y: 1.0000001, z: 1.0000001}
+    - name: Eyebrow
+      parentName: Head
+      position: {x: -0.10346432, y: 0.0000000050291424, z: 0.000000021418602}
+      rotation: {x: -0.000000011625685, y: -0.00000012087168, z: -0.7071068, w: 0.7071068}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LCollarbone
+      parentName: Spine3
+      position: {x: -0.17118202, y: -0.022059646, z: 0.08101146}
+      rotation: {x: 0.025556777, y: 0.7593159, z: -0.021860259, w: 0.6498526}
+      scale: {x: 1.0000004, y: 1, z: 1.0000004}
+    - name: LUpperarm
+      parentName: LCollarbone
+      position: {x: -0.3510001, y: 0.000000008940697, z: 0}
+      rotation: {x: -0.000000011175868, y: -0.053501565, z: 0.00000016577538, w: 0.9985678}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: LForearm1
+      parentName: LUpperarm
+      position: {x: -0.38438773, y: -0.000000008940697, z: 0}
+      rotation: {x: -0.0022850097, y: -0.017355746, z: -0.036404483, w: 0.9991838}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
+    - name: LForearm2
+      parentName: LForearm1
+      position: {x: -0.13635017, y: 0.000000017881394, z: 0.00000014305115}
+      rotation: {x: -0.00000000745058, y: -0.000000044703484, z: 0.000000014901161, w: 1}
+      scale: {x: 0.99999994, y: 1, z: 1.0000002}
+    - name: LPalm
+      parentName: LForearm2
+      position: {x: -0.13635007, y: 0.000000008940697, z: -0.00000014305115}
+      rotation: {x: -0.70710135, y: 0.002745352, z: 0.002780387, w: 0.7071015}
+      scale: {x: 1.0000002, y: 1.0000002, z: 1.0000001}
+    - name: LDigit21
+      parentName: LPalm
+      position: {x: -0.13878064, y: 0.017313339, z: 0.092510596}
+      rotation: {x: 0.085772164, y: 0.061300386, z: -0.014475766, w: 0.9943218}
+      scale: {x: 1.0000001, y: 1, z: 1}
+    - name: LDigit22
+      parentName: LDigit21
+      position: {x: -0.07560032, y: 0, z: 0.00000003576279}
+      rotation: {x: -0.000000335276, y: 0.0000009834763, z: 0.032567017, w: 0.9994695}
+      scale: {x: 1, y: 1.0000001, z: 1.0000001}
+    - name: LDigit23
+      parentName: LDigit22
+      position: {x: -0.043200236, y: 0.00000007152558, z: -0.000000017881394}
+      rotation: {x: 0.000000085246235, y: -0.000000052210655, z: 0.04361934, w: 0.99904823}
+      scale: {x: 1.0000001, y: 1, z: 1.0000001}
+    - name: LDigit31
+      parentName: LPalm
+      position: {x: -0.13878064, y: 0.024189522, z: 0.02511696}
+      rotation: {x: -0.008007762, y: 0.060824703, z: -0.014664426, w: 0.9980086}
+      scale: {x: 1.0000002, y: 1.0000004, z: 1.0000001}
+    - name: LDigit32
+      parentName: LDigit31
+      position: {x: -0.07020028, y: 0, z: -0.000000017881394}
+      rotation: {x: 0.00000033620728, y: -0.00000031664953, z: 0.030302485, w: 0.9995408}
+      scale: {x: 1.0000001, y: 0.99999994, z: 1.0000001}
+    - name: LDigit33
+      parentName: LDigit32
+      position: {x: -0.059400275, y: -0.00000007152558, z: 0}
+      rotation: {x: 0.000000020317765, y: -0.000000050575707, z: 0.08715583, w: 0.9961947}
+      scale: {x: 1.0000001, y: 1.0000001, z: 0.99999994}
+    - name: LDigit41
+      parentName: LPalm
+      position: {x: -0.13035142, y: 0.011513901, z: -0.048599403}
+      rotation: {x: -0.13868952, y: 0.062223207, z: -0.01042077, w: 0.9883243}
+      scale: {x: 1, y: 1.0000001, z: 1.0000001}
+    - name: LDigit42
+      parentName: LDigit41
+      position: {x: -0.07020032, y: 0, z: 0.000000017881394}
+      rotation: {x: 0.0000004917381, y: 0.00000010430808, z: 0.030303152, w: 0.99954075}
+      scale: {x: 1, y: 0.99999994, z: 1.0000001}
+    - name: LDigit43
+      parentName: LDigit42
+      position: {x: -0.048600342, y: -0.00000014305115, z: -0.000000017881394}
+      rotation: {x: 0.000000047905672, y: -0.000000014249489, z: 0.17364816, w: 0.9848078}
+      scale: {x: 1.0000002, y: 1.0000001, z: 1.0000001}
+    - name: LDigit51
+      parentName: LPalm
+      position: {x: -0.10451471, y: 0.0022795203, z: -0.104087725}
+      rotation: {x: -0.2378293, y: 0.077639215, z: -0.00080582843, w: 0.9681987}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1}
+    - name: LDigit52
+      parentName: LDigit51
+      position: {x: -0.075600214, y: 0.00000007152558, z: 0.00000003576279}
+      rotation: {x: 0.00000020861616, y: 0.0000025257457, z: 0.032561436, w: 0.99946976}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: LDigit53
+      parentName: LDigit52
+      position: {x: -0.037800197, y: 0.00000007152558, z: 0.00000003576279}
+      rotation: {x: 0.000000078730885, y: -0.000000027209232, z: 0.13052621, w: 0.9914449}
+      scale: {x: 1.0000001, y: 0.99999994, z: 1}
+    - name: LDigit11
+      parentName: LPalm
+      position: {x: -0.017050946, y: -0.029305818, z: 0.094881676}
+      rotation: {x: 0.61390716, y: 0.31684786, z: -0.29003733, w: 0.66227174}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
+    - name: LDigit12
+      parentName: LDigit11
+      position: {x: -0.07020014, y: 0, z: -0.00000014305115}
+      rotation: {x: 0.00000014901156, y: -0.00000008940694, z: 0.04143855, w: 0.99914104}
+      scale: {x: 1.0000001, y: 1.0000002, z: 1.0000001}
+    - name: LDigit13
+      parentName: LDigit12
+      position: {x: -0.07020043, y: 0.000000017881394, z: -0.00000014305115}
+      rotation: {x: 0.00000013783574, y: -0.00000022351742, z: 0.000000029802354, w: 1}
+      scale: {x: 1, y: 1, z: 1}
+    - name: RCollarbone
+      parentName: Spine3
+      position: {x: -0.17118146, y: -0.022056634, z: -0.081012085}
+      rotation: {x: -0.025544835, y: -0.7593178, z: -0.021874445, w: 0.6498503}
+      scale: {x: 1.0000002, y: 1.0000001, z: 1.0000001}
+    - name: RUpperarm
+      parentName: RCollarbone
+      position: {x: -0.35099983, y: 0.000000008940697, z: -0.00000014305115}
+      rotation: {x: 0.000000026077034, y: 0.05350179, z: -0.000000100582845, w: 0.99856776}
+      scale: {x: 1.0000002, y: 1, z: 1.0000001}
+    - name: RForearm1
+      parentName: RUpperarm
+      position: {x: -0.38438743, y: 0, z: -0.00000014305115}
+      rotation: {x: 0.0022851333, y: 0.017355276, z: -0.03640464, w: 0.9991838}
+      scale: {x: 1.0000001, y: 1.0000001, z: 1.0000001}
+    - name: RForearm2
+      parentName: RForearm1
+      position: {x: -0.13635007, y: 0.000000017881394, z: 0.00000014305115}
+      rotation: {x: -0.000000037252896, y: 0.000000044703473, z: 1.6653339e-15, w: 1}
+      scale: {x: 1.0000002, y: 1.0000001, z: 1}
+    - name: RPalm
+      parentName: RForearm2
+      position: {x: -0.13634999, y: 0, z: 0}
+      rotation: {x: 0.7071012, y: -0.00274463, z: 0.0027796482, w: 0.7071016}
+      scale: {x: 1, y: 1, z: 0.9999999}
+    - name: RDigit21
+      parentName: RPalm
+      position: {x: -0.1387805, y: 0.017313195, z: -0.09251065}
+      rotation: {x: -0.08577212, y: -0.061300468, z: -0.014475053, w: 0.9943218}
+      scale: {x: 1.0000001, y: 1, z: 1}
+    - name: RDigit22
+      parentName: RDigit21
+      position: {x: -0.07560039, y: 0, z: 0.000000017881394}
+      rotation: {x: 0.00000027567145, y: 0.0000016465781, z: 0.03255901, w: 0.9994698}
+      scale: {x: 1.0000004, y: 0.99999994, z: 1.0000001}
+    - name: RDigit23
+      parentName: RDigit22
+      position: {x: -0.043200236, y: -0.00000007152558, z: 0.000000017881394}
+      rotation: {x: 0.000000102880016, y: -0.000000029067715, z: 0.04361938, w: 0.99904823}
+      scale: {x: 1, y: 0.9999998, z: 1}
+    - name: RDigit31
+      parentName: RPalm
+      position: {x: -0.13878058, y: 0.024189377, z: -0.02511694}
+      rotation: {x: 0.008007703, y: -0.06082492, z: -0.014663732, w: 0.99800867}
+      scale: {x: 1.0000001, y: 1.0000002, z: 1}
+    - name: RDigit32
+      parentName: RDigit31
+      position: {x: -0.07020024, y: 0, z: 0}
+      rotation: {x: -0.00000017229463, y: 0.0000010579822, z: 0.030302772, w: 0.99954075}
+      scale: {x: 1, y: 0.99999994, z: 0.99999994}
+    - name: RDigit33
+      parentName: RDigit32
+      position: {x: -0.05940035, y: 0, z: -0.000000017881394}
+      rotation: {x: 0.000000009741255, y: -0.000000036542957, z: 0.08715574, w: 0.9961947}
+      scale: {x: 1, y: 0.99999994, z: 1}
+    - name: RDigit41
+      parentName: RPalm
+      position: {x: -0.13035129, y: 0.011513616, z: 0.04859944}
+      rotation: {x: 0.13868894, y: -0.06222362, z: -0.010419366, w: 0.9883244}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: RDigit42
+      parentName: RDigit41
+      position: {x: -0.07020035, y: -0.00000007152558, z: 0.000000017881394}
+      rotation: {x: -0.00000035762778, y: 0.0000014081594, z: 0.030304782, w: 0.99954075}
+      scale: {x: 1.0000001, y: 1, z: 1.0000001}
+    - name: RDigit43
+      parentName: RDigit42
+      position: {x: -0.0486002, y: 0, z: -0.00000003576279}
+      rotation: {x: -0.000000040568295, y: 0.000000015543268, z: 0.17364821, w: 0.9848078}
+      scale: {x: 1.0000001, y: 0.9999999, z: 0.99999994}
+    - name: RDigit51
+      parentName: RPalm
+      position: {x: -0.10451471, y: 0.002279377, z: 0.10408782}
+      rotation: {x: 0.23782912, y: -0.077640176, z: -0.0008061005, w: 0.9681987}
+      scale: {x: 1.0000001, y: 1, z: 1}
+    - name: RDigit52
+      parentName: RDigit51
+      position: {x: -0.07560025, y: -0.00000007152558, z: 0}
+      rotation: {x: -0, y: -0.0000026673076, z: 0.03256146, w: 0.99946976}
+      scale: {x: 1, y: 1.0000001, z: 1}
+    - name: RDigit53
+      parentName: RDigit52
+      position: {x: -0.037800126, y: 0, z: 0}
+      rotation: {x: -0.000000054832263, y: 0.00000018816786, z: 0.13052623, w: 0.9914449}
+      scale: {x: 0.99999994, y: 1, z: 1}
+    - name: RDigit11
+      parentName: RPalm
+      position: {x: -0.017050875, y: -0.029305888, z: -0.094881736}
+      rotation: {x: -0.61390615, y: -0.31684685, z: -0.29003823, w: 0.66227275}
+      scale: {x: 1.0000001, y: 1, z: 0.99999994}
+    - name: RDigit12
+      parentName: RDigit11
+      position: {x: -0.07020039, y: 0.00000003576279, z: -0.00000007152558}
+      rotation: {x: 0.00000005960463, y: -0.00000007450579, z: 0.041440893, w: 0.999141}
+      scale: {x: 0.9999998, y: 0.99999976, z: 0.99999994}
+    - name: RDigit13
+      parentName: RDigit12
+      position: {x: -0.07020035, y: 0.00000003576279, z: 0}
+      rotation: {x: 0.000000052154064, y: 0.00000007450582, z: 0.00000001490116, w: 1}
+      scale: {x: 0.9999998, y: 1, z: 1}
+    - name: Tail1
+      parentName: Spine3
+      position: {x: -0.32931006, y: -0.30504206, z: -0.0000060722214}
+      rotation: {x: -0.00000091199075, y: -0.000009333721, z: 0.99578804, w: 0.09168553}
+      scale: {x: 1, y: 0.9999999, z: 1.0000001}
+    - name: Tail2
+      parentName: Tail1
+      position: {x: -0.34005377, y: 0.00000007152558, z: -0.000000016965716}
+      rotation: {x: -0.000000005899343, y: 0.00000029277692, z: 0.029084599, w: 0.999577}
+      scale: {x: 1, y: 1.0000001, z: 1}
+    - name: Tail3
+      parentName: Tail2
+      position: {x: -0.20106262, y: 0, z: -0.000000023399481}
+      rotation: {x: -0.0000000011664165, y: 0.00000003961735, z: 0.029084632, w: 0.999577}
+      scale: {x: 1, y: 1, z: 1}
+    - name: LThigh
+      parentName: Pelvis
+      position: {x: -0.012426639, y: 0.033877634, z: 0.16199474}
+      rotation: {x: 0.012028666, y: 0.9999275, z: -0.000500454, w: -0.0002870041}
+      scale: {x: 0.99999994, y: 1.0000001, z: 1}
+    - name: LCalf
+      parentName: LThigh
+      position: {x: -0.29106688, y: 0.000000730902, z: -0.00000016093256}
+      rotation: {x: 0.001404332, y: -0.00036624447, z: 0.12460928, w: 0.99220484}
+      scale: {x: 1, y: 1, z: 0.99999994}
+    - name: LFoot
+      parentName: LCalf
+      position: {x: -0.32958335, y: 0.00000007152558, z: 0}
+      rotation: {x: -0.001673801, y: -0.0005402635, z: -0.5573256, w: 0.8302922}
+      scale: {x: 1.0000002, y: 1, z: 1}
+    - name: LToe
+      parentName: LFoot
+      position: {x: -0.2040909, y: -0.000003013015, z: 0.000028663877}
+      rotation: {x: 0.000078033765, y: -0.00022767675, z: -0.32352665, w: 0.9462191}
+      scale: {x: 1.0000001, y: 1, z: 1}
+    - name: RThigh
+      parentName: Pelvis
+      position: {x: -0.012426639, y: 0.033877634, z: -0.16199473}
+      rotation: {x: 0.012016033, y: 0.9999277, z: 0.0005432677, w: -0.0000063888724}
+      scale: {x: 0.9999999, y: 1.0000001, z: 0.99999994}
+    - name: RCalf
+      parentName: RThigh
+      position: {x: -0.291067, y: 0.00000072643167, z: 0.00000016093256}
+      rotation: {x: -0.00130476, y: -0.00042679874, z: 0.12459288, w: 0.992207}
+      scale: {x: 1.0000002, y: 0.9999999, z: 0.9999999}
+    - name: RFoot
+      parentName: RCalf
+      position: {x: -0.3295833, y: -0.00000003576279, z: 0}
+      rotation: {x: 0.0015319177, y: 0.0012086337, z: -0.55721307, w: 0.83036727}
+      scale: {x: 1.0000001, y: 1, z: 0.99999994}
+    - name: RToe
+      parentName: RFoot
+      position: {x: -0.20409094, y: -0.0000029325488, z: -0.000028663877}
+      rotation: {x: 0.000028766626, y: -0.00008468694, z: -0.32362747, w: 0.94618464}
+      scale: {x: 0.9999999, y: 0.99999994, z: 1}
+    - name: Warrior_body
+      parentName: Minilife_Warrior(Clone)
+      position: {x: -0, y: 0, z: 0}
+      rotation: {x: -0.7071068, y: 0, z: -0, w: 0.7071068}
+      scale: {x: 1, y: 1, z: 1}
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 0.6
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 1
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 3
+  humanoidOversampling: 1
+  avatarSetup: 1
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  remapMaterialsIfMaterialImportModeIsNone: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
