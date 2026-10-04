@@ -426,3 +426,13 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   тени −47%) — забота пользователя пакета; упаковка нормали и тангента Bone в один кватернион (−7…9% Forward) —
   мелко, отложено. Замер `malioc` по Bone: на Mali узкое место — загрузка атрибутов и регистры (64 — половинная
   занятость), не ALU; матрицы в шейдере, строки матриц в текстуре и палитра костей в uniform — хуже текущего.
+  Следом (решение пользователя — «пусть падает, ловит редактор»): из `VatAnimator` убраны `IsAssetPlayable`,
+  `TryGetClip` и логи — `Play`/`CrossFade` берут `_asset.Clips[i]` напрямую, имя — через `VatAsset.IndexOf` (−1 →
+  `IndexOutOfRangeException`; `TryFindClip` удалён). Остались проверки состояния, а не настройки: копий нет в edit mode
+  и после `OnDestroy`, нет клипа до первого `Play`, пустые слоты материалов. Ошибки настройки — HelpBox в
+  `VatAnimatorClipController`. `VatAnimator` — 207 строк (было 348). 238 тестов зелёные.
+  Затем из рантайма убраны проверки-дубли редактора: `VatTiming.ValidateTiming` и ограничение переполнения в
+  `RoundFrames` (fps и длину проверяют `VatBakeValidator` и `VatClipListProblems`; клип длиннее ~2·10⁹ кадров не
+  ловится — нереально), исключение `VatMath.BlockCount` на 0 элементов, `VatAsset.RequireApplicable` в `ApplyTo`,
+  в `VatMixer.SetWeight` — проверка цели и ограничение веса [0, 1]. Удалены тесты `FrameCount_RejectsInvalidTiming`,
+  `FrameCount_OfAHugeClip_DoesNotWrapAroundInt`, `SetWeight_KeepsTheWeightInZeroToOne`.

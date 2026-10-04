@@ -61,12 +61,7 @@ namespace VATyakov
 
         public void SetWeight(double time, float weight, float duration)
         {
-            if (!HasTarget)
-            {
-                return;
-            }
-
-            _weight.Start(time, _weight.Value(time), weight > 0f ? Mathf.Min(weight, 1f) : 0f, duration);
+            _weight.Start(time, _weight.Value(time), weight, duration);
         }
 
         public void SetSpeed(double time, float speed)

@@ -6,13 +6,11 @@ namespace VATyakov
     {
         public static int LoopFrameCount(float length, float fps)
         {
-            ValidateTiming(length, fps);
             return Math.Max(1, RoundFrames(length, fps));
         }
 
         public static int OneShotFrameCount(float length, float fps)
         {
-            ValidateTiming(length, fps);
             return RoundFrames(length, fps) + 1;
         }
 
@@ -39,20 +37,7 @@ namespace VATyakov
 
         private static int RoundFrames(float length, float fps)
         {
-            return (int)Math.Min(Math.Round((double)length * fps, MidpointRounding.AwayFromZero), int.MaxValue - 1);
-        }
-
-        private static void ValidateTiming(float length, float fps)
-        {
-            if (!float.IsFinite(length) || length <= 0f)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length), length, "Clip length must be a positive finite number.");
-            }
-
-            if (!float.IsFinite(fps) || fps <= 0f)
-            {
-                throw new ArgumentOutOfRangeException(nameof(fps), fps, "Bake fps must be a positive finite number.");
-            }
+            return (int)Math.Round((double)length * fps, MidpointRounding.AwayFromZero);
         }
     }
 }

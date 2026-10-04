@@ -79,18 +79,6 @@ namespace VATyakov.Tests
             Assert.AreEqual(0.8f, mixer.Weight(2.0), Tolerance, "zero duration sets the weight at once");
         }
 
-        [TestCase(2f, 1f)]
-        [TestCase(-1f, 0f)]
-        [TestCase(float.NaN, 0f)]
-        public void SetWeight_KeepsTheWeightInZeroToOne(float weight, float expected)
-        {
-            var mixer = PlayingLoop();
-            mixer.CrossFade(Other(), 0.0, 1f);
-            mixer.SetWeight(0.0, weight, 0f);
-
-            Assert.AreEqual(expected, FrameB(mixer, 0.0).w, "weight");
-        }
-
         [Test]
         public void SetWeight_WithoutATarget_DoesNothing()
         {

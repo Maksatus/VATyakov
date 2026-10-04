@@ -62,6 +62,22 @@ namespace VATyakov.Editor
             _container.Clip.choices = choices;
             _container.Clip.SetValueWithoutNotify(string.IsNullOrEmpty(clipName) ? choices[0] : clipName);
             _container.Clip.SetEnabled(asset != null);
+            _container.Problem.SetMessage(Problem(asset, clipName));
+        }
+
+        private static string Problem(VatAsset asset, string clipName)
+        {
+            if (asset == null)
+            {
+                return "No VAT asset: Play throws.";
+            }
+
+            if (!asset.TryValidate(out var error))
+            {
+                return error;
+            }
+
+            return string.IsNullOrEmpty(clipName) || asset.IndexOf(clipName) >= 0 ? null : $"Clip '{clipName}' is not in '{asset.name}': Play On Enable throws.";
         }
 
         private static List<string> Choices(VatAsset asset, string clipName)

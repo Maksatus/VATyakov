@@ -72,50 +72,32 @@ namespace VATyakov
 
         public void Play(string clipName)
         {
-            if (TryGetClip(clipName, out var clip))
-            {
-                Mixer.Play(clip, Now);
-            }
+            Play(_asset.IndexOf(clipName));
         }
 
         public void Play(string clipName, float normalizedTime)
         {
-            if (TryGetClip(clipName, out var clip))
-            {
-                Mixer.Play(clip, Now, normalizedTime);
-            }
+            Play(_asset.IndexOf(clipName), normalizedTime);
         }
 
         public void Play(int clipIndex)
         {
-            if (TryGetClip(clipIndex, out var clip))
-            {
-                Mixer.Play(clip, Now);
-            }
+            Mixer.Play(_asset.Clips[clipIndex], Now);
         }
 
         public void Play(int clipIndex, float normalizedTime)
         {
-            if (TryGetClip(clipIndex, out var clip))
-            {
-                Mixer.Play(clip, Now, normalizedTime);
-            }
+            Mixer.Play(_asset.Clips[clipIndex], Now, normalizedTime);
         }
 
         public void CrossFade(string clipName, float duration)
         {
-            if (TryGetClip(clipName, out var clip))
-            {
-                CrossFade(clip, duration);
-            }
+            CrossFade(_asset.IndexOf(clipName), duration);
         }
 
         public void CrossFade(int clipIndex, float duration)
         {
-            if (TryGetClip(clipIndex, out var clip))
-            {
-                CrossFade(clip, duration);
-            }
+            CrossFade(_asset.Clips[clipIndex], duration);
         }
 
         public void SetWeight(float weight, float duration = 0f)
@@ -142,7 +124,7 @@ namespace VATyakov
         {
             if (Copies != null && _playOnEnable)
             {
-                PlayStartClip();
+                Play(string.IsNullOrEmpty(_clip) ? 0 : _asset.IndexOf(_clip));
             }
         }
 
@@ -174,23 +156,6 @@ namespace VATyakov
             }
 
             return new VatMaterialCopies(GetComponentsInChildren<Renderer>(true), name);
-        }
-
-        private void PlayStartClip()
-        {
-            if (!IsAssetPlayable())
-            {
-                return;
-            }
-
-            var index = 0;
-            if (!string.IsNullOrEmpty(_clip) && !_asset.TryFindClip(_clip, out index))
-            {
-                LogMissingClip(_clip);
-                index = 0;
-            }
-
-            Mixer.Play(_asset.Clips[index], Now);
         }
 
         private void CrossFade(VatClip clip, float duration)
@@ -237,64 +202,6 @@ namespace VATyakov
                     material.SetVector(VatShaderIds.FrameB, frameB);
                 }
             }
-        }
-
-        private bool TryGetClip(string clipName, out VatClip clip)
-        {
-            clip = null;
-            if (!IsAssetPlayable())
-            {
-                return false;
-            }
-
-            if (!_asset.TryFindClip(clipName, out var index))
-            {
-                LogMissingClip(clipName);
-                return false;
-            }
-
-            clip = _asset.Clips[index];
-            return true;
-        }
-
-        private bool TryGetClip(int clipIndex, out VatClip clip)
-        {
-            clip = null;
-            if (!IsAssetPlayable())
-            {
-                return false;
-            }
-
-            if ((uint)clipIndex >= (uint)_asset.Clips.Count)
-            {
-                Debug.LogError(FormattableString.Invariant($"{name}: VAT asset '{_asset.name}' has {_asset.Clips.Count} clip(s), no clip {clipIndex}."), this);
-                return false;
-            }
-
-            clip = _asset.Clips[clipIndex];
-            return true;
-        }
-
-        private bool IsAssetPlayable()
-        {
-            if (_asset == null)
-            {
-                Debug.LogError($"{name}: VatAnimator has no VAT asset.", this);
-                return false;
-            }
-
-            if (!_asset.TryValidate(out var error))
-            {
-                Debug.LogError($"{name}: {error}", this);
-                return false;
-            }
-
-            return true;
-        }
-
-        private void LogMissingClip(string clipName)
-        {
-            Debug.LogError($"{name}: VAT asset '{_asset.name}' has no clip named '{clipName}'.", this);
         }
     }
 }

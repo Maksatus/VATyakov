@@ -204,7 +204,7 @@ namespace VATyakov.Dev
 
         private static int NextClipIndex(VatAnimator unit, VatClip clip)
         {
-            var nextClipIndex = clip != null && unit.Asset.TryFindClip(clip.Name, out var clipIndex) ? clipIndex + 1 : 0;
+            var nextClipIndex = clip != null ? unit.Asset.IndexOf(clip.Name) + 1 : 0;
             return nextClipIndex % unit.Asset.Clips.Count;
         }
 

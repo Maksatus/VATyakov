@@ -31,7 +31,7 @@ namespace VATyakov.Editor
                 Debug.Log($"VAT '{asset.name}': {ShaderSwitch(material, previous, asset.Mode)}", material);
             }
 
-            asset.ApplyTo(material, asset.TryFindClip(clipName, out var clipIndex) ? clipIndex : 0);
+            asset.ApplyTo(material, Mathf.Max(asset.IndexOf(clipName), 0));
             EditorUtility.SetDirty(material);
         }
 

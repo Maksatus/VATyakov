@@ -26,4 +26,3 @@ MonoBehaviour:
   _asset: {fileID: 11400000, guid: 330e8d0c10811ab499d9e998ee36360a, type: 2}
   _material: {fileID: 2100000, guid: c4d637e5a9bb4ad4ca56601edc87715e, type: 2}
   _shader: {fileID: -6465566751694194690, guid: 8bd23652f1d63f7428ab588aab79148e, type: 3}
-  _prefab: {fileID: 4360888733107956192, guid: 8301cdcabf47fe84889976102b82bf55, type: 3}

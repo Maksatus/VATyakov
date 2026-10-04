@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace VATyakov
@@ -17,11 +16,6 @@ namespace VATyakov
 
         public static int BlockCount(int elementCount)
         {
-            if (elementCount < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(elementCount), elementCount, "Element count must be positive.");
-            }
-
             return (elementCount + MaxTextureSize - 1) / MaxTextureSize;
         }
 

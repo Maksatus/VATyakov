@@ -65,7 +65,7 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _VatDrift: {r: 0, g: 0, b: 0, a: 0}
-    - _VatFrame: {r: 24, g: 0, b: 0, a: 0}
+    - _VatFrame: {r: 0, g: 1, b: 0, a: 0}
     - _VatFrameB: {r: 0, g: 0, b: 0, a: 0}
     - _VatLayout: {r: 8, g: 201, b: 0, a: 0}
     - _VatPosScale: {r: 1, g: 1, b: 1, a: 0}

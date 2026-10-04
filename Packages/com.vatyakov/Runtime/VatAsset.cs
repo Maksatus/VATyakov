@@ -65,24 +65,21 @@ namespace VATyakov
             return error == null;
         }
 
-        public bool TryFindClip(string clipName, out int clipIndex)
+        public int IndexOf(string clipName)
         {
             for (var i = 0; i < _clips.Length; i++)
             {
                 if (_clips[i].Name == clipName)
                 {
-                    clipIndex = i;
-                    return true;
+                    return i;
                 }
             }
 
-            clipIndex = default;
-            return false;
+            return -1;
         }
 
         public void ApplyTo(Material material, int clipIndex)
         {
-            RequireApplicable(material, clipIndex);
             if (_mode == VatMode.Bone)
             {
                 material.SetTexture(VatShaderIds.BoneTexture, _boneTexture);
@@ -160,25 +157,6 @@ namespace VATyakov
             material.SetTexture(VatShaderIds.PositionTexture, _positionTexture);
             material.SetTexture(VatShaderIds.RotationTexture, _rotationTexture);
             material.SetVector(VatShaderIds.PositionScale, _positionRange.ShaderScale);
-        }
-
-        private void RequireApplicable(Material material, int clipIndex)
-        {
-            if (material == null)
-            {
-                throw new ArgumentNullException(nameof(material));
-            }
-
-            if (!TryValidate(out var error))
-            {
-                throw new InvalidOperationException(error);
-            }
-
-            if ((uint)clipIndex >= (uint)_clips.Length)
-            {
-                throw new ArgumentOutOfRangeException(nameof(clipIndex), clipIndex,
-                    FormattableString.Invariant($"VAT asset '{name}' has {_clips.Length} clip(s)."));
-            }
         }
 
         private string FormatError()
