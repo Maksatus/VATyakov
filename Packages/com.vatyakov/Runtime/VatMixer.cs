@@ -30,17 +30,6 @@ namespace VATyakov
             return HasTarget ? _weight.Value(time) : 0f;
         }
 
-        public bool IsInTransition(double time)
-        {
-            var weight = Weight(time);
-            return weight > 0f && weight < 1f;
-        }
-
-        public VatClip DroppedClip(double time)
-        {
-            return Weight(time) >= DominantWeight ? _source.Clip : _target.Clip;
-        }
-
         public void Play(VatClip clip, double time)
         {
             _source.Play(clip, time);
@@ -70,15 +59,14 @@ namespace VATyakov
             _weight.Start(time, 0f, 1f, duration);
         }
 
-        public bool SetWeight(double time, float weight, float duration)
+        public void SetWeight(double time, float weight, float duration)
         {
             if (!HasTarget)
             {
-                return false;
+                return;
             }
 
             _weight.Start(time, _weight.Value(time), weight > 0f ? Mathf.Min(weight, 1f) : 0f, duration);
-            return true;
         }
 
         public void SetSpeed(double time, float speed)

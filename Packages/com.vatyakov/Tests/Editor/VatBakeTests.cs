@@ -149,11 +149,9 @@ namespace VATyakov.Tests
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
             _profile = CreateProfile(_rig);
             var asset = VatBaker.Bake(_profile, $"{TempFolder}/Rebake.asset");
-            Assert.IsNull(_profile.Prefab, "a bake never creates a prefab");
-            VatBaker.CreatePrefab(_profile);
+            var prefabPath = CreatePrefab(asset, _profile.Material);
             var ids = Ids(asset);
             var materialPath = AssetDatabase.GetAssetPath(_profile.Material);
-            var prefabPath = AssetDatabase.GetAssetPath(_profile.Prefab);
             Assert.AreEqual(LoopFrameCount(Fps), asset.PositionTexture.height, "one row per frame");
 
             _profile.Fps = RebakeFps;
@@ -311,6 +309,18 @@ namespace VATyakov.Tests
             serialized.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(asset);
             AssetDatabase.SaveAssetIfDirty(asset);
+        }
+
+        private string CreatePrefab(VatAsset asset, Material material)
+        {
+            var root = new GameObject("Rebake");
+            SceneManager.MoveGameObjectToScene(root, _scene);
+            root.AddComponent<MeshFilter>().sharedMesh = asset.Mesh;
+            root.AddComponent<MeshRenderer>().sharedMaterial = material;
+            var path = $"{TempFolder}/Rebake.prefab";
+            PrefabUtility.SaveAsPrefabAsset(root, path);
+            Object.DestroyImmediate(root);
+            return path;
         }
 
         private static VatAsset Reload(VatAsset asset)

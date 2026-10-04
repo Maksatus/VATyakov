@@ -223,7 +223,10 @@ namespace VATyakov.Dev
         {
             foreach (var unit in _units)
             {
-                unit.SetColor(_baseColorId, color);
+                foreach (var material in unit.Materials)
+                {
+                    material.SetColor(_baseColorId, color);
+                }
             }
         }
     }

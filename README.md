@@ -37,13 +37,12 @@ Shader Graph без SkinnedMeshRenderer и Animator.
 - `VatAnimator` — компонент юнита: в Play mode у каждого юнита своя копия VAT-материала (одна на шаблон, включая
   LOD и экипировку), без MaterialPropertyBlock. `Play` по имени или индексу, `Speed`, `Pause/Resume`,
   `GetNormalizedTime`, событие `ClipFinished` (один раз за Play, для one-shot), Play On Enable для пулов через
-  `SetActive`, эффекты юнита через `SetFloat/SetColor/SetVector`. В edit mode шаблоны не трогаются. Тестовый
-  префаб бейка собирается сразу с `VatAnimator`.
+  `SetActive`. Эффекты юнита пишутся в копии из `Materials`. В edit mode шаблоны не трогаются. Префаб юнита
+  (MeshFilter, MeshRenderer, `VatAnimator`) собирается вручную.
 - Переходы между клипами: `CrossFade(clip, d)` плавно смешивает позы двух клипов за d секунд, `SetWeight(w, T)`
   ведёт вес перехода из кода. Смешиваются готовые позиции, нормали и тангенты, а не кости. Переходы работают на
   шаблоне с бленд-шейдером (`vat_lit_vertex_blend`); на шаблоне без бленда `CrossFade` мгновенный, и юнит не платит
-  за второй клип. CrossFade посреди перехода и на шаблоне без бленда пишет предупреждение в редакторе и
-  development-сборке.
+  за второй клип.
 - Bone-режим (поле Mode профиля): на кость и кадр хранятся смещение сустава, равномерный масштаб и поворот — в сотни
   раз меньше памяти, чем Vertex (лук: 13 КБ вместо 3.2 МБ). Шейдер смешивает две кости на вертекс с 16-битным весом,
   как Unity при Skin Weights = 2 Bones, до 256 костей; клипы, `VatAnimator` и переходы те же. Кость с неравномерным
@@ -69,5 +68,7 @@ Shader Graph без SkinnedMeshRenderer и Animator.
 - Alembic 2.4.5 — необязательно, с подверсии 1.4.
 - VAT-меш не Static и не попадает в static/dynamic batching: индекс вертекса берётся из Vertex ID.
 - Без `MaterialPropertyBlock` и `renderer.material`; Enable GPU Instancing на VAT-материалах выключен.
+- Переходы: все VAT-материалы юнита — на бленд-шейдере, иначе `CrossFade` мгновенный; `SetWeight` действует только
+  после `CrossFade`. Нарушения этих правил пакет в лог не пишет.
 - Вершины запечённого меша не переставляются (`Mesh.Optimize` и сторонние оптимизаторы запрещены).
 - Высота VAT-текстуры — не больше 4096 строк на ассет.

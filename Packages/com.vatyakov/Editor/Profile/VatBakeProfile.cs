@@ -63,10 +63,6 @@ namespace VATyakov.Editor
         [SerializeField]
         private Shader _shader;
 
-        [Tooltip("Test prefab for the Compare scene. Created by its button, never by a bake.")]
-        [SerializeField]
-        private GameObject _prefab;
-
         public VatSourceKind Kind { get => _kind; set => _kind = value; }
         public VatMode Mode { get => _mode; set => _mode = value; }
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
@@ -78,7 +74,6 @@ namespace VATyakov.Editor
         public VatAsset Asset { get => _asset; set => _asset = value; }
         public Material Material { get => _material; set => _material = value; }
         public Shader Shader { get => _shader; set => _shader = value; }
-        public GameObject Prefab { get => _prefab; set => _prefab = value; }
         public bool IsBone => _kind == VatSourceKind.Skinned && _mode == VatMode.Bone;
         public bool IsBaked => _asset != null && _asset.TryValidate(out _) && _material != null;
 

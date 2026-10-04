@@ -19,7 +19,6 @@ namespace VATyakov.Editor
                 new VatBakeButtonController(context, _container.Actions),
                 new VatResultController(context, _container.Result),
                 new VatBoundFieldsController<VatMaterialFieldsContainer>(context, _container.Material),
-                new VatPrefabController(context, _container.Prefab),
             };
         }
 

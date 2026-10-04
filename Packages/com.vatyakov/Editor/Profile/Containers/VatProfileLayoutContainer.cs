@@ -8,11 +8,10 @@ namespace VATyakov.Editor
         public readonly VisualElement Actions = new();
         public readonly VisualElement Result = VatUi.Card("Result");
         public readonly Foldout Material = VatUi.Foldout("Material", "VatBakeProfile.MaterialFoldout");
-        public readonly Foldout Prefab = VatUi.Foldout("Test Prefab", "VatBakeProfile.PrefabFoldout");
 
         public VatProfileLayoutContainer()
         {
-            Root.WithElements(Source, Actions, Result, Material, Prefab);
+            Root.WithElements(Source, Actions, Result, Material);
         }
     }
 }

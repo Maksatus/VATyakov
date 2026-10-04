@@ -11,7 +11,6 @@ namespace VATyakov.Tests
         private const string UnlitShaderName = "VATyakov/vat_unlit_vertex";
         private const string BlendShaderName = "VATyakov/vat_lit_vertex_blend";
         private const string PlainShaderName = "Universal Render Pipeline/Lit";
-        private const string BaseColor = "_BaseColor";
 
         private Scene _scene;
         private GameObject _root;
@@ -64,7 +63,6 @@ namespace VATyakov.Tests
             Assert.AreSame(_copies.Materials[1], weapon.sharedMaterial, "another template gets its own copy");
             Assert.AreSame(_plain, plain.sharedMaterial, "a renderer without VAT stays");
             Assert.AreEqual(HideFlags.DontSave, copy.hideFlags, "the copy is not saved");
-            CollectionAssert.AreEquivalent(new Renderer[] { body, lod, weapon }, _copies.Renderers, "only renderers with VAT");
         }
 
         [Test]
@@ -86,13 +84,9 @@ namespace VATyakov.Tests
         {
             var body = AddRenderer(_root, _vat);
             var animator = _root.AddComponent<VatAnimator>();
-            var color = _vat.GetColor(BaseColor);
-
-            animator.SetColor(BaseColor, Color.red);
 
             Assert.AreEqual(0, animator.Materials.Count, "no copies in edit mode");
             Assert.AreSame(_vat, body.sharedMaterial, "the template stays");
-            Assert.AreEqual(color, _vat.GetColor(BaseColor), "the template color stays");
         }
 
         [Test]

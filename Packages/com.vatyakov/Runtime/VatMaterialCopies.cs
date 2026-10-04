@@ -11,7 +11,6 @@ namespace VATyakov
         private readonly List<Material> _materials = new();
 
         public IReadOnlyList<Material> Materials => _materials;
-        public IReadOnlyList<Renderer> Renderers => _renderers;
         public bool CanBlend { get; }
 
         public VatMaterialCopies(Renderer[] renderers, string owner)

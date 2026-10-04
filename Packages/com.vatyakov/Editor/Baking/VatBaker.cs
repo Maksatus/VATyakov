@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 
 namespace VATyakov.Editor
 {
@@ -29,11 +28,6 @@ namespace VATyakov.Editor
             Save(profile, asset);
             VatBakeLog.Baked(asset, result);
             return asset;
-        }
-
-        public static GameObject CreatePrefab(VatBakeProfile profile)
-        {
-            return VatTestPrefab.CreateOrUpdate(profile);
         }
 
         private static void Save(VatBakeProfile profile, VatAsset asset)

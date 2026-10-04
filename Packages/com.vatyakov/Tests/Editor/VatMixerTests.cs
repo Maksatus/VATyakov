@@ -36,7 +36,6 @@ namespace VATyakov.Tests
             Assert.AreEqual(1f, frameB.w, "the target takes the whole weight at once");
             AssertFinite(frame);
             AssertFinite(frameB);
-            Assert.IsFalse(mixer.IsInTransition(1.0), "no transition in progress");
         }
 
         [Test]
@@ -58,9 +57,6 @@ namespace VATyakov.Tests
         {
             var mixer = PlayingLoop();
             mixer.CrossFade(Other(), 0.0, 1f);
-
-            Assert.IsTrue(mixer.IsInTransition(progress), "the transition is unfinished");
-            Assert.AreNotEqual(dominant, mixer.DroppedClip(progress).Name, "the dominant clip is not dropped");
             mixer.CrossFade(OneShot(), progress, 1f);
 
             Assert.AreEqual(dominant, mixer.SourceClip.Name, "the dominant clip stays");
@@ -74,7 +70,7 @@ namespace VATyakov.Tests
             var mixer = PlayingLoop();
             mixer.CrossFade(Other(), 0.0, 1f);
 
-            Assert.IsTrue(mixer.SetWeight(0.5, 0f, 1f), "a target exists");
+            mixer.SetWeight(0.5, 0f, 1f);
             Assert.AreEqual(0.5f, mixer.Weight(0.5), Tolerance, "starts from the current weight");
             Assert.AreEqual(0.25f, mixer.Weight(1.0), Tolerance, "half way down");
             Assert.AreEqual(0f, mixer.Weight(2.0), Tolerance, "reaches the new weight");
@@ -100,7 +96,7 @@ namespace VATyakov.Tests
         {
             var mixer = PlayingLoop();
 
-            Assert.IsFalse(mixer.SetWeight(0.0, 1f, 0f), "nothing to blend to");
+            mixer.SetWeight(0.0, 1f, 0f);
             Assert.AreEqual(Vector4.zero, FrameB(mixer, 0.0), "the second frame stays empty");
         }
 

@@ -25,9 +25,6 @@ namespace VATyakov
         [SerializeField]
         private float _speed = 1f;
 
-        private readonly VatPropertyBlockCheck _blockCheck = new();
-        private readonly VatBlendCheck _blendCheck = new();
-
         [NonSerialized]
         private VatMaterialCopies _copies;
 
@@ -123,10 +120,7 @@ namespace VATyakov
 
         public void SetWeight(float weight, float duration = 0f)
         {
-            if (!Mixer.SetWeight(Now, weight, duration))
-            {
-                VatTransitionWarnings.ReportNoTransition(this);
-            }
+            Mixer.SetWeight(Now, weight, duration);
         }
 
         public void Pause()
@@ -142,45 +136,6 @@ namespace VATyakov
         public float GetNormalizedTime()
         {
             return Mixer.NormalizedTime(Now);
-        }
-
-        public void SetFloat(int id, float value)
-        {
-            foreach (var material in Materials)
-            {
-                material.SetFloat(id, value);
-            }
-        }
-
-        public void SetFloat(string propertyName, float value)
-        {
-            SetFloat(Shader.PropertyToID(propertyName), value);
-        }
-
-        public void SetColor(int id, Color value)
-        {
-            foreach (var material in Materials)
-            {
-                material.SetColor(id, value);
-            }
-        }
-
-        public void SetColor(string propertyName, Color value)
-        {
-            SetColor(Shader.PropertyToID(propertyName), value);
-        }
-
-        public void SetVector(int id, Vector4 value)
-        {
-            foreach (var material in Materials)
-            {
-                material.SetVector(id, value);
-            }
-        }
-
-        public void SetVector(string propertyName, Vector4 value)
-        {
-            SetVector(Shader.PropertyToID(propertyName), value);
         }
 
         private void OnEnable()
@@ -242,12 +197,10 @@ namespace VATyakov
         {
             if (Copies != null && !Copies.CanBlend)
             {
-                _blendCheck.ReportInstantCrossFade(this, clip, Copies.Materials);
                 Mixer.Play(clip, Now);
                 return;
             }
 
-            VatTransitionWarnings.CheckCrossFade(this, Mixer, clip, Now);
             Mixer.CrossFade(clip, Now, duration);
         }
 
@@ -263,7 +216,6 @@ namespace VATyakov
                 _hasWrittenFrame = true;
             }
 
-            _blockCheck.Run(_copies.Renderers);
             return isFinished;
         }
 

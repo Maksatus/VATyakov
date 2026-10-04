@@ -6,9 +6,6 @@ namespace VATyakov.Editor
 {
     internal static class VatTemplateMaterial
     {
-        private static readonly int _baseMapId = Shader.PropertyToID("_BaseMap");
-        private static readonly int _bumpMapId = Shader.PropertyToID("_BumpMap");
-
         public static Shader ResolveShader(VatBakeProfile profile)
         {
             return profile.Shader != null ? profile.Shader : Shader.Find(VatBaker.DefaultShaderName);
@@ -42,7 +39,6 @@ namespace VATyakov.Editor
         {
             var material = new Material(ResolveShader(profile));
             VatTemplateShader.TryFit(material, mode, out _);
-            CopyMaps(SourceMaterial(profile), material);
             AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(assetPath, ".mat")));
             profile.Material = material;
             return material;
@@ -51,35 +47,6 @@ namespace VATyakov.Editor
         private static string ShaderSwitch(Material material, Shader previous, VatMode mode)
         {
             return $"the shader '{previous.name}' of '{material.name}' does not play {mode} assets, the template now uses '{material.shader.name}'.";
-        }
-
-        private static Material SourceMaterial(VatBakeProfile profile)
-        {
-            if (profile.Kind == VatSourceKind.Skinned)
-            {
-                return profile.Source.sharedMaterial;
-            }
-
-            var renderer = profile.Alembic.GetComponentInChildren<MeshRenderer>(true);
-            return renderer != null ? renderer.sharedMaterial : null;
-        }
-
-        private static void CopyMaps(Material source, Material material)
-        {
-            if (source == null)
-            {
-                return;
-            }
-
-            if (source.mainTexture != null && material.HasTexture(_baseMapId))
-            {
-                material.SetTexture(_baseMapId, source.mainTexture);
-            }
-
-            if (source.HasTexture(_bumpMapId) && material.HasTexture(_bumpMapId))
-            {
-                material.SetTexture(_bumpMapId, source.GetTexture(_bumpMapId));
-            }
         }
     }
 }

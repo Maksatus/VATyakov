@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.12.1] — пакет как конструктор: убраны удобства поверх ядра
+
+### Удалено
+- Проверки в редакторе и development-сборке: MaterialPropertyBlock на рендерере юнита, `CrossFade` на шаблоне без
+  бленда, `CrossFade` посреди перехода, `SetWeight` без перехода. Поведение то же, только без записей в лог; правила —
+  в README.
+- `VatAnimator.SetFloat/SetColor/SetVector`: эффекты юнита пишутся в копии из `VatAnimator.Materials`.
+- Тестовый префаб бейка: кнопка Create/Update Prefab и поле Prefab профиля, `VatBaker.CreatePrefab`. Префаб юнита
+  собирается вручную (MeshFilter, MeshRenderer, `VatAnimator`).
+- Перенос `_BaseMap` и `_BumpMap` исходного материала в новый шаблон: текстуры шаблона назначает пользователь.
+
 ## [0.12.0] — Bone-режим, две кости на вертекс
 
 ### Изменено

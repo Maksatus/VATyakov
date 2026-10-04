@@ -23,6 +23,7 @@
 | 1.10 Инструменты: память и «бейк устарел» | готово, валидатора сборки нет (решение пользователя) | 0.10.0 |
 | 1.11 Bone с одной костью на вертекс | готово, устройства не проверены | 0.11.0 |
 | 1.12 Bone с двумя influences | готово, устройства не проверены | 0.12.0 |
+| Аудит: пакет как конструктор | готово | 0.12.1 |
 | 1.13–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -93,18 +94,17 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `_VatFrame = (row0, row1, frac, 0)` в материал. Драйвер — `VatAnimator` (1.7): `VatMaterialCopies` (копия на
   уникальный VAT-шаблон, VAT = есть `_VatFrame`, только в Play mode, `Dispose` в `OnDestroy`), `VatPlayer` (клип,
   скорость, пауза, нормализованное время поверх `VatPlayback`; время передаётся снаружи — тестируется в EditMode),
-  `VatEndLatch` (событие one-shot), `VatPropertyBlockCheck` (`[Conditional]` UNITY_EDITOR/DEVELOPMENT_BUILD).
+  `VatEndLatch` (событие one-shot). Dev-проверок и обёрток `Set*` нет (0.12.1): эффекты — через `Materials`.
   Запись — в `LateUpdate`, событие `ClipFinished` после записи. `VatCompare` в Compare берёт копию `VatAnimator`
   из префаба и выключает его.
   Переходы (1.8): `VatAnimator` держит `VatMixer` — два `VatPlayer` (исходный A → `_VatFrame`, целевой B →
   `_VatFrameB = (row0, row1, frac, w)`) и `VatWeightRamp` (рампа веса, пауза её замораживает). Без B
-  `_VatFrameB = 0`. `VatTransitionWarnings` — `[Conditional]` предупреждения CrossFade посреди перехода и SetWeight
-  без B. Оба вектора пишутся вместе, если изменился любой.
+  `_VatFrameB = 0`, `SetWeight` ничего не делает. Оба вектора пишутся вместе, если изменился любой.
   Дрейф (1.8.1): вместе с ними пишется `_VatDrift = VatAsset.Drift(frame, frameB)` — d, смешанный по frac обоих
   клипов и по w. Превью и свои драйверы пишут кадр через `VatAsset.ApplyFrame` (кадр + дрейф): `ApplyTo`, поле Frame
   инспектора материала, `VatCompare`.
   Без бленда (1.8.2): `VatMaterialCopies.CanBlend` — у всех VAT-копий есть `_VatFrameB`. Иначе `CrossFade` = `Play`,
-  `_VatFrameB` не пишется, `VatBlendCheck` (`[Conditional]`) один раз на компонент предупреждает с именем материала.
+  `_VatFrameB` не пишется, в лог ничего не пишется (0.12.1).
   8-битные позиции (1.8.3): `VatAsset.PositionFormat` и `PositionRange` (min, size); `Drift` возвращает d + min,
   `ApplyTo` пишет `_VatPosScale = (size, 0)`. Инспектор материала считает материал устаревшим, если `_VatPosScale` не
   совпадает с ассетом.
@@ -165,13 +165,13 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 
 ## Карта кода (`Packages/com.vatyakov/`)
 
-- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatBlendCheck, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatMode, VatPlayback, VatPlayer, VatPositionFormat, VatPositionRange, VatPrecision, VatPropertyBlockCheck, VatShaderIds, VatTiming, VatTransitionWarnings, VatWeightRamp
+- `Runtime/` — AssemblyInfo, VATyakov.asmdef, VatAnimator, VatAsset, VatClip, VatEndLatch, VatLayoutInfo, VatMaterialCopies, VatMath, VatMixer, VatMode, VatPlayback, VatPlayer, VatPositionFormat, VatPositionRange, VatPrecision, VatShaderIds, VatTiming, VatWeightRamp
 - `Shaders/` — VatCore.hlsl, VatShaderGraph.hlsl; `SubGraphs/` — vat_vertex.shadersubgraph, vat_vertex_blend.shadersubgraph, vat_bone.shadersubgraph, vat_bone_blend.shadersubgraph (1.11)
 - `Samples/UnlitVertex/` — vat_unlit_vertex.shadergraph; `Samples/LitVertex/` — vat_lit_vertex.shadergraph (шаблон по умолчанию);
   `Samples/LitVertexBlend/` — vat_lit_vertex_blend.shadergraph (переходы);
   `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV);
   `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11)
-- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader, VatTestPrefab
+- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
 - `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
@@ -414,3 +414,15 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   (новые: две кости против `BakeMesh` на полоске с весом 0.5 и на риге из трёх костей с равными весами в обоих
   порядках, неотсортированными слотами и рычагом ~1 м; 16-битный вес через half — все 65536 значений, в том числе в
   half-арифметике; индекс-байт через half). Устройства — за пользователем.
+- **Аудит «пакет как конструктор» (0.12.1):** решение пользователя — в пакете минимум, удобства и оптимизации поверх
+  ядра делает тот, кто его использует. Убраны: dev-проверки `VatPropertyBlockCheck`, `VatBlendCheck`,
+  `VatTransitionWarnings` (с ними — `VatMixer.IsInTransition`/`DroppedClip`, `SetWeight` теперь `void`,
+  `VatMaterialCopies.Renderers`); `VatAnimator.SetFloat/SetColor/SetVector` (VatDev `VatCrowd` красит через
+  `Materials`); тестовый префаб (`VatTestPrefab`, `VatPrefab*` инспектора профиля, поле `_prefab`,
+  `VatBaker.CreatePrefab` — тест перебейка собирает префаб сам); перенос `_BaseMap`/`_BumpMap` в новый шаблон.
+  У старых профилей в YAML осталось поле `_prefab` — Unity выкинет его при следующем сохранении. Подверсии 1.7,
+  1.8 и 1.8.2 в `Docs/plan/subversions` описывают состояние на свой момент; справочник (§1.5, §1.6, §4) поправлен.
+  Обсуждено и не делалось: переключение юнита на шейдер без бленда вне перехода (`malioc`, Mali-G57: Forward −19%,
+  тени −47%) — забота пользователя пакета; упаковка нормали и тангента Bone в один кватернион (−7…9% Forward) —
+  мелко, отложено. Замер `malioc` по Bone: на Mali узкое место — загрузка атрибутов и регистры (64 — половинная
+  занятость), не ALU; матрицы в шейдере, строки матриц в текстуре и палитра костей в uniform — хуже текущего.
