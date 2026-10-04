@@ -22,9 +22,11 @@ namespace VATyakov.Editor
             VatBakeValidator.ThrowIfInvalid(profile);
             var path = VatAssetPath.Resolve(profile, assetPath);
             var result = VatBakePipeline.Run(profile, Path.GetFileNameWithoutExtension(path));
-            var clip = VatTemplateMaterial.ShownClip(profile);
+            var clip = VatTemplateMaterial.ShownClip(profile.Asset, profile.Material);
+            var extraClips = VatExtraMaterials.ShownClips(profile);
             var asset = VatAssetWriter.Write(profile.Asset, path, result, VatSourceHash.Compute(profile));
             VatTemplateMaterial.Apply(profile, asset, path, clip);
+            VatExtraMaterials.Apply(profile, asset, extraClips);
             Save(profile, asset);
             VatBakeLog.Baked(asset, result);
             return asset;

@@ -11,20 +11,23 @@ namespace VATyakov.Editor
             return profile.Shader != null ? profile.Shader : Shader.Find(VatBaker.DefaultShaderName);
         }
 
-        public static string ShownClip(VatBakeProfile profile)
+        public static string ShownClip(VatAsset asset, Material material)
         {
-            var asset = profile.Asset;
-            if (profile.Material == null || asset == null || !asset.TryValidate(out _))
+            if (material == null || asset == null || !asset.TryValidate(out _))
             {
                 return null;
             }
 
-            return VatClipLookup.TryFind(asset, profile.Material.GetVector(VatShaderIds.Frame), out var clipIndex) ? asset.Clips[clipIndex].Name : null;
+            return VatClipLookup.TryFind(asset, material.GetVector(VatShaderIds.Frame), out var clipIndex) ? asset.Clips[clipIndex].Name : null;
         }
 
         public static void Apply(VatBakeProfile profile, VatAsset asset, string assetPath, string clipName)
         {
-            var material = profile.Material != null ? profile.Material : Create(profile, asset.Mode, assetPath);
+            Fit(profile.Material != null ? profile.Material : Create(profile, asset.Mode, assetPath), asset, clipName);
+        }
+
+        public static void Fit(Material material, VatAsset asset, string clipName)
+        {
             material.enableInstancing = false;
             if (VatTemplateShader.TryFit(material, asset.Mode, out var previous))
             {

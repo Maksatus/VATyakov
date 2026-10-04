@@ -21,14 +21,18 @@ namespace VATyakov.Editor
         public IReadOnlyList<string> Warnings => Array.Empty<string>();
         public VatBakeCopy Copy => _copy;
 
-        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
+        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips) : this(source, clips, Array.Empty<Renderer>())
+        {
+        }
+
+        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips, IReadOnlyList<Renderer> extras)
         {
             _clips = clips.ToArray();
             _clipInfos = Array.ConvertAll(_clips, clip => new VatSourceClip(clip.name, clip.length));
             Mesh = VatSourceMesh.Read(source.sharedMesh);
             try
             {
-                Create(source);
+                Create(source, extras);
             }
             catch
             {
@@ -72,9 +76,9 @@ namespace VATyakov.Editor
             _clip = clip;
         }
 
-        private void Create(SkinnedMeshRenderer source)
+        private void Create(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
         {
-            _copy = new VatBakeCopy(source);
+            _copy = new VatBakeCopy(source, extras);
             _player = new VatClipPlayer(_copy.Root, NeedsAnimator() ? _copy.PrepareAnimator() : null);
             _reader = new VatFrameReader(Mesh.VertexCount);
             _pose = new VatPoseSnapshot(_copy.Root);

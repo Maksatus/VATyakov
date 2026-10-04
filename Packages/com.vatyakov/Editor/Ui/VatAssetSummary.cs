@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace VATyakov.Editor
 {
     internal static class VatAssetSummary
@@ -21,10 +23,17 @@ namespace VATyakov.Editor
             var isBone = asset.Mode == VatMode.Bone;
             container.Mode.Set(asset.Mode.ToString(), isBone ? BoneHint : VertexHint);
             container.Vertices.Set(VatText.Number(asset.Mesh.vertexCount));
+            container.Meshes.SetVisible(asset.ExtraMeshes.Count > 0);
+            container.Meshes.Set(VatText.Number(asset.ExtraMeshes.Count + 1), MeshesHint(asset));
             container.Bones.SetVisible(isBone);
             container.Bones.Set(VatText.Number(asset.BoneCount));
             container.Texture.Set(VatText.Size(info), VatText.Blocks(info));
             container.Memory.Set(VatText.Bytes(memory.Total), MemoryHint);
+        }
+
+        private static string MeshesHint(VatAsset asset)
+        {
+            return string.Join("\n", asset.ExtraMeshes.Prepend(asset.Mesh).Select(mesh => $"{mesh.name}: {VatText.Number(mesh.vertexCount)} vertices"));
         }
 
         private static void ShowClips(VatAssetSummaryContainer container, VatAsset asset, VatAssetMemory memory)

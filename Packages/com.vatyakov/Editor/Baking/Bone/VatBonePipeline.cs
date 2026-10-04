@@ -7,14 +7,12 @@ namespace VATyakov.Editor
 {
     internal static class VatBonePipeline
     {
-        private const string FallbackHint = "Bone mode takes only rotation and uniform scale of bones, so the asset is baked as Vertex.";
-
-        public static VatBakeResult Run(VatSkinnedFrameSource source, IReadOnlyList<VatClipRequest> requests, string name, out string fallback)
+        public static VatBakeResult Run(VatSkinnedFrameSource source, IReadOnlyList<VatClipRequest> requests, string name, out string problem)
         {
             var rig = new VatBoneRig(source.Copy);
-            var encoder = new VatBoneEncoder(VatLayout.ForBone(rig.BoneCount, requests), rig, source.Mesh);
-            fallback = SampleAll(source, encoder);
-            if (fallback == null)
+            var encoder = new VatBoneEncoder(VatLayout.ForBone(rig.BoneCount, requests), rig);
+            problem = SampleAll(source, encoder);
+            if (problem == null)
             {
                 return Build(encoder, name, source.Warnings);
             }
@@ -53,10 +51,10 @@ namespace VATyakov.Editor
                 VatBakeProgress.Report(clip, frame);
                 source.Pose(clipIndex, clip.FrameTime(frame));
                 encoder.Rig.ReadSkin(source.Copy.Root.transform, skin);
-                var problem = VatBlendShapeCheck.Problem(source.Copy.Renderer) ?? encoder.AddFrame(clipIndex, frame, skin);
+                var problem = VatBlendShapeCheck.Problem(source.Copy) ?? encoder.AddFrame(clipIndex, frame, skin);
                 if (problem != null)
                 {
-                    return FormattableString.Invariant($"Clip '{clip.Name}', frame {frame}: {problem}. {FallbackHint}");
+                    return FormattableString.Invariant($"Clip '{clip.Name}', frame {frame}: {problem}.");
                 }
             }
 
@@ -65,14 +63,24 @@ namespace VATyakov.Editor
 
         private static VatBakeResult Build(VatBoneEncoder encoder, string name, IReadOnlyList<string> warnings)
         {
-            var mesh = encoder.BuildMesh($"{name}{VatAssetPath.MeshSuffix}");
+            var skins = encoder.Rig.Skins;
+            var meshes = new Mesh[skins.Length];
             try
             {
-                return new VatBakeResult(encoder, mesh, VatBakeTextures.Build(encoder, name), warnings);
+                for (var i = 0; i < meshes.Length; i++)
+                {
+                    meshes[i] = encoder.BuildMesh(i, i == 0 ? VatAssetPath.MeshName(name) : VatAssetPath.ExtraMeshName(name, skins[i].Name));
+                }
+
+                return new VatBakeResult(encoder, meshes, VatBakeTextures.Build(encoder, name), warnings);
             }
             catch
             {
-                Object.DestroyImmediate(mesh);
+                foreach (var mesh in meshes)
+                {
+                    Object.DestroyImmediate(mesh);
+                }
+
                 throw;
             }
         }

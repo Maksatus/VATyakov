@@ -29,6 +29,11 @@ namespace VATyakov.Editor
         [SerializeField]
         private AnimationClip[] _clips = Array.Empty<AnimationClip>();
 
+        [Tooltip("Bone mode only. More meshes of the same rig on the same bone texture: LOD meshes, other skins, equipment. " +
+                 "The asset gets one mesh per renderer, in this order.")]
+        [SerializeField]
+        private VatExtraRenderer[] _extraRenderers = Array.Empty<VatExtraRenderer>();
+
         [Tooltip(".abc from the project. The whole importer Time Range is baked; positions are in the .abc root space. " +
                  "Requires com.unity.formats.alembic 2.4.5 or newer.")]
         [SerializeField]
@@ -67,6 +72,7 @@ namespace VATyakov.Editor
         public VatMode Mode { get => _mode; set => _mode = value; }
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
         public IReadOnlyList<AnimationClip> Clips => _clips;
+        public IReadOnlyList<VatExtraRenderer> ExtraRenderers => _extraRenderers;
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
         public bool IsLooping { get => _isLooping; set => _isLooping = value; }
         public float Fps { get => _fps; set => _fps = value; }
@@ -80,6 +86,11 @@ namespace VATyakov.Editor
         public void SetClips(params AnimationClip[] clips)
         {
             _clips = (AnimationClip[])clips.Clone();
+        }
+
+        public void SetExtraRenderers(params VatExtraRenderer[] extraRenderers)
+        {
+            _extraRenderers = (VatExtraRenderer[])extraRenderers.Clone();
         }
 
         private void Reset()

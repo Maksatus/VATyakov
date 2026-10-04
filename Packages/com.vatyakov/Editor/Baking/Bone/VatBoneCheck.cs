@@ -32,9 +32,9 @@ namespace VATyakov.Editor
         {
             var pivot = rig.Pivots[bone];
             var error = 0f;
-            foreach (var vertex in rig.BoneVertices[bone])
+            foreach (var point in rig.BonePoints[bone])
             {
-                error = Mathf.Max(error, similarity.Error(rig.Rest.Positions[vertex] - pivot));
+                error = Mathf.Max(error, similarity.Error(point - pivot));
             }
 
             return error;

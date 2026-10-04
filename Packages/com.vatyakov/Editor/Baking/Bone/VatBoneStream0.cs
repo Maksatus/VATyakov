@@ -12,12 +12,12 @@ namespace VATyakov.Editor
         public byte WeightHigh;
         public byte WeightLow;
 
-        public static VatBoneStream0[] Build(VatBoneRig rig)
+        public static VatBoneStream0[] Build(VatBoneSkin skin)
         {
-            var data = new VatBoneStream0[rig.Influences.Length];
+            var data = new VatBoneStream0[skin.Influences.Length];
             for (var vertex = 0; vertex < data.Length; vertex++)
             {
-                data[vertex] = From(rig.Rest.Positions[vertex], rig.Influences[vertex]);
+                data[vertex] = From(skin.Rest.Positions[vertex], skin.Influences[vertex]);
             }
 
             return data;

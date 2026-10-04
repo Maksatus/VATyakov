@@ -18,6 +18,8 @@ namespace VATyakov
         [SerializeField]
         private Mesh _mesh;
         [SerializeField]
+        private Mesh[] _extraMeshes = Array.Empty<Mesh>();
+        [SerializeField]
         private Texture2D _positionTexture;
         [SerializeField]
         private Texture2D _rotationTexture;
@@ -42,6 +44,7 @@ namespace VATyakov
         public VatMode Mode => _mode;
         public VatLayoutInfo Layout => _layout;
         public Mesh Mesh => _mesh;
+        public IReadOnlyList<Mesh> ExtraMeshes => _extraMeshes;
         public Texture2D PositionTexture => _positionTexture;
         public Texture2D RotationTexture => _rotationTexture;
         public Texture2D BoneTexture => _boneTexture;
@@ -57,7 +60,7 @@ namespace VATyakov
 
         private bool IsComplete => _mesh != null && _clips.Length > 0 && (_mode == VatMode.Bone ? IsBoneComplete : IsVertexComplete);
         private bool IsVertexComplete => _positionTexture != null && _rotationTexture != null && _drift.Length == _layout.TotalRows;
-        private bool IsBoneComplete => _boneTexture != null;
+        private bool IsBoneComplete => _boneTexture != null && Array.TrueForAll(_extraMeshes, mesh => mesh != null);
 
         public bool TryValidate(out string error)
         {
@@ -123,9 +126,11 @@ namespace VATyakov
             _drift = drift;
         }
 
-        internal void SetBoneData(VatLayoutInfo layout, Mesh mesh, Texture2D boneTexture, VatClip[] clips, VatPrecision precision, string sourceHash)
+        internal void SetBoneData(VatLayoutInfo layout, Mesh mesh, Mesh[] extraMeshes, Texture2D boneTexture, VatClip[] clips, VatPrecision precision,
+            string sourceHash)
         {
             SetCommon(VatMode.Bone, layout, mesh, clips, precision, sourceHash);
+            _extraMeshes = extraMeshes;
             _boneTexture = boneTexture;
         }
 
@@ -140,6 +145,7 @@ namespace VATyakov
             _mode = mode;
             _layout = layout;
             _mesh = mesh;
+            _extraMeshes = Array.Empty<Mesh>();
             _clips = clips;
             _precision = precision;
             _sourceHash = sourceHash;

@@ -288,7 +288,8 @@ namespace VATyakov.Tests
             var material = new Material(Shader.Find(VatBaker.BoneShaderName));
             try
             {
-                asset.SetBoneData(_result.Layout.Info, _result.Mesh, _result.Textures.Bone, _result.Layout.Clips, _result.Precision, string.Empty);
+                asset.SetBoneData(_result.Layout.Info, _result.Mesh, _result.ExtraMeshes, _result.Textures.Bone, _result.Layout.Clips, _result.Precision,
+                    string.Empty);
                 asset.ApplyTo(material, 0);
                 var frame = _result.Layout.Clips[0].Frame(3.5);
                 asset.ApplyFrame(material, frame);
@@ -332,7 +333,7 @@ namespace VATyakov.Tests
                 var frame = VatTestUtil.Row(baked.StartRow + k);
                 foreach (var quality in errors.Keys.ToArray())
                 {
-                    var reference = BakeMesh(root, renderer, clip, baked.FrameTime(k), quality, out var normals);
+                    var reference = VatTestUtil.BakeMesh(root, renderer, clip, baked.FrameTime(k), quality, out var normals);
                     for (var v = 0; v < rest.Length; v++)
                     {
                         errors[quality] = Mathf.Max(errors[quality], Vector3.Distance(decoder.Position(boneUvs[v], rest[v], frame), reference[v]));
@@ -362,26 +363,6 @@ namespace VATyakov.Tests
             var bone1 = weight.weight1 > 0f ? weight.boneIndex1 : weight.boneIndex0;
             var bits = Mathf.RoundToInt(weight.weight0 / (weight.weight0 + weight.weight1) * VatMath.BoneWeightMax);
             return new Vector3Int(weight.boneIndex0, bone1, bits);
-        }
-
-        private static Vector3[] BakeMesh(GameObject root, SkinnedMeshRenderer renderer, AnimationClip clip, double time, SkinQuality quality,
-            out Vector3[] normals)
-        {
-            clip.SampleAnimation(root, (float)time);
-            renderer.quality = quality;
-            var baked = new Mesh();
-            try
-            {
-                renderer.BakeMesh(baked, true);
-                var toRoot = root.transform.worldToLocalMatrix * renderer.transform.localToWorldMatrix;
-                var normalToRoot = toRoot.inverse.transpose;
-                normals = baked.normals.Select(normal => normalToRoot.MultiplyVector(normal).normalized).ToArray();
-                return baked.vertices.Select(position => toRoot.MultiplyPoint3x4(position)).ToArray();
-            }
-            finally
-            {
-                Object.DestroyImmediate(baked);
-            }
         }
 
         private static void AssertContains(Bounds bounds, Vector3 point, string message)

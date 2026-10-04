@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50753a509abcb7043894051342400a6d, type: 3}
+  m_Name: warrior
+  m_EditorClassIdentifier: VATyakov.Editor::VATyakov.Editor.VatBakeProfile
+  _kind: 0
+  _source: {fileID: 5351858600993359616, guid: bf3d23f13e406a7448e44eab8c863716, type: 3}
+  _mode: 1
+  _clips:
+  - {fileID: 6394796885149368626, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
+  - {fileID: -5178957620353875854, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
+  - {fileID: -9009526262329929909, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
+  - {fileID: 3012392024595009210, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
+  _extraRenderers:
+  - _renderer: {fileID: 2909372772542648526, guid: bf3d23f13e406a7448e44eab8c863716, type: 3}
+    _material: {fileID: 0}
+  - _renderer: {fileID: 2080806357169975141, guid: bf3d23f13e406a7448e44eab8c863716, type: 3}
+    _material: {fileID: 2100000, guid: 8a4b84c71ba18304fac569efa6a52c26, type: 2}
+  _alembic: {fileID: 0}
+  _isLooping: 1
+  _fps: 30
+  _maxPositionError: 8
+  _asset: {fileID: 11400000, guid: 92a935c4829b97c47a949560803d1a98, type: 2}
+  _material: {fileID: 2100000, guid: d28ff62af8d37804789c6a7ec4ce5689, type: 2}
+  _shader: {fileID: -6465566751694194690, guid: 8bd23652f1d63f7428ab588aab79148e, type: 3}

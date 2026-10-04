@@ -24,7 +24,8 @@
 | 1.11 Bone с одной костью на вертекс | готово, устройства не проверены | 0.11.0 |
 | 1.12 Bone с двумя influences | готово, устройства не проверены | 0.12.0 |
 | Аудит: пакет как конструктор | готово | 0.12.1 |
-| 1.13–1.16, 1.18 | не начаты | — |
+| 1.13 Bone в игре: LOD и экипировка | готово, устройства не проверены | 0.13.0 |
+| 1.14–1.16, 1.18 | не начаты | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
@@ -80,6 +81,22 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `_VatBoneTex` — Bone; `ApplyFrame` и `VatAnimator.Write` пишут `_VatDrift` только при `HasDrift`. `VatAssetWriter`
   приживляет сабассеты обоих режимов и удаляет лишние при смене режима. `VatTemplateShader` подбирает шаблону шейдер
   режима (с блендом, если был `_VatFrameB`). Хэш: режим добавляется только для Bone (хэши Vertex-бейков не изменились).
+  LOD и экипировка (1.13): профиль — `ExtraRenderers` (`VatExtraRenderer`: Renderer и необязательный Material), проверки —
+  `VatBoneBinding.Problem` из `VatBakeValidator` (элемент пуст, это Source, другая иерархия, не SMR/MeshRenderer; у SMR —
+  `VatBoneRig.Problem`, используемые кости вне рига или с другим bindpose, допуск 1e-4; у MeshRenderer — нет меша или
+  кости-предка), при Mode = Vertex — «only in Mode = Bone». `VatBakeCopy` находит доп. рендереры в копии по пути
+  (`Extras`); `VatBoneRig` держит кости, bindposes и пивоты основного SMR и `Skins` (`VatBoneSkin`: имя, `VatSourceMesh`,
+  влияния в индексах рига, bind-поза в пространстве корня): основной и доп. SMR — `VatSkinInfluences.Read` + `Remap`
+  (`VatBoneBinding.BoneMap` по `Transform`), пространство A; MeshRenderer — `VatSkinInfluences.Single` на
+  `VatBoneBinding.ParentBone`, пространство `A·bindpose_b⁻¹·W2L_b·L2W_mr`. `BonePoints` — bind-позиции вертексов всех мешей
+  по костям (для `IsUsed` и `VatBoneCheck`); `VatBoneEncoder.MeasureError` и `VatBoneBounds.Build(skin, …)` — по скинам,
+  `BuildMesh(i, name)` — меш скина; `VatBlendShapeCheck` смотрит все SMR копии. `VatBonePipeline` возвращает причину
+  без подсказки, `VatBakePipeline` при Extra Renderers бросает `VatBakeException`, иначе откатывает в Vertex.
+  `VatBakeResult.ExtraMeshes`, `VatAsset.ExtraMeshes` (`SetBoneData` с массивом, в `IsBoneComplete`); `VatAssetWriter`
+  приживляет их по индексу (`AdoptAll`) и удаляет лишние; имена — `VatAssetPath.MeshName`/`ExtraMeshName`
+  (`<ассет>_mesh_<рендерер в нижнем регистре>`). Материалы доп. рендереров — `VatExtraMaterials` (клип по имени, как у
+  шаблона, через общий `VatTemplateMaterial.Fit`). Хэш: путь и тип каждого доп. рендерера, только если список не пуст.
+  Стат Meshes (с подсказкой по мешам) — в `VatAssetSummary`.
   Шейдер: `VatCore.hlsl` — `VatBoneTexels` (два индекса из байтов), `VatBoneWeight` (без промежуточного 65535),
   `VatRotate` (однородный), `VatBonePoint`, `VatBoneDirection` (`rot / |q|²`); `VatShaderGraph.hlsl` — `VatBoneSkin`
   (одна кость, пивот — строка `Layout.y − 1`), `VatBonePose` (`lerp` двух костей), `VatBoneVertex_float` и
@@ -156,6 +173,17 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   копия `bow_default` с Mode = Bone (три клипа, loop, 30 fps): 4 кости, текстура 8×201 (12.6 КБ), ошибка 0.235 мм против Skin Weights = 2 Bones (1.12; у 2061 из 2079
   вертексов два веса и больше, у 349 — три, третий отбрасывается, как у Unity);
   шаблон `bow_bone_vat.mat` на `vat_lit_bone_blend` с картами и smoothness `bow_default_vat.mat`, префаб `bow_bone_vat`.
+  Воин (1.13): `Content/Characters/Warrior.fbx` (Humanoid, 10 скинов на одном риге из 57 костей, топоры — MeshRenderer
+  рядом с телом, смоделированы в осях кисти) и `WarriorAnimation.fbx` (13 Humanoid-клипов). Префаб для бейка
+  `Content/Characters/warrior.prefab` — распакованный FBX только со скином Default: топор под RPalm с нулевым смещением,
+  LOD-SMR `Warrior_Default_body_lod` (меш `warrior_default_body_lod.asset` — уровень 2 `MeshLodUtility.GenerateMeshLods`
+  с ужатыми вертексами: 1297 вертексов / 985 треугольников против 2828 / 2990), материал `warrior.mat` (URP Lit, атлас
+  `PolyAdventureTexture`), LODGroup (0.35 / 0.01). Профиль `Bakes/warrior` (Bone, Idle, Run, Mowing, Walk_Mowing, loop,
+  30 fps; Extra Renderers — LOD без материала и топор с `warrior_axe_vat.mat`): текстура 114×141 (126 КБ), ошибка
+  0.631 мм. Префаб `Bakes/warrior_vat` — `VatAnimator` и LODGroup на корне, дети Body, Body LOD (`warrior_vat.mat`, шаблон
+  на `vat_lit_bone_blend`) и Axe (`warrior_axe_vat.mat`). Сцена `Scenes/warrior.unity` (не в сборке): SMR и VAT рядом,
+  `VatCompare`, в `Controls` кнопка LOD и клавиша L — `ForceLOD` обоих LODGroup по кругу Auto / 0 / 1. Скрипт генерации
+  не сохранён (как в 1.11).
   Сцена `compare`: третья пара «SMR Bone» (экземпляр FBX, у обоих SMR `quality = Bone2` с 1.12) на z = 3.34 и «VAT Bone» на
   z = 4.54, `Compare Bone` в `Controls`; камера отодвинута на (4.6, 0.05, 1.57), чтобы видны были все шесть луков.
   Откат в Vertex: клип `Content/Bow/bow_squash.anim` (legacy, loop 1 с) неравномерно растягивает `BowUp_jnt` до
@@ -171,21 +199,21 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `Samples/LitVertexBlend/` — vat_lit_vertex_blend.shadergraph (переходы);
   `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV);
   `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11)
-- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
-- `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity
+- `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatExtraMaterials (1.13), VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
+- `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBinding (1.13), VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
 - `Editor/Baking/Sources/Alembic/` — VatAlembicFrameSource и VatAlembicCopy (под `#if VAT_ALEMBIC`), VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
-- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*)
+- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatExtraRenderer (1.13), VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*)
 - `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память текстур и padding — VatAssetMemory*, ошибка и путь центроида — VatAssetPrecision*, профиль и «Out of date» — VatAssetProfile*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
-- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте есть `VatAnimator`, берёт его копию и выключает его); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatExtraRendererTests (1.13), VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc
+- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте или его родителе есть `VatAnimator`, выключает его и пишет кадр во все его копии; кнопка LOD и клавиша L — `ForceLOD` списка `_lodGroups`, 1.13); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
 
@@ -436,3 +464,20 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   ловится — нереально), исключение `VatMath.BlockCount` на 0 элементов, `VatAsset.RequireApplicable` в `ApplyTo`,
   в `VatMixer.SetWeight` — проверка цели и ограничение веса [0, 1]. Удалены тесты `FrameCount_RejectsInvalidTiming`,
   `FrameCount_OfAHugeClip_DoesNotWrapAroundInt`, `SetWeight_KeepsTheWeightInZeroToOne`.
+- **1.13:** продуктовые решения (вопросы к пользователю): доп. меши — список Extra Renderers в профиле (один ассет,
+  одна bone-текстура), экипировка — Mesh Renderer под костью по иерархии (кость — ближайший предок, хват — положение
+  под костью), необязательное поле Material у элемента, откат в Vertex с Extra Renderers — ошибка бейка, смена
+  экипировки в рантайме — поверх пакета (в README). Записано в §0, §1.6, §2.1, 1.13.
+  Сам решил: bindposes сравниваются только у используемых костей (первые два слота и корневая кость), поэлементно с
+  допуском 1e-4 (у скинов воина расхождение 2e-7); кость вне рига у SMR — проблема, только если на ней есть вес; bind-поза
+  доп. SMR берётся через A основного меша — Unity скиннит через bindposes и трансформ SMR не учитывает (тест сдвигает
+  LOD на (0.5, −0.25, 2)); у MeshRenderer промежуточные трансформы между костью и рендерером считаются неподвижными;
+  рантайм не менялся — `VatAnimator` и так делает копию на каждый уникальный шаблон в детях, включая неактивные LOD.
+  Хэш без доп. рендереров не изменился: `bow_bone` не стал «Out of date». `formatVersion` не менялся (`_extraMeshes`
+  у старых ассетов пустой). `VatBlendShapeCheck` теперь называет рендерер. В логе — «extra meshes: N (вертексы)».
+  `VatCompare` писал кадр только в `Materials[0]` — с LOD и топором на своём материале этого мало; теперь пишет во все
+  копии и ищет `VatAnimator` в родителях. `BakeMesh` тестов переехал в `VatTestUtil`.
+  Отрицательный контроль: без перевода индексов (`Remapped` = тождество) падает тест LOD («bone indices of the LOD are
+  bones of the rig»). Проверено в Play mode: `warrior`, Mowing кадр 14 — SMR и VAT совпадают на LOD 0 и LOD 1, топор в
+  руке у обоих. В клипах воина нет `Warrior_Attack`: Loop общий, а Attack не петля — бейк давал предупреждение о шве у
+  19 костей. Плавность переключения LOD на ходу и устройства — за пользователем. 234 теста зелёные (5 новых).

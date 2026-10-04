@@ -46,6 +46,21 @@ namespace VATyakov.Editor
                 hash.Append(DependencyHash(clip));
                 hash.Append(clip.name);
             }
+
+            if (profile.ExtraRenderers.Count > 0)
+            {
+                AppendExtraRenderers(ref hash, profile);
+            }
+        }
+
+        private static void AppendExtraRenderers(ref Hash128 hash, VatBakeProfile profile)
+        {
+            hash.Append(profile.ExtraRenderers.Count);
+            foreach (var extra in profile.ExtraRenderers)
+            {
+                hash.Append(AnimationUtility.CalculateTransformPath(extra.Renderer.transform, extra.Renderer.transform.root));
+                hash.Append(extra.Renderer.GetType().Name);
+            }
         }
 
         private static string DependencyHash(Object target)

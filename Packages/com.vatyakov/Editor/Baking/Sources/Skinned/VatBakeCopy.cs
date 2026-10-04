@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -15,13 +16,14 @@ namespace VATyakov.Editor
 
         public GameObject Root { get; private set; }
         public SkinnedMeshRenderer Renderer { get; private set; }
+        public Renderer[] Extras { get; private set; } = Array.Empty<Renderer>();
         public Matrix4x4 RendererToRoot => Root.transform.worldToLocalMatrix * Renderer.transform.localToWorldMatrix;
 
-        public VatBakeCopy(SkinnedMeshRenderer source)
+        public VatBakeCopy(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
         {
             try
             {
-                Create(source);
+                Create(source, extras);
             }
             catch
             {
@@ -59,15 +61,21 @@ namespace VATyakov.Editor
 
             Root = null;
             Renderer = null;
+            Extras = Array.Empty<Renderer>();
         }
 
-        private void Create(SkinnedMeshRenderer source)
+        private void Create(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
         {
             var sourceRoot = source.transform.root;
             _scene = EditorSceneManager.NewPreviewScene();
             Root = Instantiate(sourceRoot.gameObject, NewHolder());
-            Renderer = FindRenderer(AnimationUtility.CalculateTransformPath(source.transform, sourceRoot));
+            Renderer = FindRenderer<SkinnedMeshRenderer>(source, sourceRoot);
             Renderer.quality = SkinQuality.Bone4;
+            Extras = new Renderer[extras.Count];
+            for (var i = 0; i < Extras.Length; i++)
+            {
+                Extras[i] = FindRenderer<Renderer>(extras[i], sourceRoot);
+            }
         }
 
         private Transform NewHolder()
@@ -86,10 +94,11 @@ namespace VATyakov.Editor
             return root;
         }
 
-        private SkinnedMeshRenderer FindRenderer(string path)
+        private T FindRenderer<T>(Renderer source, Transform sourceRoot) where T : Renderer
         {
+            var path = AnimationUtility.CalculateTransformPath(source.transform, sourceRoot);
             var transform = path.Length == 0 ? Root.transform : Root.transform.Find(path);
-            var renderer = transform != null ? transform.GetComponent<SkinnedMeshRenderer>() : null;
+            var renderer = transform != null ? transform.GetComponent<T>() : null;
             if (renderer == null)
             {
                 throw new InvalidOperationException($"Renderer '{path}' not found in the bake copy of '{Root.name}'.");

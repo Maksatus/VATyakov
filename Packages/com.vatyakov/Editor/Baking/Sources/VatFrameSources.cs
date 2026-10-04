@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace VATyakov.Editor
 {
     internal static class VatFrameSources
@@ -6,7 +8,7 @@ namespace VATyakov.Editor
         {
             return profile.Kind == VatSourceKind.Alembic
                 ? VatAlembic.Open(profile.Alembic)
-                : new VatSkinnedFrameSource(profile.Source, profile.Clips);
+                : new VatSkinnedFrameSource(profile.Source, profile.Clips, profile.ExtraRenderers.Select(extra => extra.Renderer).ToArray());
         }
     }
 }

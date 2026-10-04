@@ -7,13 +7,14 @@ namespace VATyakov.Editor
     {
         private const MeshUpdateFlags Flags = MeshUpdateFlags.DontRecalculateBounds;
 
-        public static Mesh Build(string name, VatBoneRig rig, VatSourceMesh source, VatSubMeshes subMeshes, Bounds bounds)
+        public static Mesh Build(string name, VatBoneSkin skin, VatSubMeshes subMeshes, Bounds bounds)
         {
             var mesh = new Mesh { name = name };
+            var source = skin.Source;
             var count = source.VertexCount;
             mesh.SetVertexBufferParams(count, VatBoneFormat.Attributes);
-            mesh.SetVertexBufferData(VatBoneStream0.Build(rig), 0, 0, count, 0, Flags);
-            mesh.SetVertexBufferData(VatVertexStream1.Build(rig.Rest, source.Uv0), 0, 0, count, 1, Flags);
+            mesh.SetVertexBufferData(VatBoneStream0.Build(skin), 0, 0, count, 0, Flags);
+            mesh.SetVertexBufferData(VatVertexStream1.Build(skin.Rest, source.Uv0), 0, 0, count, 1, Flags);
             VatIndexBuffer.Set(mesh, source.SubMeshes, count, Flags);
             subMeshes.Apply(mesh, source.SubMeshes, Flags);
             mesh.bounds = bounds;

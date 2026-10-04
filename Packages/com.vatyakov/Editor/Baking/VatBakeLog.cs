@@ -58,8 +58,15 @@ namespace VATyakov.Editor
         {
             var info = asset.Layout;
             var texture = $"texture {VatText.Size(info)}, {VatText.Bytes(VatMemory.Bytes(asset.BoneTexture))}";
-            var mesh = FormattableString.Invariant($"{asset.BoneCount} bones, {asset.Mesh.vertexCount} vertices");
+            var mesh = FormattableString.Invariant($"{asset.BoneCount} bones, {asset.Mesh.vertexCount} vertices{ExtraMeshes(asset)}");
             return $"VAT '{asset.name}': Bone, {mesh}, {Clips(asset)}; {texture}; max error {VatText.Millimeters(asset.Precision.Error)}";
+        }
+
+        private static string ExtraMeshes(VatAsset asset)
+        {
+            var count = asset.ExtraMeshes.Count;
+            var vertices = asset.ExtraMeshes.Sum(mesh => mesh.vertexCount);
+            return count > 0 ? FormattableString.Invariant($", extra meshes: {count} ({vertices} vertices)") : string.Empty;
         }
 
         private static string Clips(VatAsset asset)

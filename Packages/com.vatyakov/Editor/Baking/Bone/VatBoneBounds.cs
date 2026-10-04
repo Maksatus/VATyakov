@@ -27,52 +27,54 @@ namespace VATyakov.Editor
             _hasPose[bone] = true;
         }
 
-        public Bounds Build(VatSubMeshes subMeshes)
+        public Bounds Build(VatBoneSkin skin, VatSubMeshes subMeshes)
         {
             for (var subMesh = 0; subMesh < subMeshes.Count; subMesh++)
             {
                 foreach (var vertex in subMeshes.Vertices(subMesh))
                 {
-                    subMeshes.Encapsulate(subMesh, Min(vertex));
-                    subMeshes.Encapsulate(subMesh, Max(vertex));
+                    subMeshes.Encapsulate(subMesh, Min(skin, vertex));
+                    subMeshes.Encapsulate(subMesh, Max(skin, vertex));
                 }
             }
 
             var total = new VatBoundsBuilder();
-            for (var vertex = 0; vertex < _rig.Influences.Length; vertex++)
+            for (var vertex = 0; vertex < skin.Influences.Length; vertex++)
             {
-                total.Add(Min(vertex));
-                total.Add(Max(vertex));
+                total.Add(Min(skin, vertex));
+                total.Add(Max(skin, vertex));
             }
 
             return total.Bounds;
         }
 
-        private Vector3 Min(int vertex)
+        private Vector3 Min(VatBoneSkin skin, int vertex)
         {
-            var influence = _rig.Influences[vertex];
-            return Vector3.Min(Min(influence.Bone0, vertex), Min(influence.Bone1, vertex));
+            var influence = skin.Influences[vertex];
+            var point = skin.Rest.Positions[vertex];
+            return Vector3.Min(Min(influence.Bone0, point), Min(influence.Bone1, point));
         }
 
-        private Vector3 Max(int vertex)
+        private Vector3 Max(VatBoneSkin skin, int vertex)
         {
-            var influence = _rig.Influences[vertex];
-            return Vector3.Max(Max(influence.Bone0, vertex), Max(influence.Bone1, vertex));
+            var influence = skin.Influences[vertex];
+            var point = skin.Rest.Positions[vertex];
+            return Vector3.Max(Max(influence.Bone0, point), Max(influence.Bone1, point));
         }
 
-        private Vector3 Min(int bone, int vertex)
+        private Vector3 Min(int bone, Vector3 point)
         {
-            return _min[bone] - Vector3.one * Radius(bone, vertex);
+            return _min[bone] - Vector3.one * Radius(bone, point);
         }
 
-        private Vector3 Max(int bone, int vertex)
+        private Vector3 Max(int bone, Vector3 point)
         {
-            return _max[bone] + Vector3.one * Radius(bone, vertex);
+            return _max[bone] + Vector3.one * Radius(bone, point);
         }
 
-        private float Radius(int bone, int vertex)
+        private float Radius(int bone, Vector3 point)
         {
-            return _maxScale[bone] * Vector3.Distance(_rig.Rest.Positions[vertex], _rig.Pivots[bone]);
+            return _maxScale[bone] * Vector3.Distance(point, _rig.Pivots[bone]);
         }
     }
 }

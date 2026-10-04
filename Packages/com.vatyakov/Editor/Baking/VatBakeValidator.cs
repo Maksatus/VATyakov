@@ -39,7 +39,26 @@ namespace VATyakov.Editor
                 Add(problems, VatBoneRig.Problem(profile.Source));
             }
 
+            if (sourceProblem == null)
+            {
+                AddExtraRenderers(problems, profile);
+            }
+
             problems.AddRange(VatClipListProblems.Find(profile.Clips));
+        }
+
+        private static void AddExtraRenderers(List<string> problems, VatBakeProfile profile)
+        {
+            if (profile.ExtraRenderers.Count > 0 && !profile.IsBone)
+            {
+                problems.Add("Extra Renderers bake only in Mode = Bone.");
+                return;
+            }
+
+            foreach (var extra in profile.ExtraRenderers)
+            {
+                Add(problems, VatBoneBinding.Problem(profile.Source, extra.Renderer));
+            }
         }
 
         private static void Add(List<string> problems, string problem)

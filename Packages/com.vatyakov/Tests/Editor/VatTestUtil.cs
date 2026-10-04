@@ -80,6 +80,26 @@ namespace VATyakov.Tests
             Assert.AreEqual(0f, frame.w, $"w of {frame}");
         }
 
+        public static Vector3[] BakeMesh(GameObject root, SkinnedMeshRenderer renderer, AnimationClip clip, double time, SkinQuality quality,
+            out Vector3[] normals)
+        {
+            clip.SampleAnimation(root, (float)time);
+            renderer.quality = quality;
+            var baked = new Mesh();
+            try
+            {
+                renderer.BakeMesh(baked, true);
+                var toRoot = root.transform.worldToLocalMatrix * renderer.transform.localToWorldMatrix;
+                var normalToRoot = toRoot.inverse.transpose;
+                normals = baked.normals.Select(normal => normalToRoot.MultiplyVector(normal).normalized).ToArray();
+                return baked.vertices.Select(position => toRoot.MultiplyPoint3x4(position)).ToArray();
+            }
+            finally
+            {
+                Object.DestroyImmediate(baked);
+            }
+        }
+
         public static Vector3 NextSignedVector(Random random)
         {
             return new Vector3(NextSigned(random), NextSigned(random), NextSigned(random));

@@ -30,16 +30,21 @@ namespace VATyakov.Editor
             var sum = weight.weight0 + weight.weight1;
             if (!(sum > 0f))
             {
-                return Root(rootBone);
+                return Single(rootBone);
             }
 
             var bone1 = weight.weight1 > 0f ? weight.boneIndex1 : weight.boneIndex0;
             return new VatBoneInfluence(weight.boneIndex0, bone1, weight.weight0 / sum);
         }
 
-        private static VatBoneInfluence Root(int rootBone)
+        public static VatBoneInfluence Single(int bone)
         {
-            return new VatBoneInfluence(rootBone, rootBone, 1f);
+            return new VatBoneInfluence(bone, bone, 1f);
+        }
+
+        public VatBoneInfluence Remapped(int[] boneMap)
+        {
+            return new VatBoneInfluence(boneMap[Bone0], boneMap[Bone1], Weight0);
         }
     }
 }

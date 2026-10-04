@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
 #if VAT_ALEMBIC
@@ -46,6 +47,7 @@ namespace VATyakov.Dev
 
         private Material _shared;
         private Material _material;
+        private IReadOnlyList<Material> _materials;
         private VatAnimator _animator;
         private AnimationClip _clip;
         private PlayableGraph _graph;
@@ -104,6 +106,7 @@ namespace VATyakov.Dev
             {
                 _shared = _vat.sharedMaterial;
                 _material = new Material(_shared) { name = $"{_shared.name} (Compare)", hideFlags = HideFlags.DontSave };
+                _materials = new[] { _material };
                 _vat.sharedMaterial = _material;
             }
 
@@ -122,7 +125,7 @@ namespace VATyakov.Dev
             {
                 _frame = Mathf.Clamp(_frame, 0, clip.FrameCount - 1);
                 time = clip.FrameTime(_frame);
-                _asset.ApplyFrame(_material, clip.Frame(_frame));
+                ApplyFrame(clip.Frame(_frame));
             }
             else
             {
@@ -134,7 +137,7 @@ namespace VATyakov.Dev
 
                 var position = clip.Wrap(_playback.Position(Time.timeAsDouble));
                 time = clip.FrameRate > 0f ? position / clip.FrameRate : 0.0;
-                _asset.ApplyFrame(_material, clip.Frame(position));
+                ApplyFrame(clip.Frame(position));
             }
 
             Sample(time);
@@ -149,18 +152,27 @@ namespace VATyakov.Dev
             }
 
             _material = null;
+            _materials = null;
+        }
+
+        private void ApplyFrame(Vector4 frame)
+        {
+            foreach (var material in _materials)
+            {
+                _asset.ApplyFrame(material, frame);
+            }
         }
 
         private bool UseAnimatorCopy()
         {
-            _animator = _vat.GetComponent<VatAnimator>();
+            _animator = _vat.GetComponentInParent<VatAnimator>();
             if (_animator == null)
             {
                 return false;
             }
 
             _animator.enabled = false;
-            _material = _animator.Materials[0];
+            _materials = _animator.Materials;
             return true;
         }
 

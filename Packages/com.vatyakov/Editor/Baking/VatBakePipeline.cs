@@ -5,6 +5,10 @@ namespace VATyakov.Editor
 {
     internal static class VatBakePipeline
     {
+        private const string FallbackHint = "Bone mode takes only rotation and uniform scale of bones, so the asset is baked as Vertex.";
+        private const string ExtraRenderersHint =
+            "Bone mode takes only rotation and uniform scale of bones, and Extra Renderers bake only in Bone mode: fix the clip or remove the Extra Renderers.";
+
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
             using var source = VatFrameSources.Open(profile);
@@ -12,11 +16,18 @@ namespace VATyakov.Editor
             string fallback = null;
             if (profile.IsBone && source is VatSkinnedFrameSource skinned)
             {
-                var bone = VatBonePipeline.Run(skinned, requests, name, out fallback);
+                var bone = VatBonePipeline.Run(skinned, requests, name, out var problem);
                 if (bone != null)
                 {
                     return bone;
                 }
+
+                if (profile.ExtraRenderers.Count > 0)
+                {
+                    throw new VatBakeException($"{problem} {ExtraRenderersHint}");
+                }
+
+                fallback = $"{problem} {FallbackHint}";
             }
 
             return RunVertex(source, requests, profile.MaxPositionError, name, fallback);
@@ -58,7 +69,7 @@ namespace VATyakov.Editor
 
         private static VatBakeResult Build(VatVertexEncoder encoder, string name, IReadOnlyList<string> warnings, string fallback)
         {
-            var mesh = encoder.BuildMesh($"{name}{VatAssetPath.MeshSuffix}");
+            var mesh = encoder.BuildMesh(VatAssetPath.MeshName(name));
             try
             {
                 return new VatBakeResult(encoder, mesh, VatBakeTextures.Build(encoder, name), warnings, fallback);

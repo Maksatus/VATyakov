@@ -97,3 +97,6 @@
   она же первая сцена сборки; вторая — `animator`, толпа из 100 `VatAnimator` (1.7) на шаблоне с блендом
   (`vat_lit_vertex_blend`, 1.8.2). В `compare` третья пара — Bone (1.11–1.12): `bow_bone` (SMR с Skin Weights = 2 Bones и
   `bow_bone_vat`); `bow_squash` — неиспечённый Bone-профиль с неравномерным масштабом кости, его бейк откатывается в Vertex.
+- `Assets/VatDev/Content/Characters` — воин (Humanoid, 57 костей, 10 скинов, топоры — MeshRenderer в осях кисти) и его клипы;
+  `warrior.prefab` — префаб для бейка (скин Default, топор под RPalm, LOD-SMR). Профиль `Bakes/warrior` с Extra Renderers
+  (LOD и топор), префаб `warrior_vat` с LODGroup, сцена `warrior` (1.13, не в сборке; L — переключить LOD).

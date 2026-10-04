@@ -12,6 +12,12 @@ namespace VATyakov.Dev
         [SerializeField]
         private VatCompare[] _targets;
 
+        [Tooltip("LOD groups the LOD button and the L key force to one level; Auto gives them back to the camera.")]
+        [SerializeField]
+        private LODGroup[] _lodGroups = Array.Empty<LODGroup>();
+
+        private int _forcedLod = -1;
+
         private void OnGUI()
         {
             if (_targets.Length == 0)
@@ -50,6 +56,11 @@ namespace VATyakov.Dev
                 NextClip();
             }
 
+            if (_lodGroups.Length > 0 && GUILayout.Button(LodLabel(), button, width, height))
+            {
+                NextLod();
+            }
+
             GUILayout.Label(Status(first), label, height);
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -58,6 +69,11 @@ namespace VATyakov.Dev
         private static string Status(VatCompare compare)
         {
             return compare.IsStepping ? FormattableString.Invariant($"  {compare.ClipName}, frame {compare.Frame}") : $"  {compare.ClipName}, playing";
+        }
+
+        private string LodLabel()
+        {
+            return _forcedLod < 0 ? "LOD Auto" : FormattableString.Invariant($"LOD {_forcedLod}");
         }
 
         private void HandleKeys(Event current)
@@ -82,6 +98,10 @@ namespace VATyakov.Dev
             else if (current.keyCode == KeyCode.C)
             {
                 NextClip();
+            }
+            else if (current.keyCode == KeyCode.L && _lodGroups.Length > 0)
+            {
+                NextLod();
             }
         }
 
@@ -112,6 +132,15 @@ namespace VATyakov.Dev
             foreach (var target in _targets)
             {
                 target.NextClip();
+            }
+        }
+
+        private void NextLod()
+        {
+            _forcedLod = _forcedLod + 1 < _lodGroups[0].lodCount ? _forcedLod + 1 : -1;
+            foreach (var group in _lodGroups)
+            {
+                group.ForceLOD(_forcedLod);
             }
         }
     }
