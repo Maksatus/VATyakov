@@ -51,6 +51,11 @@ namespace VATyakov
             return (int)(boneUv * ByteMax + 0.5f);
         }
 
+        public static int PieceTexel(float high, float low)
+        {
+            return (int)(Mathf.Floor(high * ByteMax + 0.5f) * (ByteSteps * TexelsPerBone) + Mathf.Floor(low * ByteMax + 0.5f) * TexelsPerBone);
+        }
+
         public static float BoneWeight(float high, float low)
         {
             return Mathf.Floor(high * ByteMax + 0.5f) * (ByteSteps / BoneWeightMax) + Mathf.Floor(low * ByteMax + 0.5f) * (1f / BoneWeightMax);

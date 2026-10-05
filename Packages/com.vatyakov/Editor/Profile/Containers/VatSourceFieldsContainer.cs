@@ -15,7 +15,9 @@ namespace VATyakov.Editor
                 new PropertyField { bindingPath = "_mode", label = "Mode" },
                 new PropertyField { bindingPath = "_clips", label = "Clips" },
                 new PropertyField { bindingPath = "_extraRenderers", label = "Extra Renderers" });
-            Alembic.WithElements(new PropertyField { bindingPath = "_alembic", label = "Alembic" });
+            Alembic.WithElements(
+                new PropertyField { bindingPath = "_alembic", label = "Alembic" },
+                new PropertyField { bindingPath = "_mode", label = "Mode" });
             Root.WithElements(
                 new PropertyField { bindingPath = "_kind", label = "Source" },
                 Skinned,

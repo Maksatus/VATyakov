@@ -75,6 +75,7 @@
   `promotedFromAssetID`. Шейдер с блендом и без — разные шейдеры, keyword нет. Векторные свойства SubGraph — Precision
   Single: с Inherit в Half-графе они объявляются `half4` и портят строки и W > 2048 (это проверяет тест). В HLSL —
   только `_float`-обёртки. Новый вход Custom Function добавлять последним (как `Drift`): Shader Graph сопоставляет слоты по id.
+  Rigid (1.15): `vat_rigid` и `vat_lit_rigid` — копии `vat_bone` и `vat_lit_bone` (свойство `_VatPieceTex`, функция `VatRigidVertex`).
   Bone (1.11): `vat_bone` и `vat_bone_blend` сгенерированы скриптом (UV-нода канала 6, Normal/Tangent Vector в Object),
   `vat_lit_bone` и `vat_lit_bone_blend` — копии `vat_lit_vertex*` с заменой GUID сабграфа. UV-каналы в привязках
   сабграфа всегда `half4`, и GPU считает выражения от них в half — в UV только байты, промежуточные значения ≤ 65504
@@ -83,7 +84,7 @@
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
 - Контент — файлы ассетов (модели, текстуры, материалы, префабы, сцены, профили и результаты бейка) — маленькими
   буквами через `_`: `bow_default_vat.prefab`. Папки и код (скрипты, шейдеры, asmdef) — PascalCase, как в `D:\client`.
-  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot`, у Bone — `_mesh`, `_bone` (дрейф — массив в самом ассете, 1.8.1).
+  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot`, у Bone — `_mesh`, `_bone`, у Rigid — `_mesh`, `_piece` (дрейф — массив в самом ассете, 1.8.1).
   Переименовывать через Unity (`AssetDatabase.RenameAsset`), а в git смену одного регистра фиксировать заново
   (`git rm --cached` + `git add`): `core.ignorecase = true` её не видит.
 
@@ -101,3 +102,6 @@
 - `Assets/VatDev/Content/Characters` — воин (Humanoid, 57 костей, 10 скинов, топоры — MeshRenderer в осях кисти) и его клипы;
   `warrior.prefab` — префаб для бейка (скин Default, топор под RPalm, LOD-SMR). Профиль `Bakes/warrior` с Extra Renderers
   (LOD и топор), префаб `warrior_vat` с LODGroup, сцена `warrior` (1.13, не в сборке; L — переключить LOD).
+- `Assets/VatDev/Content/RBDDestroy` — разрушения (1.15): `rbd_test.abc` (перегнан из `rbd_test_rig.fbx`, 114 кусков) и `rbd_wall.abc`
+  (500 кусков с появлением и исчезновением), генератор — меню VATyakov → Dev → Regenerate Rigid Content; профили
+  `Bakes/rbd_test`, `Bakes/rbd_wall` (Mode = Rigid), сцена `compare_rigid` (не в сборке).

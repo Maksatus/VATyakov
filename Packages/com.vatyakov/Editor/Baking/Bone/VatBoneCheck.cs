@@ -12,27 +12,30 @@ namespace VATyakov.Editor
 
         public static string Problem(VatSimilarity similarity, VatBoneRig rig, int bone)
         {
-            var name = rig.Bones[bone].name;
+            return Problem(similarity, $"bone '{rig.Bones[bone].name}'", rig.BonePoints[bone], rig.Pivots[bone]);
+        }
+
+        public static string Problem(VatSimilarity similarity, string element, Vector3[] points, Vector3 pivot)
+        {
             if (!similarity.IsProper)
             {
-                return FormattableString.Invariant($"bone '{name}' mirrors or collapses the mesh (determinant {similarity.Determinant:0.###})");
+                return FormattableString.Invariant($"{element} mirrors or collapses the mesh (determinant {similarity.Determinant:0.###})");
             }
 
-            var error = SkinError(similarity, rig, bone);
+            var error = SkinError(similarity, points, pivot);
             if (similarity.Residual <= MaxResidual && error <= MaxError)
             {
                 return null;
             }
 
             return FormattableString.Invariant(
-                $"bone '{name}' scales non-uniformly (residual {similarity.Residual:0.####}, error {error * MillimetersPerMeter:0.###} mm)");
+                $"{element} scales non-uniformly (residual {similarity.Residual:0.####}, error {error * MillimetersPerMeter:0.###} mm)");
         }
 
-        private static float SkinError(VatSimilarity similarity, VatBoneRig rig, int bone)
+        private static float SkinError(VatSimilarity similarity, Vector3[] points, Vector3 pivot)
         {
-            var pivot = rig.Pivots[bone];
             var error = 0f;
-            foreach (var point in rig.BonePoints[bone])
+            foreach (var point in points)
             {
                 error = Mathf.Max(error, similarity.Error(point - pivot));
             }

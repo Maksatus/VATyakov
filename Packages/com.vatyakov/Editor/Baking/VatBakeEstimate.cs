@@ -57,24 +57,33 @@ namespace VATyakov.Editor
         {
             var probe = VatAlembic.IsInstalled && profile.Alembic != null ? VatAlembicProbe.For(profile.Alembic) : null;
             var hasSource = probe != null && probe.Problem == null;
-            elementCount = hasSource ? probe.VertexCount : 0;
+            elementCount = !hasSource ? 0 : profile.IsRigid ? VatAlembic.PieceCount(profile.Alembic) : probe.VertexCount;
             clips = hasSource ? new List<VatSourceClip> { probe.Clip } : null;
             return hasSource;
         }
 
         private static VatBakeEstimate Compute(VatBakeProfile profile, int elementCount, List<VatSourceClip> clips)
         {
-            var mode = profile.IsBone ? VatMode.Bone : VatMode.Vertex;
+            var mode = profile.IsBone ? VatMode.Bone : profile.IsRigid ? VatMode.Rigid : VatMode.Vertex;
             try
             {
                 var requests = VatClipRequest.From(clips, profile.Fps, profile.IsLooping);
-                var layout = mode == VatMode.Bone ? VatLayout.ForBone(elementCount, requests) : VatLayout.ForVertex(elementCount, requests);
-                return new VatBakeEstimate(mode, layout, null);
+                return new VatBakeEstimate(mode, BuildLayout(mode, elementCount, requests), null);
             }
             catch (VatBakeException e)
             {
                 return new VatBakeEstimate(mode, null, e.Message);
             }
+        }
+
+        private static VatLayout BuildLayout(VatMode mode, int elementCount, VatClipRequest[] requests)
+        {
+            return mode switch
+            {
+                VatMode.Bone => VatLayout.ForBone(elementCount, requests),
+                VatMode.Rigid => VatLayout.ForRigid(elementCount, requests),
+                _ => VatLayout.ForVertex(elementCount, requests),
+            };
         }
     }
 }

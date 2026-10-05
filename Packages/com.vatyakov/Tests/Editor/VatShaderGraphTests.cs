@@ -20,6 +20,7 @@ namespace VATyakov.Tests
         private const string TriplanarSample = "Packages/com.vatyakov/Samples/LitVertexTriplanar/vat_lit_vertex_triplanar.shadergraph";
         private const string LitBoneSample = "Packages/com.vatyakov/Samples/LitBone/vat_lit_bone.shadergraph";
         private const string LitBoneBlendSample = "Packages/com.vatyakov/Samples/LitBoneBlend/vat_lit_bone_blend.shadergraph";
+        private const string LitRigidSample = "Packages/com.vatyakov/Samples/LitRigid/vat_lit_rigid.shadergraph";
         private const string LitBlendShaderName = "VATyakov/vat_lit_vertex_blend";
 
         [Test]
@@ -107,6 +108,25 @@ namespace VATyakov.Tests
             StringAssert.Contains("VatBoneVertexBlend_float(", code);
             AssertInstanceState(code, "_VatFrame", "_VatFrameB");
             StringAssert.Contains("TEXTURE2D(_VatBoneTex)", code);
+        }
+
+        [Test]
+        public void LitRigidSample_CompilesAndReadsA16BitPieceIndexFromTexCoord6()
+        {
+            AssertCompiles(LitRigidSample);
+            Assert.AreEqual(VatBaker.RigidShaderName, AssetDatabase.LoadAssetAtPath<Shader>(LitRigidSample).name, "rigid template shader");
+
+            var code = RequireGeneratedCode(LitRigidSample);
+            StringAssert.Contains("VatRigidVertex_float(", code);
+            StringAssert.DoesNotContain("VatRigidVertex_half", code);
+            StringAssert.DoesNotContain("Blend_float(", code, "Rigid has no transitions");
+            StringAssert.DoesNotContain("_VatFrameB", code, "Rigid has no transitions");
+            StringAssert.Contains("TEXTURE2D(_VatPieceTex)", code);
+            StringAssert.DoesNotContain("_VatBoneTex", code, "a Bone material does not fit a Rigid asset");
+            StringAssert.Contains("IN.uv6", code, "the piece index comes from TexCoord6");
+            AssertFloat4(code, "_VatLayout");
+            AssertInstanceState(code, "_VatFrame");
+            StringAssert.Contains("TEXTURE2D(_BumpMap)", code);
         }
 
         [Test]

@@ -22,7 +22,7 @@ namespace VATyakov.Editor
             Rig = rig;
             Signs = new VatRotationSigns(rig.BoneCount, VatRotationSigns.Bone);
             _texels = new VatBoneTexels(layout.Info);
-            _bounds = new VatBoneBounds(rig);
+            _bounds = new VatBoneBounds(rig.Pivots);
             _offsetScales = new Vector4[rig.BoneCount];
             _rotations = new Vector4[rig.BoneCount];
             for (var bone = 0; bone < rig.BoneCount; bone++)

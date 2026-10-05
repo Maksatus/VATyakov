@@ -26,9 +26,9 @@ namespace VATyakov.Editor
         public static string Estimate(VatBakeEstimate estimate)
         {
             var layout = estimate.Layout;
-            if (estimate.Mode == VatMode.Bone)
+            if (estimate.Mode != VatMode.Vertex)
             {
-                return BoneEstimate(layout);
+                return BoneEstimate(estimate.Mode, layout);
             }
 
             return $"Result: {Clips(layout.Clips.Length)}, {Count(layout.Info.TotalRows)} · texture {Size(layout.Info)} · {MegabytesRange(layout.Info)}";
@@ -138,10 +138,10 @@ namespace VATyakov.Editor
                 : $"8-bit positions would give {Millimeters(precision.ByteError)}, over the Max Position Error of the profile: they stay in half floats.";
         }
 
-        private static string BoneEstimate(VatLayout layout)
+        private static string BoneEstimate(VatMode mode, VatLayout layout)
         {
             var frames = Count(layout.Info.TotalRows - VatBoneFormat.PivotRows);
-            return $"Result: Bone, {Clips(layout.Clips.Length)}, {frames} · texture {Size(layout.Info)} · {Bytes(VatMemory.BoneTextureBytes(layout.Info))}";
+            return $"Result: {mode}, {Clips(layout.Clips.Length)}, {frames} · texture {Size(layout.Info)} · {Bytes(VatMemory.BoneTextureBytes(layout.Info))}";
         }
 
         private static double MegabytesOf(VatLayoutInfo info, VatPositionFormat format)

@@ -16,6 +16,7 @@ namespace VATyakov.Editor
                 AddSkinned(problems, profile);
             }
 
+            Add(problems, ModeProblem(profile));
             Add(problems, FpsProblem(profile));
             Add(problems, MaterialProblem(profile));
             return problems;
@@ -87,6 +88,18 @@ namespace VATyakov.Editor
             }
 
             return profile.Alembic == null ? "Alembic is not set: assign an .abc from the project." : VatAlembicProbe.For(profile.Alembic).Problem;
+        }
+
+        private static string ModeProblem(VatBakeProfile profile)
+        {
+            if (profile.Kind == VatSourceKind.Alembic && profile.Mode == VatMode.Bone)
+            {
+                return "Mode = Bone takes a Skinned Mesh Renderer: use Vertex or Rigid for an Alembic.";
+            }
+
+            return profile.Kind == VatSourceKind.Skinned && profile.Mode == VatMode.Rigid
+                ? "Mode = Rigid takes an Alembic with pieces on xform nodes: use Vertex or Bone for a Skinned Mesh Renderer."
+                : null;
         }
 
         private static string FpsProblem(VatBakeProfile profile)

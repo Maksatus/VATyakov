@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50753a509abcb7043894051342400a6d, type: 3}
+  m_Name: rbd_wall
+  m_EditorClassIdentifier: VATyakov.Editor::VATyakov.Editor.VatBakeProfile
+  _kind: 1
+  _source: {fileID: 0}
+  _mode: 2
+  _clips: []
+  _extraRenderers: []
+  _alembic: {fileID: 849253495038273770, guid: 720f44e7f9b37bf40905c92bae70b065, type: 3}
+  _isLooping: 0
+  _fps: 30
+  _maxPositionError: 8
+  _asset: {fileID: 11400000, guid: 1ec4a6e91e3ee974890f23313c38072e, type: 2}
+  _material: {fileID: 2100000, guid: 057372eac45c07344a338c3bc28b8de1, type: 2}
+  _shader: {fileID: -6465566751694194690, guid: 766fef141bae5d4458adb5a3ea506a64, type: 3}

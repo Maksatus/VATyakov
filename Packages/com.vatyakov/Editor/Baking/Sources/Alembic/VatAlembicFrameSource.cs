@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Formats.Alembic.Importer;
 
 namespace VATyakov.Editor
 {
@@ -28,7 +27,7 @@ namespace VATyakov.Editor
         public VatAlembicFrameSource(GameObject alembic)
         {
             _name = alembic.name;
-            _clips = new[] { new VatSourceClip(_name, RequireDuration(alembic)) };
+            _clips = new[] { new VatSourceClip(_name, VatAlembicDuration.Require(alembic)) };
             try
             {
                 Open(alembic);
@@ -81,24 +80,6 @@ namespace VATyakov.Editor
                 throw new VatBakeException(
                     FormattableString.Invariant($"'{_name}': topology changes at {time:0.###} s ({difference}). {ConstantTopologyHint}"));
             }
-        }
-
-        private float RequireDuration(GameObject alembic)
-        {
-            var player = alembic.GetComponent<AlembicStreamPlayer>();
-            if (player == null)
-            {
-                throw new VatBakeException($"'{_name}' is not an Alembic: no AlembicStreamPlayer on the root. Assign an .abc from the project.");
-            }
-
-            var duration = player.Duration;
-            if (!float.IsFinite(duration) || duration <= 0f)
-            {
-                throw new VatBakeException(
-                    FormattableString.Invariant($"'{_name}' has a duration of {duration} s, nothing to bake. Check the Time Range of the .abc."));
-            }
-
-            return duration;
         }
     }
 }

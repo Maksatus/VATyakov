@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -13,6 +14,11 @@ namespace VATyakov.Editor
         {
             return new VatAlembicFrameSource(alembic);
         }
+
+        public static IVatRigidSource OpenRigid(GameObject alembic)
+        {
+            return new VatRigidPieceExtractor(alembic);
+        }
 #else
         public static bool IsInstalled => false;
 
@@ -20,6 +26,16 @@ namespace VATyakov.Editor
         {
             throw new VatBakeException(MissingPackage);
         }
+
+        public static IVatRigidSource OpenRigid(GameObject alembic)
+        {
+            throw new VatBakeException(MissingPackage);
+        }
 #endif
+
+        public static int PieceCount(GameObject alembic)
+        {
+            return Array.FindAll(alembic.GetComponentsInChildren<MeshFilter>(true), node => node.sharedMesh != null).Length;
+        }
     }
 }

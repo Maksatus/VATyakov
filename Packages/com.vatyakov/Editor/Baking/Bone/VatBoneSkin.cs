@@ -9,12 +9,17 @@ namespace VATyakov.Editor
         public readonly VatBoneInfluence[] Influences;
         public readonly VatRestPose Rest;
 
-        private VatBoneSkin(string name, Mesh mesh, VatBoneInfluence[] influences, VatRootSpace space)
+        public VatBoneSkin(string name, VatSourceMesh source, VatBoneInfluence[] influences, VatRestPose rest)
         {
             Name = name;
-            Source = VatSourceMesh.Read(mesh);
+            Source = source;
             Influences = influences;
-            Rest = BindPose(mesh, space);
+            Rest = rest;
+        }
+
+        private VatBoneSkin(string name, Mesh mesh, VatBoneInfluence[] influences, VatRootSpace space) :
+            this(name, VatSourceMesh.Read(mesh), influences, BindPose(mesh, space))
+        {
         }
 
         public static VatBoneSkin Skinned(SkinnedMeshRenderer renderer, int[] boneMap, VatRootSpace space)

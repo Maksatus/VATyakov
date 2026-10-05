@@ -32,23 +32,36 @@ namespace VATyakov.Editor
 
         public static VatLayout ForBone(int boneCount, IReadOnlyList<VatClipRequest> requests)
         {
-            RequireBones(boneCount);
+            var tooMany = FormattableString.Invariant($"The mesh has {boneCount} bones, Bone mode takes up to {VatBoneFormat.MaxBones}.");
+            RequireCount(boneCount, VatBoneFormat.MaxBones, "The mesh has no bones.", tooMany);
+            return ForBones(boneCount, requests);
+        }
+
+        public static VatLayout ForRigid(int pieceCount, IReadOnlyList<VatClipRequest> requests)
+        {
+            var tooMany = FormattableString.Invariant($"The Alembic has {pieceCount} pieces, Rigid mode takes up to {VatRigidFormat.MaxPieces}.");
+            RequireCount(pieceCount, VatRigidFormat.MaxPieces, "The Alembic has no pieces.", tooMany);
+            return ForBones(pieceCount, requests);
+        }
+
+        private static VatLayout ForBones(int boneCount, IReadOnlyList<VatClipRequest> requests)
+        {
             RequireClips(requests);
             var clips = StackClips(requests, 1, VatBoneFormat.PivotRows);
             var elements = boneCount * VatMath.TexelsPerBone;
             return new VatLayout(new VatLayoutInfo(elements, elements, 1, RowCount(clips) + VatBoneFormat.PivotRows), clips);
         }
 
-        private static void RequireBones(int boneCount)
+        private static void RequireCount(int count, int max, string empty, string tooMany)
         {
-            if (boneCount < 1)
+            if (count < 1)
             {
-                throw new VatBakeException("The mesh has no bones.");
+                throw new VatBakeException(empty);
             }
 
-            if (boneCount > VatBoneFormat.MaxBones)
+            if (count > max)
             {
-                throw new VatBakeException(FormattableString.Invariant($"The mesh has {boneCount} bones, Bone mode takes up to {VatBoneFormat.MaxBones}."));
+                throw new VatBakeException(tooMany);
             }
         }
 

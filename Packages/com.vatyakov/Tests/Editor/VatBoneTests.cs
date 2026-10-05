@@ -288,7 +288,7 @@ namespace VATyakov.Tests
             var material = new Material(Shader.Find(VatBaker.BoneShaderName));
             try
             {
-                asset.SetBoneData(_result.Layout.Info, _result.Mesh, _result.ExtraMeshes, _result.Textures.Bone, _result.Layout.Clips, _result.Precision,
+                asset.SetBoneData(_result.Mode, _result.Layout.Info, _result.Mesh, _result.ExtraMeshes, _result.Textures.Bone, _result.Layout.Clips, _result.Precision,
                     string.Empty);
                 asset.ApplyTo(material, 0);
                 var frame = _result.Layout.Clips[0].Frame(3.5);

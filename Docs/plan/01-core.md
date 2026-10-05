@@ -153,10 +153,10 @@ _VatDrift  = (d + min, 0)            // 1.8.1: дрейф, уже смешанн
 |---|---|---|---|---|---|---|---|
 | `_VatPosTex` | Vertex | RGBAHalf или RGBA8 (1.8.3) | вертекс | Δ.x | Δ.y | Δ.z | 0 |
 | `_VatRotTex` | Vertex | RGBA8 | вертекс | q.x | q.y | q.z | q.w |
-| `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i | Δ.x | Δ.y | Δ.z | s |
-| `_VatBoneTex`, кадры | Bone, Rigid | RGBAHalf | 2i + 1 | q.x | q.y | q.z | q.w |
-| `_VatBoneTex`, последняя строка | Bone, Rigid | RGBAHalf | 2i | p̃.x | p̃.y | p̃.z | 0 |
-| `_VatBoneTex`, последняя строка | Bone, Rigid | RGBAHalf | 2i + 1 | 0 | 0 | 0 | 1 |
+| `_VatBoneTex` (Bone), `_VatPieceTex` (Rigid), кадры | Bone, Rigid | RGBAHalf | 2i | Δ.x | Δ.y | Δ.z | s |
+| то же, кадры | Bone, Rigid | RGBAHalf | 2i + 1 | q.x | q.y | q.z | q.w |
+| то же, последняя строка | Bone, Rigid | RGBAHalf | 2i | p̃.x | p̃.y | p̃.z | 0 |
+| то же, последняя строка | Bone, Rigid | RGBAHalf | 2i + 1 | 0 | 0 | 0 | 1 |
 
 - **Vertex:** `Δ = pos − rest − d`. Строки — только кадры: `totalRows = ΣF`, первый клип с `startRow = 0`.
 - **8-битные позиции** (1.8.3, `formatVersion` 6): `b = round((Δ − min) / size · 255)`, при size = 0 байт 0; шейдер —
@@ -183,15 +183,19 @@ _VatDrift  = (d + min, 0)            // 1.8.1: дрейф, уже смешанн
 
 | Поток | Атрибут | Формат | Содержимое |
 |---|---|---|---|
-| 0 | Position | Float32×3 | позиция покоя: rest в Vertex, bind-поза в Bone, исходная в Rigid |
+| 0 | Position | Float32×3 | позиция покоя: rest в Vertex, bind-поза в Bone, в Rigid — поза куска на первом кадре, где он виден |
 | 0 | TexCoord6 | UNorm8×4 (Bone, 1.12) | `(i0/255, i1/255, w_hi/255, w_lo/255)` — две кости и 16-битный вес первой |
+| 0 | TexCoord6 | UNorm8×4 (Rigid, 1.15) | `(i_hi/255, i_lo/255, 0, 0)` — 16-битный индекс куска |
 | 1 | Normal | Float16×4 | нормаль покоя, w = 0 |
 | 1 | Tangent | Float16×4 | тангент покоя, w = знак бинормали ±1 |
 | 1 | TexCoord0 | Float16×2 | UV |
 
 - **Вес:** `w0 = round(z·255)·256/65535 + round(w·255)/65535` (так, без промежуточного 65535, §1.7), `w1 = 1 − w0`; `pos = lerp(P1, P0, w0)`, N и T — то же от `rot(q, n)/|q|²` (деление на `|q|²` уравнивает вклад двух костей).
 - **Индексы:** `i = (uint)(uv.x·255 + 0.5)` и `(uint)(uv.y·255 + 0.5)`; до 256 костей (1.12, решение пользователя;
-  в 1.11 был один индекс Float16 до 2048). Rigid (1.15) с этим форматом — до 256 кусков; больше — решать в 1.15.
+  в 1.11 был один индекс Float16 до 2048). Rigid (1.15, решение пользователя) — свой SubGraph `vat_rigid` без веса
+  и второй кости: тексел куска `dot(floor(uv.xy·255 + 0.5), (512, 2))`, до 2048 кусков (`W = 2N ≤ 4096`); промежуточные
+  значения ≤ 4094, чётные — точны в half. Текстура Rigid — `_VatPieceTex`: Bone-материал на Rigid-ассет не подходит
+  (8 бит против 16 в TexCoord6), шаблон подбирается по свойству текстуры режима.
 - **В Vertex-режиме TexCoord6 нет.** Vertex color и дополнительные UV не переносятся.
 
 **Материал**
@@ -203,4 +207,4 @@ _VatDrift  = (d + min, 0)            // 1.8.1: дрейф, уже смешанн
 | `_VatLayout` | Per Material | `(W, totalRows, 0, 0)` — постоянные ассета, бейкер пишет их в шаблон; Bone берёт из него строку пивотов `totalRows − 1` (1.11) |
 | `_VatPosScale` | Per Material | `(size, 0)` — размах 8-битных позиций, у half (1, 1, 1); пишет `ApplyTo` (1.8.3); только Vertex |
 | `_VatDrift` | Hybrid Per Instance | `(d, 0)` — 1.8.1, §1.4; только Vertex, у Bone-ассета не пишется (1.11) |
-| `_VatPosTex`, `_VatRotTex`, `_VatBoneTex` | Per Material | текстуры ассета |
+| `_VatPosTex`, `_VatRotTex`, `_VatBoneTex`, `_VatPieceTex` | Per Material | текстуры ассета (`_VatPieceTex` — Rigid, 1.15; у `vat_rigid` нет `_VatFrameB`) |

@@ -51,5 +51,16 @@ namespace VATyakov.Editor
             Signs = encoder.Signs;
             Warnings = warnings;
         }
+
+        public VatBakeResult(VatRigidEncoder encoder, Mesh mesh, VatBakeTextures textures, IReadOnlyList<string> warnings)
+        {
+            Mode = VatMode.Rigid;
+            Layout = encoder.Layout;
+            Mesh = mesh;
+            Textures = textures;
+            Precision = encoder.Precision;
+            Signs = encoder.Signs;
+            Warnings = warnings;
+        }
     }
 }

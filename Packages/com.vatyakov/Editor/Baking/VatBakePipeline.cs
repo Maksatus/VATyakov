@@ -11,6 +11,12 @@ namespace VATyakov.Editor
 
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
+            if (profile.IsRigid)
+            {
+                using var rigid = VatAlembic.OpenRigid(profile.Alembic);
+                return VatRigidPipeline.Run(rigid, profile.Fps, profile.IsLooping, name);
+            }
+
             using var source = VatFrameSources.Open(profile);
             var requests = VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping);
             string fallback = null;

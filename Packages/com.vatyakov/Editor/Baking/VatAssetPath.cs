@@ -10,6 +10,7 @@ namespace VATyakov.Editor
         public const string PositionSuffix = "_pos";
         public const string RotationSuffix = "_rot";
         public const string BoneSuffix = "_bone";
+        public const string PieceSuffix = "_piece";
 
         public static string Resolve(VatBakeProfile profile, string requested)
         {

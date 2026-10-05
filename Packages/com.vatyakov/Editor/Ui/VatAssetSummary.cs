@@ -8,6 +8,7 @@ namespace VATyakov.Editor
         private const string ClipHint = "Memory is the share of the clip in the animation textures: its rows in every block.";
         private const string VertexHint = "Every vertex stores its offset and rotation per frame: any deformation.";
         private const string BoneHint = "Every bone stores its offset, uniform scale and rotation per frame; the shader skins two bones per vertex.";
+        private const string RigidHint = "Every piece stores its offset, uniform scale and rotation per frame; a hidden piece has scale 0.";
 
         public static void Show(VatAssetSummaryContainer container, VatAsset asset)
         {
@@ -21,12 +22,15 @@ namespace VATyakov.Editor
         {
             var info = asset.Layout;
             var isBone = asset.Mode == VatMode.Bone;
-            container.Mode.Set(asset.Mode.ToString(), isBone ? BoneHint : VertexHint);
+            var isRigid = asset.Mode == VatMode.Rigid;
+            container.Mode.Set(asset.Mode.ToString(), isBone ? BoneHint : isRigid ? RigidHint : VertexHint);
             container.Vertices.Set(VatText.Number(asset.Mesh.vertexCount));
             container.Meshes.SetVisible(asset.ExtraMeshes.Count > 0);
             container.Meshes.Set(VatText.Number(asset.ExtraMeshes.Count + 1), MeshesHint(asset));
             container.Bones.SetVisible(isBone);
             container.Bones.Set(VatText.Number(asset.BoneCount));
+            container.Pieces.SetVisible(isRigid);
+            container.Pieces.Set(VatText.Number(asset.BoneCount));
             container.Texture.Set(VatText.Size(info), VatText.Blocks(info));
             container.Memory.Set(VatText.Bytes(memory.Total), MemoryHint);
         }

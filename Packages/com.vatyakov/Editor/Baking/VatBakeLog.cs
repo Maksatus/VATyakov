@@ -16,10 +16,12 @@ namespace VATyakov.Editor
             "They make an odd number of turns over the loop: between the last and the first frame they spin the long way round.";
         private const string BoneErrorHint =
             "The joints are far from the root or the bones scale a lot: half precision of the bone texture does not hold 1 mm.";
+        private const string RigidErrorHint =
+            "The pieces fly far from where they first show up: half precision of the offsets is about 1/2000 of the distance.";
 
         public static void Baked(VatAsset asset, VatBakeResult result)
         {
-            Debug.Log(result.Mode == VatMode.Bone ? DescribeBones(asset) : $"{Describe(asset)}{Positions(result)}{Stats(result.Stats)}", asset);
+            Debug.Log(result.Mode != VatMode.Vertex ? DescribeBones(asset) : $"{Describe(asset)}{Positions(result)}{Stats(result.Stats)}", asset);
             if (!string.IsNullOrEmpty(result.Fallback))
             {
                 Debug.LogWarning($"VAT '{asset.name}': {result.Fallback}", asset);
@@ -40,6 +42,12 @@ namespace VATyakov.Editor
                 Debug.LogWarning($"VAT '{asset.name}': max error {VatText.Millimeters(result.Precision.Error)} is over 1 mm. {BoneErrorHint}", asset);
             }
 
+            if (result.Mode == VatMode.Rigid && result.Precision.Error > VatRigidFormat.Tolerance)
+            {
+                var error = $"max error {VatText.Millimeters(result.Precision.Error)} is over {VatText.Millimeters(VatRigidFormat.Tolerance)}";
+                Debug.LogWarning($"VAT '{asset.name}': {error}. {RigidErrorHint}", asset);
+            }
+
             foreach (var warning in result.Warnings)
             {
                 Debug.LogWarning($"VAT '{asset.name}': {warning}", asset);
@@ -58,8 +66,8 @@ namespace VATyakov.Editor
         {
             var info = asset.Layout;
             var texture = $"texture {VatText.Size(info)}, {VatText.Bytes(VatMemory.Bytes(asset.BoneTexture))}";
-            var mesh = FormattableString.Invariant($"{asset.BoneCount} bones, {asset.Mesh.vertexCount} vertices{ExtraMeshes(asset)}");
-            return $"VAT '{asset.name}': Bone, {mesh}, {Clips(asset)}; {texture}; max error {VatText.Millimeters(asset.Precision.Error)}";
+            var mesh = FormattableString.Invariant($"{asset.BoneCount} {Elements(asset.Mode)}, {asset.Mesh.vertexCount} vertices{ExtraMeshes(asset)}");
+            return $"VAT '{asset.name}': {asset.Mode}, {mesh}, {Clips(asset)}; {texture}; max error {VatText.Millimeters(asset.Precision.Error)}";
         }
 
         private static string ExtraMeshes(VatAsset asset)
@@ -104,10 +112,20 @@ namespace VATyakov.Editor
         private static string Seams(VatAsset asset, VatBakeResult result)
         {
             var signs = result.Signs;
-            var elements = result.Mode == VatMode.Bone ? "bones" : "vertices";
-            var hint = result.Mode == VatMode.Bone ? BoneSeamHint : SeamHint;
+            var elements = Elements(result.Mode);
+            var hint = result.Mode == VatMode.Vertex ? SeamHint : BoneSeamHint;
             var seams = FormattableString.Invariant($"{signs.SeamCount} {elements} flip the rotation sign at the loop seam (first: {signs.FirstSeam})");
             return $"VAT '{asset.name}': {seams}. {hint}";
+        }
+
+        private static string Elements(VatMode mode)
+        {
+            return mode switch
+            {
+                VatMode.Bone => "bones",
+                VatMode.Rigid => "pieces",
+                _ => "vertices",
+            };
         }
     }
 }

@@ -13,7 +13,7 @@ namespace VATyakov.Editor
             hash.Append(VatAsset.CurrentFormatVersion);
             if (profile.Kind == VatSourceKind.Alembic)
             {
-                hash.Append(DependencyHash(profile.Alembic));
+                AppendAlembic(ref hash, profile);
             }
             else
             {
@@ -29,6 +29,16 @@ namespace VATyakov.Editor
         public static bool IsOutdated(VatBakeProfile profile, VatAsset asset)
         {
             return asset.TryValidate(out _) && VatBakeValidator.Validate(profile).Count == 0 && Compute(profile) != asset.SourceHash;
+        }
+
+        private static void AppendAlembic(ref Hash128 hash, VatBakeProfile profile)
+        {
+            if (profile.IsRigid)
+            {
+                hash.Append((int)VatMode.Rigid);
+            }
+
+            hash.Append(DependencyHash(profile.Alembic));
         }
 
         private static void AppendSkinned(ref Hash128 hash, VatBakeProfile profile)

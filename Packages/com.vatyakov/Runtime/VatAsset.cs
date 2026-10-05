@@ -56,9 +56,10 @@ namespace VATyakov
         public string SourceHash => _sourceHash;
         public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
         public bool HasDrift => _mode == VatMode.Vertex;
-        public int BoneCount => _mode == VatMode.Bone ? _layout.Elements / VatMath.TexelsPerBone : 0;
+        public bool HasBoneTexture => _mode != VatMode.Vertex;
+        public int BoneCount => HasBoneTexture ? _layout.Elements / VatMath.TexelsPerBone : 0;
 
-        private bool IsComplete => _mesh != null && _clips.Length > 0 && (_mode == VatMode.Bone ? IsBoneComplete : IsVertexComplete);
+        private bool IsComplete => _mesh != null && _clips.Length > 0 && (HasBoneTexture ? IsBoneComplete : IsVertexComplete);
         private bool IsVertexComplete => _positionTexture != null && _rotationTexture != null && _drift.Length == _layout.TotalRows;
         private bool IsBoneComplete => _boneTexture != null && Array.TrueForAll(_extraMeshes, mesh => mesh != null);
 
@@ -83,9 +84,9 @@ namespace VATyakov
 
         public void ApplyTo(Material material, int clipIndex)
         {
-            if (_mode == VatMode.Bone)
+            if (HasBoneTexture)
             {
-                material.SetTexture(VatShaderIds.BoneTexture, _boneTexture);
+                material.SetTexture(VatShaderIds.DataTexture(_mode), _boneTexture);
             }
             else
             {
@@ -126,10 +127,10 @@ namespace VATyakov
             _drift = drift;
         }
 
-        internal void SetBoneData(VatLayoutInfo layout, Mesh mesh, Mesh[] extraMeshes, Texture2D boneTexture, VatClip[] clips, VatPrecision precision,
-            string sourceHash)
+        internal void SetBoneData(VatMode mode, VatLayoutInfo layout, Mesh mesh, Mesh[] extraMeshes, Texture2D boneTexture, VatClip[] clips,
+            VatPrecision precision, string sourceHash)
         {
-            SetCommon(VatMode.Bone, layout, mesh, clips, precision, sourceHash);
+            SetCommon(mode, layout, mesh, clips, precision, sourceHash);
             _extraMeshes = extraMeshes;
             _boneTexture = boneTexture;
         }

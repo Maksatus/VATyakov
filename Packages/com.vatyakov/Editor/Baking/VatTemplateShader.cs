@@ -6,11 +6,16 @@ namespace VATyakov.Editor
     {
         public static bool Fits(Material material, VatMode mode)
         {
-            return material.HasTexture(mode == VatMode.Bone ? VatShaderIds.BoneTexture : VatShaderIds.PositionTexture);
+            return material.HasTexture(VatShaderIds.DataTexture(mode));
         }
 
         public static string DefaultName(VatMode mode, bool canBlend)
         {
+            if (mode == VatMode.Rigid)
+            {
+                return VatBaker.RigidShaderName;
+            }
+
             if (mode == VatMode.Bone)
             {
                 return canBlend ? VatBaker.BoneBlendShaderName : VatBaker.BoneShaderName;

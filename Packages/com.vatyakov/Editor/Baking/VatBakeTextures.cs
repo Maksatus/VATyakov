@@ -36,6 +36,11 @@ namespace VATyakov.Editor
             return new VatBakeTextures(null, null, encoder.BuildTexture($"{name}{VatAssetPath.BoneSuffix}"));
         }
 
+        public static VatBakeTextures Build(VatRigidEncoder encoder, string name)
+        {
+            return new VatBakeTextures(null, null, encoder.BuildTexture($"{name}{VatAssetPath.PieceSuffix}"));
+        }
+
         public void Destroy()
         {
             DestroyImmediate(Position);

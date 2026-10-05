@@ -46,6 +46,23 @@ namespace VATyakov.Tests
             return Vector3.LerpUnclamped(direction1, Direction(VatMath.BoneIndex(boneUv.x), direction, frame), weight).normalized;
         }
 
+        public static int PieceTexel(Vector4 pieceUv)
+        {
+            return VatMath.PieceTexel(pieceUv.x, pieceUv.y);
+        }
+
+        public Vector3 PiecePosition(Vector4 pieceUv, Vector3 rest, Vector4 frame)
+        {
+            var texel = PieceTexel(pieceUv);
+            return VatMath.BonePoint(Lerp(texel, frame), Lerp(texel + 1, frame), Texel(texel, _pivotRow), rest);
+        }
+
+        public Vector4 Texel(int texel, int row)
+        {
+            var offset = (row * _width + texel) * ChannelCount;
+            return new Vector4(Half(offset), Half(offset + 1), Half(offset + 2), Half(offset + 3));
+        }
+
         private Vector3 Position(int bone, Vector3 rest, Vector4 frame)
         {
             var texel = bone * VatMath.TexelsPerBone;
@@ -60,12 +77,6 @@ namespace VATyakov.Tests
         private Vector4 Lerp(int texel, Vector4 frame)
         {
             return Vector4.LerpUnclamped(Texel(texel, (int)frame.x), Texel(texel, (int)frame.y), frame.z);
-        }
-
-        private Vector4 Texel(int texel, int row)
-        {
-            var offset = (row * _width + texel) * ChannelCount;
-            return new Vector4(Half(offset), Half(offset + 1), Half(offset + 2), Half(offset + 3));
         }
 
         private float Half(int offset)

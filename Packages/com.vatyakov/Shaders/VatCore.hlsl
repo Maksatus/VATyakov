@@ -35,6 +35,12 @@ uint2 VatBoneTexels(float4 boneUv)
     return (uint2)(boneUv.xy * VAT_BYTE_MAX + 0.5) * VAT_TEXELS_PER_BONE;
 }
 
+uint VatPieceTexel(float4 pieceUv)
+{
+    float2 bytes = floor(pieceUv.xy * VAT_BYTE_MAX + 0.5);
+    return (uint)dot(bytes, float2(VAT_BYTE_STEPS * VAT_TEXELS_PER_BONE, VAT_TEXELS_PER_BONE));
+}
+
 float VatBoneWeight(float4 boneUv)
 {
     float2 bytes = floor(boneUv.zw * VAT_BYTE_MAX + 0.5);

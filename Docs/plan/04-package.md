@@ -4,11 +4,11 @@ Packages/com.vatyakov/
   package.json    "unity": "6000.3"
   Runtime/  VATyakov.asmdef — VatAsset.cs (formatVersion, раскладка, клипы), VatClip.cs, VatPlayback.cs, VatAnimator.cs, VatShaderIds.cs
   Shaders/  VatCore.hlsl (адресация), VatShaderGraph.hlsl (обёртки _float, include guard)
-            SubGraphs/ vat_vertex (1.1), vat_vertex_blend (1.8.2), vat_bone и vat_bone_blend (1.11, они же для rigid)
+            SubGraphs/ vat_vertex (1.1), vat_vertex_blend (1.8.2), vat_bone и vat_bone_blend (1.11), vat_rigid (1.15)
   Editor/   VATyakov.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs
             Baking/  IVatFrameSource, VatSkinnedFrameSource, VatLayout, VatAssetWriter,
-                     VatVertexEncoder (1.1); Bone/ — VatBoneRig, VatBoneEncoder, VatBonePipeline (1.11, для кусков — 1.15)
-            Baking/Sources/Alembic/ — VatAlembicFrameSource (1.4), RigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch), под #if VAT_ALEMBIC
+                     VatVertexEncoder (1.1); Bone/ — VatBoneRig, VatBoneEncoder, VatBonePipeline (1.11); Rigid/ — VatRigidPipeline, VatRigidEncoder, VatRigidPivot (1.15)
+            Baking/Sources/Alembic/ — VatAlembicFrameSource (1.4), VatRigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch), под #if VAT_ALEMBIC
   Tests/Editor/
   Samples~/ vat_lit_bone и vat_lit_bone_blend (1.11), vat_lit_vertex, vat_lit_vertex_blend (1.8.2), vat_lit_vertex_triplanar (1.4), vat_lit_rigid; сцены `compare` и `stress`
 ```

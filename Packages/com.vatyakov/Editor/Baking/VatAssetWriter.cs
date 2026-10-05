@@ -49,9 +49,9 @@ namespace VATyakov.Editor
             Texture2D bone, string sourceHash)
         {
             var layout = result.Layout;
-            if (result.Mode == VatMode.Bone)
+            if (result.Mode != VatMode.Vertex)
             {
-                asset.SetBoneData(layout.Info, mesh, extraMeshes, bone, layout.Clips, result.Precision, sourceHash);
+                asset.SetBoneData(result.Mode, layout.Info, mesh, extraMeshes, bone, layout.Clips, result.Precision, sourceHash);
                 return;
             }
 
@@ -127,7 +127,7 @@ namespace VATyakov.Editor
 
         private static Object[] Parts(VatAsset asset)
         {
-            if (asset.Mode != VatMode.Bone)
+            if (!asset.HasBoneTexture)
             {
                 return new Object[] { asset.Mesh, asset.PositionTexture, asset.RotationTexture };
             }

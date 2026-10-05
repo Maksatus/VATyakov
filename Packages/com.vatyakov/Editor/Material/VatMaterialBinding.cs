@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,8 +41,15 @@ namespace VATyakov.Editor
 
         private static Texture AnimationTexture(Material material)
         {
-            var id = material.HasTexture(VatShaderIds.BoneTexture) ? VatShaderIds.BoneTexture : VatShaderIds.PositionTexture;
-            return material.GetTexture(id);
+            foreach (VatMode mode in Enum.GetValues(typeof(VatMode)))
+            {
+                if (material.HasTexture(VatShaderIds.DataTexture(mode)))
+                {
+                    return material.GetTexture(VatShaderIds.DataTexture(mode));
+                }
+            }
+
+            return null;
         }
 
         private static VatAsset OwnerOf(Texture texture)
@@ -61,7 +69,7 @@ namespace VATyakov.Editor
                 return true;
             }
 
-            return asset.Mode == VatMode.Bone ? material.GetTexture(VatShaderIds.BoneTexture) != asset.BoneTexture : IsVertexStale(material, asset, clipIndex);
+            return asset.HasBoneTexture ? material.GetTexture(VatShaderIds.DataTexture(asset.Mode)) != asset.BoneTexture : IsVertexStale(material, asset, clipIndex);
         }
 
         private static bool IsVertexStale(Material material, VatAsset asset, int clipIndex)

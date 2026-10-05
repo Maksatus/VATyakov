@@ -7,6 +7,7 @@ namespace VATyakov.Editor
     {
         public const string Vertex = "vertex";
         public const string Bone = "bone";
+        public const string Piece = "piece";
 
         private readonly string _element;
         private readonly Vector4[] _first;

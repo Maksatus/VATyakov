@@ -117,4 +117,11 @@ void VatBoneVertexBlend_float(float4 BoneUv, float3 RestPosition, float3 RestNor
     Tangent = lerp(tangentA, tangentB, FrameB.w);
 }
 
+void VatRigidVertex_float(float4 PieceUv, float3 RestPosition, float3 RestNormal, float3 RestTangent,
+    UnityTexture2D PieceTex, float4 Layout, float4 Frame,
+    out float3 Position, out float3 Normal, out float3 Tangent)
+{
+    VatBoneSkin(VatPieceTexel(PieceUv), RestPosition, RestNormal, RestTangent, PieceTex, Layout, Frame, Position, Normal, Tangent);
+}
+
 #endif

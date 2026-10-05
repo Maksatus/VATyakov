@@ -4,19 +4,19 @@ namespace VATyakov.Editor
 {
     internal sealed class VatBoneBounds
     {
-        private readonly VatBoneRig _rig;
+        private readonly Vector3[] _pivots;
         private readonly Vector3[] _min;
         private readonly Vector3[] _max;
         private readonly float[] _maxScale;
         private readonly bool[] _hasPose;
 
-        public VatBoneBounds(VatBoneRig rig)
+        public VatBoneBounds(Vector3[] pivots)
         {
-            _rig = rig;
-            _min = new Vector3[rig.BoneCount];
-            _max = new Vector3[rig.BoneCount];
-            _maxScale = new float[rig.BoneCount];
-            _hasPose = new bool[rig.BoneCount];
+            _pivots = pivots;
+            _min = new Vector3[pivots.Length];
+            _max = new Vector3[pivots.Length];
+            _maxScale = new float[pivots.Length];
+            _hasPose = new bool[pivots.Length];
         }
 
         public void Add(int bone, Vector3 pivot, float scale)
@@ -74,7 +74,7 @@ namespace VATyakov.Editor
 
         private float Radius(int bone, Vector3 point)
         {
-            return _maxScale[bone] * Vector3.Distance(point, _rig.Pivots[bone]);
+            return _maxScale[bone] * Vector3.Distance(point, _pivots[bone]);
         }
     }
 }
