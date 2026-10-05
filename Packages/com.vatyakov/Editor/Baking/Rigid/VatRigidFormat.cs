@@ -4,5 +4,6 @@ namespace VATyakov.Editor
     {
         public const int MaxPieces = VatMath.MaxTextureSize / VatMath.TexelsPerBone;
         public const float Tolerance = 5e-3f;
+        public const float MaxIslandResidual = 5e-4f;
     }
 }

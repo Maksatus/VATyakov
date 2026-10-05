@@ -27,7 +27,8 @@
 | 1.13 Bone в игре: LOD и экипировка | готово, устройства не проверены | 0.13.0 |
 | 1.14 Замер толпы и бюджеты | готово, замер на Galaxy S21+ (Mali); Redmi 9A, Adreno, iPhone не мерены | 0.14.0 |
 | 1.15 Rigid из Alembic с xform-нодами | готово в редакторе, устройства не проверены, экспорт из Houdini не проверен | 0.15.0 |
-| 1.16, 1.18 | не начаты | — |
+| 1.16 Rigid без xform-нод | готово в редакторе, устройства не проверены, экспорт из Houdini не проверен | 0.16.0 |
+| 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
 
@@ -124,6 +125,15 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   Шейдер: `VatPieceTexel` (`VatCore.hlsl`, CPU — `VatMath.PieceTexel`) → `VatRigidVertex_float` → `VatBoneSkin`.
   SubGraph `vat_rigid` и `vat_lit_rigid` — копии `vat_bone` и `vat_lit_bone` (`CopyAsset` + правка JSON: имя функции,
   `VatBoneTex` → `VatPieceTex`, слоты `PieceUv`/`PieceTex`, GUID сабграфа и `promotedFromAssetID`).
+  Без xform-нод (1.16): `Extract` на каждом кадре и внутреннем отсчёте (индекс отсчёта — кадры, потом внутренние,
+  `VatRigidTrack.Sample/SetSample/IsVisibleAt`) отдаёт вертексы и `localToWorldMatrix` каждой ноды в `VatRigidNode.Sample`.
+  Нода, чьи вертексы ушли от покоя (время 0) больше 0.01 мм, режется: `VatRigidIslands.Find` (`VatUnionFind` по
+  примитивам сабмешей) → `VatRigidIsland` на остров (до первого сдвига — единичная подгонка), на отсчёт —
+  `VatRigidFit.Solve` (центроиды и ковариация в double → `VatHornRotation`: матрица Хорна 4×4, Якоби, кватернион) и
+  невязка в пространстве корня. В конце `VatRigidSplit.Pieces`: острова с невязкой > `VatRigidFormat.MaxIslandResidual`
+  (0.5 мм) → `VatBakeException` с отчётом; иначе `VatRigidNode.Pieces` → `VatRigidIslandMerge.Group`
+  (`VatRigidIslandGroup`, представитель — самый большой остров) → трек куска `<нода>/<i>` с матрицами
+  `L2W · K_представителя`, мешем и покоем из `VatRigidSubset`. Нерезаная нода отдаёт свой трек как в 1.15.
 - **Инспекторы (1.10):** память — `VatAssetMemory` (по самим `Texture2D`: байты текстур, padding `blocks·W − E`,
   доля клипа `blocks·W·F`), сводка `VatAssetSummary` (общая для инспектора ассета и Result профиля) пишет всего и долю
   клипа в строку клипа (`VatInfoRow`), карточка Memory ассета — `VatAssetMemory*`. «Бейк устарел» —
@@ -233,7 +243,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV);
   `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11); `Samples/LitRigid/` — vat_lit_rigid.shadergraph (1.15)
 - `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatExtraMaterials (1.13), VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
-- `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility
+- `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind
 - `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBinding (1.13), VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
@@ -246,7 +256,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatExtraRendererTests (1.13), VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRigidAlembicTests (1.15, под `#if VAT_ALEMBIC`), VatRigidTests (1.15), VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatSyntheticPiece и VatSyntheticRigidSource (1.15), VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc, vat_rigid.abc (1.15)
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatExtraRendererTests (1.13), VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRigidAlembicTests (1.15, под `#if VAT_ALEMBIC`), VatRigidIslandTests (1.16), VatRigidTests (1.15), VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatSyntheticPiece и VatSyntheticRigidSource (1.15), VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc, vat_rigid.abc (1.15), vat_rigid_deform.abc (1.16)
 - Вне пакета, замер толпы (1.14): `Assets/VatDev/Scripts/Stress/` (сборка `VATyakov.Dev`, в билде) — VatStress (толпа, `Select`
   варианта, маркер `VatStress.Drive`), VatStressVariant и VatStressMode (варианты `empty`, `smr`, `vat`, `smr_crossfade`,
   `vat_crossfade`, `smr_lod0`, `vat_lod0`), IVatStressUnit, VatStressVatUnit, VatStressSmrUnit, VatStressInfo (конфигурация и счётчики сцены для отчёта), VatStressRemote и VatStressMessages
@@ -255,7 +265,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   VatStressPlayer (запросы к плееру), VatStressAnalyzer, VatStressMetric, VatStressMetrics, VatStressStats, VatStressCapture,
   VatStressSettings, VatStressSummary, VatStressCsv, VatStressMarkdown, VatStressFormat, VatStressThermal (слежение за Thermal Status), VatThrottlingException,
   VatAndroidThermal и VatThermalState (adb: батарея, Thermal Status, SoC, корпус)
-- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа, `VatRigidContent` (меню Regenerate Rigid Content, 1.15) — `VatRigidRecorder` (запись иерархии в .abc), `VatRigidFixture`, `VatRbdTestContent`, `VatRbdWallContent`; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте или его родителе есть `VatAnimator`, выключает его и пишет кадр во все его копии; кнопка LOD и клавиша L — `ForceLOD` списка `_lodGroups`, 1.13); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
+- Вне пакета: `Assets/VatDev/Editor/VatAlembicFixtures` (сборка `VATyakov.Dev.Editor`, меню VATyakov → Dev → Regenerate Alembic Fixtures) — генератор .abc-фикстур, `VatJellyContent` — желе для дрейфа, `VatRigidContent` (меню Regenerate Rigid Content, 1.15) — `VatRigidRecorder` (запись иерархии в .abc; `RecordDeforming` — через `VatDeformGeometry`, 1.16), `VatRigidFixture`, `VatRbdTestContent`, `VatRbdWallContent`; `Assets/VatDev/Scripts/VatDevGui` — общие размеры и стили IMGUI сцен VatDev; `Assets/VatDev/Scripts/VatCompare` умеет `AlembicStreamPlayer` (под `VAT_ALEMBIC`) и несколько клипов (`_clips`, `_clipIndex`, кнопка Clip и клавиша C в `VatCompareControls`; SMR играет клип с тем же именем; если на VAT-объекте или его родителе есть `VatAnimator`, выключает его и пишет кадр во все его копии; кнопка LOD и клавиша L — `ForceLOD` списка `_lodGroups`, 1.13); `VatCrowd` + `VatCrowdControls` — толпа для проверок 1.7
 
 ## Заметки по подверсиям
 
@@ -601,3 +611,22 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   После приёмки: инспектор Rigid-материала (`VatMaterialBinding.AnimationTexture`) искал `_VatBoneTex`, иначе `_VatPosTex`
   и сыпал «doesn't have a texture property» — теперь берёт текстуру того режима, свойство которой есть у материала
   (`VatShaderIds.DataTexture`); тест в `Bake_WritesARigidAsset_OnTheRigidTemplate`.
+- **1.16:** продуктовых вопросов не было: решения по умолчанию (решение по ноде, покой — время 0, слияние той же
+  невязкой 0.5 мм) пользователь принял до начала. Записано в §0 и §2.3.
+  Решения исполнителя: подгонка — Horn (собственный вектор 4×4), а не SVD/полярное разложение `VatMatrix3d`: у
+  плоского острова (грань куба с жёсткими рёбрами) ковариация вырождена, полярное разложение её не берёт. Невязка —
+  в пространстве корня (с масштабом ноды). Слияние консервативное: `невязка_B + |L2W·(K_A − K_B)·v|`, без хранения
+  вертексов всех кадров (у `rbd_test` это было бы 86 МБ). Нода режется лениво, с первого отсчёта, где сдвинулась;
+  на внутренних отсчётах вертексы теперь читаются у всех нод (раньше — только матрицы).
+  Отклонения от плана: видимости у кусков из островов нет (её нет и в Deform-экспорте) — видимость ноды;
+  отдельного сообщения в логе о разрезанных нодах нет, итог виден по числу кусков.
+  Контент: `Content/RBDDestroy/rbd_test_deform.abc` — тот же `rbd_test_rig.fbx`, записанный одним мешем в осях корня
+  (`VatDeformGeometry`, рекордер с `AssumeNonSkinnedMeshesAreConstant = false`; рекордер подменяет меш, поэтому кадр
+  пишется в `filter.sharedMesh`), 174 МБ в LFS против 4.9 МБ у xform-версии. Профиль `Bakes/rbd_test_deform` (копия
+  `rbd_test`) → `rbd_test_deform_vat` и `rbd_test_deform_vat.mat`: 114 кусков, 59 964 вертекса, 228×121, 215.5 КБ,
+  ошибка 1.445 мм — как у `rbd_test`; текстуры кусков совпали потексельно (кадры — до 0.002, пивоты — до 0.00024,
+  округление half). Бейк ~11 с. Фикстура `Tests/Editor/Fixtures/vat_rigid_deform.abc` — три куба `vat_rigid` одним
+  мешем (у куба 6 граней-островов), без скрытого куска. В сцену `compare_rigid` пара не добавлена.
+  Подвох: копия профиля через `CopyAsset` несёт ссылку на результат (`Asset`) и шаблон — бейк копии перезаписал
+  `rbd_test_vat`; откатил из git, перед бейком копии обнулять `Asset` и `Material`.
+  `water.abc` в Rigid: «1 of 1 islands … 1430.475 mm at 1.292 s». Проверено: 253 теста зелёные (5 новых).

@@ -12,10 +12,41 @@ namespace VATyakov.Dev
     {
         public static void Record(string path, GameObject root, int frames, float fps, Action<int> pose)
         {
+            Record(path, root, frames, fps, true, pose);
+        }
+
+        public static void RecordDeforming(string path, GameObject rig, string name, int frames, float fps, Action<int> pose)
+        {
+            try
+            {
+                var geometry = new VatDeformGeometry(rig, name);
+                Record(path, geometry.Root, frames, fps, false, frame =>
+                {
+                    pose(frame);
+                    geometry.Update();
+                });
+            }
+            finally
+            {
+                Object.DestroyImmediate(rig);
+            }
+        }
+
+        public static GameObject Piece(Transform parent, string name, Mesh mesh, Material material)
+        {
+            var piece = new GameObject(name);
+            piece.transform.SetParent(parent, false);
+            piece.AddComponent<MeshFilter>().sharedMesh = mesh;
+            piece.AddComponent<MeshRenderer>().sharedMaterial = material;
+            return piece;
+        }
+
+        private static void Record(string path, GameObject root, int frames, float fps, bool isConstant, Action<int> pose)
+        {
             AssetDatabase.DeleteAsset(path);
             try
             {
-                using var recorder = new AlembicRecorder { Settings = Settings(Path.GetFullPath(path), root, fps) };
+                using var recorder = new AlembicRecorder { Settings = Settings(Path.GetFullPath(path), root, fps, isConstant) };
                 for (var frame = 0; frame < frames; frame++)
                 {
                     pose(frame);
@@ -37,16 +68,7 @@ namespace VATyakov.Dev
             AssetDatabase.ImportAsset(path);
         }
 
-        public static GameObject Piece(Transform parent, string name, Mesh mesh, Material material)
-        {
-            var piece = new GameObject(name);
-            piece.transform.SetParent(parent, false);
-            piece.AddComponent<MeshFilter>().sharedMesh = mesh;
-            piece.AddComponent<MeshRenderer>().sharedMaterial = material;
-            return piece;
-        }
-
-        private static AlembicRecorderSettings Settings(string path, GameObject target, float fps)
+        private static AlembicRecorderSettings Settings(string path, GameObject target, float fps, bool isConstant)
         {
             var settings = new AlembicRecorderSettings
             {
@@ -56,7 +78,7 @@ namespace VATyakov.Dev
                 CaptureMeshRenderer = true,
                 CaptureSkinnedMeshRenderer = false,
                 CaptureCamera = false,
-                AssumeNonSkinnedMeshesAreConstant = true,
+                AssumeNonSkinnedMeshesAreConstant = isConstant,
                 MeshNormals = true,
                 MeshUV0 = true,
                 MeshUV1 = false,

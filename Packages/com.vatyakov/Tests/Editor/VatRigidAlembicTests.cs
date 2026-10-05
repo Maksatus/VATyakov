@@ -14,6 +14,8 @@ namespace VATyakov.Tests
     {
         private const string Fixtures = "Packages/com.vatyakov/Tests/Editor/Fixtures/";
         private const string TempFolder = "Assets/__VatRigidTemp";
+        private const string Rigid = "vat_rigid";
+        private const string Deform = "vat_rigid_deform";
         private const float SourceFps = 120f;
         private const float LowFps = 30f;
         private const float Tolerance = 1e-3f;
@@ -46,37 +48,26 @@ namespace VATyakov.Tests
         [Test]
         public void RigidBake_MatchesAlembicStreamPlayer_OnVisibleFrames()
         {
-            _result = Bake(SourceFps);
+            _result = Bake(Rigid, SourceFps);
             Assert.AreEqual(VatMode.Rigid, _result.Mode);
             Assert.AreEqual(3 * VatMath.TexelsPerBone, _result.Layout.Info.Elements, "three pieces");
+            AssertMatchesPlayer(Rigid);
+        }
 
-            var decoder = new VatBoneDecoder(_result.Textures.Bone);
-            var reference = new Reference(Instance(), _scene);
-            var rest = _result.Mesh.vertices;
-            var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
-            var clip = _result.Layout.Clips[0];
-            var maxError = 0f;
-            for (var frame = 0; frame < clip.FrameCount; frame++)
-            {
-                var positions = reference.Sample(clip.FrameTime(frame), out var visible);
-                for (var vertex = 0; vertex < rest.Length; vertex++)
-                {
-                    if (visible[vertex])
-                    {
-                        var decoded = decoder.PiecePosition(uvs[vertex], rest[vertex], VatTestUtil.Row(clip.StartRow + frame));
-                        maxError = Mathf.Max(maxError, Vector3.Distance(positions[vertex], decoded));
-                    }
-                }
-            }
-
-            Assert.Less(maxError, _result.Precision.Error + Tolerance, $"max error {maxError * 1000f:0.###} mm");
-            Assert.Less(_result.Precision.Error, Tolerance, "half precision of the piece texture");
+        [Test]
+        public void DeformGeometry_SplitsIntoTheSamePieces_AsTransformGeometry()
+        {
+            _result = Bake(Deform, SourceFps);
+            Assert.AreEqual(VatMode.Rigid, _result.Mode);
+            Assert.AreEqual(3 * VatMath.TexelsPerBone, _result.Layout.Info.Elements, "the islands of three cubes merge into three pieces");
+            Assert.AreEqual(Load(Rigid).GetComponentsInChildren<MeshFilter>(true).Sum(node => node.sharedMesh.vertexCount), _result.Mesh.vertexCount);
+            AssertMatchesPlayer(Deform);
         }
 
         [Test]
         public void PieceHiddenOnFrame0_IsScaledToZero_UntilItShows()
         {
-            _result = Bake(LowFps);
+            _result = Bake(Rigid, LowFps);
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
             var clip = _result.Layout.Clips[0];
             var late = PieceTexel("late");
@@ -96,14 +87,14 @@ namespace VATyakov.Tests
         [Test]
         public void FastSpin_WarnsAboutFps_FromTheSourceSamples()
         {
-            _result = Bake(LowFps);
+            _result = Bake(Rigid, LowFps);
             var warning = _result.Warnings.SingleOrDefault(text => text.Contains("too fast"));
             Assert.IsNotNull(warning, string.Join("\n", _result.Warnings));
             StringAssert.Contains("'spin'", warning);
             StringAssert.Contains("1 piece moves", warning, "the slide and the falling piece stay within 5 mm");
             DestroyResult();
 
-            _result = Bake(SourceFps);
+            _result = Bake(Rigid, SourceFps);
             Assert.IsFalse(_result.Warnings.Any(text => text.Contains("too fast")), string.Join("\n", _result.Warnings));
         }
 
@@ -115,7 +106,7 @@ namespace VATyakov.Tests
                 AssetDatabase.CreateFolder("Assets", TempFolder.Substring("Assets/".Length));
             }
 
-            _profile = Profile(Load("vat_rigid"), VatMode.Rigid, SourceFps);
+            _profile = Profile(Load(Rigid), VatMode.Rigid, SourceFps);
             var asset = VatBaker.Bake(_profile, $"{TempFolder}/rigid_vat.asset");
 
             Assert.AreEqual(VatMode.Rigid, asset.Mode);
@@ -139,19 +130,45 @@ namespace VATyakov.Tests
         {
             using var source = VatAlembic.OpenRigid(Load("vat_cloth"));
             var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, LowFps, false, "Cloth"));
-            StringAssert.Contains("deforms", error.Message);
-            StringAssert.Contains("Transform Geometry", error.Message);
+            StringAssert.Contains("islands of deforming meshes don't move rigidly", error.Message);
+            StringAssert.Contains("' island 0: ", error.Message, "the report lists the islands");
+            StringAssert.Contains("Mode = Vertex", error.Message);
         }
 
-        private VatBakeResult Bake(float fps)
+        private void AssertMatchesPlayer(string fixture)
         {
-            using var source = VatAlembic.OpenRigid(Instance());
+            var decoder = new VatBoneDecoder(_result.Textures.Bone);
+            var reference = new Reference(Instance(fixture), _scene);
+            var rest = _result.Mesh.vertices;
+            var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
+            var clip = _result.Layout.Clips[0];
+            var maxError = 0f;
+            for (var frame = 0; frame < clip.FrameCount; frame++)
+            {
+                var positions = reference.Sample(clip.FrameTime(frame), out var visible);
+                for (var vertex = 0; vertex < rest.Length; vertex++)
+                {
+                    if (visible[vertex])
+                    {
+                        var decoded = decoder.PiecePosition(uvs[vertex], rest[vertex], VatTestUtil.Row(clip.StartRow + frame));
+                        maxError = Mathf.Max(maxError, Vector3.Distance(positions[vertex], decoded));
+                    }
+                }
+            }
+
+            Assert.Less(maxError, _result.Precision.Error + Tolerance, $"max error {maxError * 1000f:0.###} mm");
+            Assert.Less(_result.Precision.Error, Tolerance, "half precision of the piece texture");
+        }
+
+        private VatBakeResult Bake(string fixture, float fps)
+        {
+            using var source = VatAlembic.OpenRigid(Instance(fixture));
             return VatRigidPipeline.Run(source, fps, false, "Rigid");
         }
 
         private int PieceTexel(string piece)
         {
-            using var source = VatAlembic.OpenRigid(Instance());
+            using var source = VatAlembic.OpenRigid(Instance(Rigid));
             var clip = VatLayout.ForRigid(source.PieceCount, new[] { new VatClipRequest("Clip", source.Clip.Length, LowFps, false) }).Clips[0];
             var tracks = source.Extract(clip, VatRigidInnerTimes.Between(clip, null));
             return tracks.ToList().FindIndex(track => track.Name == piece) * VatMath.TexelsPerBone;
@@ -180,9 +197,9 @@ namespace VATyakov.Tests
             return profile;
         }
 
-        private GameObject Instance()
+        private GameObject Instance(string fixture)
         {
-            var instance = Object.Instantiate(Load("vat_rigid"));
+            var instance = Object.Instantiate(Load(fixture));
             SceneManager.MoveGameObjectToScene(instance, _scene);
             return instance;
         }
