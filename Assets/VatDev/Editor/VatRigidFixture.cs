@@ -16,6 +16,10 @@ namespace VATyakov.Dev
         private const float LateHeight = 2f;
         private const float Gravity = 9.8f;
         private const float SpinTurnRate = 3600f;
+        private const int Slide = 0;
+        private const int Late = 1;
+        private const int Spin = 2;
+
         private static readonly Vector3 _slideAxis = new(1f, 1f, 0f);
         private static readonly Vector3 _lateStart = new(0f, LateHeight, 1f);
         private static readonly Vector3 _spinCenter = new(3f, 0f, 0f);
@@ -27,7 +31,7 @@ namespace VATyakov.Dev
             VatRigidRecorder.Record(Path, root, Frames, Fps, frame =>
             {
                 Pose(pieces, frame);
-                pieces[1].gameObject.SetActive(frame >= LateFrame);
+                pieces[Late].gameObject.SetActive(frame >= LateFrame);
             });
         }
 
@@ -47,9 +51,9 @@ namespace VATyakov.Dev
         private static void Pose(Transform[] pieces, int frame)
         {
             var time = frame / Fps;
-            pieces[0].SetLocalPositionAndRotation(new Vector3(SlideSpeed * time, 0f, 0f), Quaternion.AngleAxis(SlideTurnRate * time, _slideAxis));
-            pieces[1].localPosition = _lateStart + 0.5f * Gravity * time * time * Vector3.down;
-            pieces[2].SetLocalPositionAndRotation(_spinCenter, Quaternion.AngleAxis(SpinTurnRate * time, Vector3.up));
+            pieces[Slide].SetLocalPositionAndRotation(new Vector3(SlideSpeed * time, 0f, 0f), Quaternion.AngleAxis(SlideTurnRate * time, _slideAxis));
+            pieces[Late].localPosition = _lateStart + 0.5f * Gravity * time * time * Vector3.down;
+            pieces[Spin].SetLocalPositionAndRotation(_spinCenter, Quaternion.AngleAxis(SpinTurnRate * time, Vector3.up));
         }
 
         private static Transform Piece(GameObject root, string name, Mesh mesh)

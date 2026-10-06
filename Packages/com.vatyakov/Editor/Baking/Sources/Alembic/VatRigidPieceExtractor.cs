@@ -9,7 +9,12 @@ namespace VATyakov.Editor
     {
         private const string RecipeHint =
             "Rigid mode bakes pieces with a constant topology: export from Houdini with Transform Geometry and s@path, or with Deform Geometry " +
-            "(see the package README). Use Mode = Vertex for meshes that change topology.";
+            "(see the package README). No mode bakes a changing topology yet: keep every piece in the .abc " +
+            "and hide it with the visibility instead of deleting it.";
+
+        private const string SampleTimesMissing =
+            "couldn't read the sample times of the .abc from the Alembic package: the fps check takes 3 points between frames, " +
+            "and deforming meshes are fitted on every baked frame.";
 
         private readonly string _name;
         private readonly List<string> _warnings = new();
@@ -41,7 +46,7 @@ namespace VATyakov.Editor
 
         public VatRigidTrack[] Extract(VatClip clip, VatRigidInnerTimes inner)
         {
-            var nodes = Array.ConvertAll(_nodes, node => new VatRigidNode(Track(node, clip.FrameCount, inner.Count)));
+            var nodes = Array.ConvertAll(_nodes, filter => new VatRigidNode(Track(filter, clip.FrameCount, inner.Count)));
             try
             {
                 for (var frame = 0; frame < clip.FrameCount; frame++)
@@ -50,13 +55,16 @@ namespace VATyakov.Editor
                     var time = clip.FrameTime(frame);
                     _copy.Player.UpdateImmediately((float)time);
                     RequireTopology(time);
-                    Sample(nodes, frame, time);
+                    Sample(nodes, frame, time, IsSourceTime(time));
                 }
 
                 for (var sample = 0; sample < inner.Count; sample++)
                 {
-                    _copy.Player.UpdateImmediately((float)inner.Times[sample]);
-                    Sample(nodes, clip.FrameCount + sample, inner.Times[sample]);
+                    VatBakeProgress.ReportBetween(clip, sample, inner.Count);
+                    var time = inner.Times[sample];
+                    _copy.Player.UpdateImmediately((float)time);
+                    RequireTopology(time);
+                    Sample(nodes, clip.FrameCount + sample, time, SampleTimes != null);
                 }
             }
             finally
@@ -84,15 +92,20 @@ namespace VATyakov.Editor
 
             _topology = VatAlembicTopology.Capture(_nodes);
             SampleTimes = VatAlembicSampleTimes.Read(_copy.Player);
+            if (SampleTimes == null)
+            {
+                _warnings.Add(SampleTimesMissing);
+            }
+
             if (Array.Exists(_nodes, node => node.sharedMesh.uv.Length != node.sharedMesh.vertexCount))
             {
                 _warnings.Add("some pieces have no UV, use a triplanar template.");
             }
         }
 
-        private static VatRigidTrack Track(MeshFilter node, int frameCount, int innerCount)
+        private static VatRigidTrack Track(MeshFilter filter, int frameCount, int innerCount)
         {
-            var mesh = node.sharedMesh;
+            var mesh = filter.sharedMesh;
             var local = new VatFrame(mesh.vertexCount);
             var normals = mesh.normals;
             var tangents = mesh.tangents;
@@ -103,7 +116,7 @@ namespace VATyakov.Editor
                 local.Tangents[vertex] = tangents.Length == local.Positions.Length ? tangents[vertex] : VatFrame.MissingTangent;
             }
 
-            return new VatRigidTrack(node.name, VatSourceMesh.Read(mesh), local, frameCount, innerCount);
+            return new VatRigidTrack(filter.name, VatSourceMesh.Read(mesh), local, frameCount, innerCount);
         }
 
         private void RequireTopology(double time)
@@ -115,13 +128,18 @@ namespace VATyakov.Editor
             }
         }
 
-        private void Sample(VatRigidNode[] nodes, int sample, double time)
+        private bool IsSourceTime(double time)
+        {
+            return SampleTimes == null || VatRigidInnerTimes.Contains(SampleTimes, time);
+        }
+
+        private void Sample(VatRigidNode[] nodes, int sample, double time, bool isSourceSample)
         {
             for (var index = 0; index < _nodes.Length; index++)
             {
-                var node = _nodes[index];
-                node.sharedMesh.GetVertices(_positions);
-                nodes[index].Sample(sample, _positions, node.transform.localToWorldMatrix, node.gameObject.activeInHierarchy, time);
+                var filter = _nodes[index];
+                filter.sharedMesh.GetVertices(_positions);
+                nodes[index].Sample(sample, _positions, filter.transform.localToWorldMatrix, filter.gameObject.activeInHierarchy, time, isSourceSample);
             }
         }
     }

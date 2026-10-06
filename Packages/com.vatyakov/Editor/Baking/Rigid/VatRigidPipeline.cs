@@ -11,7 +11,7 @@ namespace VATyakov.Editor
         public static VatBakeResult Run(IVatRigidSource source, float fps, bool isLooping, string name)
         {
             var requests = VatClipRequest.From(new[] { source.Clip }, fps, isLooping);
-            var clip = VatLayout.ForRigid(source.PieceCount, requests).Clips[0];
+            var clip = VatLayout.ForRigid(Math.Min(source.PieceCount, VatRigidFormat.MaxPieces), requests).Clips[0];
             var inner = VatRigidInnerTimes.Between(clip, source.SampleTimes);
             var warnings = new List<string>(source.Warnings);
             var pieces = VisiblePieces(source.Extract(clip, inner), warnings);
@@ -32,7 +32,7 @@ namespace VATyakov.Editor
             var hidden = new List<string>();
             foreach (var track in tracks)
             {
-                var visibility = new VatRigidVisibility(track.Visible);
+                var visibility = VatRigidVisibility.Of(track);
                 if (visibility.IsNeverVisible)
                 {
                     hidden.Add(track.Name);

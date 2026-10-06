@@ -69,7 +69,9 @@ namespace VATyakov.Editor
                 return true;
             }
 
-            return asset.HasBoneTexture ? material.GetTexture(VatShaderIds.DataTexture(asset.Mode)) != asset.BoneTexture : IsVertexStale(material, asset, clipIndex);
+            return asset.HasBoneTexture
+                ? material.GetTexture(VatShaderIds.DataTexture(asset.Mode)) != asset.BoneTexture
+                : IsVertexStale(material, asset, clipIndex);
         }
 
         private static bool IsVertexStale(Material material, VatAsset asset, int clipIndex)

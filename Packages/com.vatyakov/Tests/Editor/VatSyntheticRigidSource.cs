@@ -7,7 +7,8 @@ namespace VATyakov.Tests
 {
     internal sealed class VatSyntheticRigidSource : IVatRigidSource
     {
-        private const float HalfSize = 0.25f;
+        public const float HalfSize = 0.25f;
+        public const int CubeVertices = 8;
 
         private static readonly int[] _cubeTriangles =
         {
@@ -75,15 +76,20 @@ namespace VATyakov.Tests
 
         private static VatSourceMesh Cube(string name)
         {
-            return new VatSourceMesh(name, 8, null, new[] { new VatSourceSubMesh(_cubeTriangles, MeshTopology.Triangles) });
+            return new VatSourceMesh(name, CubeVertices, null, new[] { new VatSourceSubMesh(_cubeTriangles, MeshTopology.Triangles) });
+        }
+
+        private static float Corner(int corner, int bit)
+        {
+            return (corner & bit) == 0 ? -HalfSize : HalfSize;
         }
 
         private static VatFrame CubeFrame()
         {
-            var frame = new VatFrame(8);
-            for (var corner = 0; corner < 8; corner++)
+            var frame = new VatFrame(CubeVertices);
+            for (var corner = 0; corner < CubeVertices; corner++)
             {
-                var position = new Vector3((corner & 1) == 0 ? -HalfSize : HalfSize, (corner & 2) == 0 ? -HalfSize : HalfSize, (corner & 4) == 0 ? -HalfSize : HalfSize);
+                var position = new Vector3(Corner(corner, 1), Corner(corner, 2), Corner(corner, 4));
                 frame.Positions[corner] = position;
                 frame.Normals[corner] = position.normalized;
                 frame.Tangents[corner] = VatFrame.MissingTangent;

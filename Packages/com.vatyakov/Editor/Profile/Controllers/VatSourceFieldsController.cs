@@ -33,6 +33,7 @@ namespace VATyakov.Editor
             var isAlembic = _context.Profile.Kind == VatSourceKind.Alembic;
             _container.Skinned.SetVisible(!isAlembic);
             _container.Alembic.SetVisible(isAlembic);
+            _container.MaxPositionError.SetVisible(!_context.Profile.IsRigid);
         }
     }
 }

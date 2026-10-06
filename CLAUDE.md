@@ -104,4 +104,4 @@
   (LOD и топор), префаб `warrior_vat` с LODGroup, сцена `warrior` (1.13, не в сборке; L — переключить LOD).
 - `Assets/VatDev/Content/RBDDestroy` — разрушения (1.15): `rbd_test.abc` (перегнан из `rbd_test_rig.fbx`, 114 кусков) и `rbd_wall.abc`
   (500 кусков с появлением и исчезновением), `rbd_test_deform.abc` (тот же тест одним деформирующимся мешем, 1.16), генератор — меню VATyakov → Dev → Regenerate Rigid Content; профили
-  `Bakes/rbd_test`, `Bakes/rbd_wall` (Mode = Rigid), сцена `compare_rigid` (не в сборке).
+  `Bakes/rbd_test`, `Bakes/rbd_wall`, `Bakes/rbd_test_deform` (Mode = Rigid), сцена `compare_rigid` (не в сборке).

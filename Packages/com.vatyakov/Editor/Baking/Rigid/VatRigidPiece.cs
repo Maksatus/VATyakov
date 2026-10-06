@@ -5,39 +5,42 @@ namespace VATyakov.Editor
 {
     internal sealed class VatRigidPiece
     {
-        private const float MinDeterminant = 1e-12f;
-
         public readonly VatRigidTrack Track;
         public readonly VatRigidVisibility Visibility;
+        public readonly VatSourceMesh Source;
         public readonly Matrix4x4[] Motions;
         public readonly Vector3[] RestPositions;
+        public readonly Vector3 Center;
         public readonly Vector3 Pivot;
 
         private readonly Matrix4x4 _rest;
         private readonly Matrix4x4 _restInverse;
 
         public string Name => Track.Name;
-        public int VertexCount => Track.Source.VertexCount;
+        public int VertexCount => Source.VertexCount;
 
         public VatRigidPiece(VatRigidTrack track, VatRigidVisibility visibility)
         {
             Track = track;
             Visibility = visibility;
             _rest = track.Frames[visibility.First];
-            if (!(Mathf.Abs(_rest.determinant) > MinDeterminant))
-            {
-                throw new VatBakeException(FormattableString.Invariant($"Piece '{track.Name}' has zero scale on frame {visibility.First}, its first visible frame."));
-            }
-
             _restInverse = _rest.inverse;
+            Source = _rest.determinant < 0f ? VatSourceWinding.Reversed(track.Source) : track.Source;
             Motions = Array.ConvertAll(track.Frames, frame => frame * _restInverse);
             RestPositions = Array.ConvertAll(track.Local.Positions, _rest.MultiplyPoint3x4);
-            Pivot = new VatHalf3(VatRigidPivot.Solve(Motions, visibility, Center(RestPositions))).ToVector3();
+            var bounds = RestBounds(RestPositions);
+            Center = bounds.center;
+            Pivot = new VatHalf3(VatRigidPivot.Solve(Motions, visibility, bounds)).ToVector3();
         }
 
         public Matrix4x4 InnerMotion(int sample)
         {
             return Track.Inner[sample] * _restInverse;
+        }
+
+        public bool IsVisibleInside(int sample)
+        {
+            return VatRigidVisibility.IsShown(Track.Inner[sample], Track.InnerVisible[sample]);
         }
 
         public void WriteRest(VatFrame frame, int offset)
@@ -52,7 +55,7 @@ namespace VATyakov.Editor
             }
         }
 
-        private static Vector3 Center(Vector3[] points)
+        private static Bounds RestBounds(Vector3[] points)
         {
             var bounds = new VatBoundsBuilder();
             foreach (var point in points)
@@ -60,7 +63,7 @@ namespace VATyakov.Editor
                 bounds.Add(point);
             }
 
-            return bounds.Bounds.center;
+            return bounds.Bounds;
         }
     }
 }

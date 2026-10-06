@@ -7,7 +7,7 @@ Packages/com.vatyakov/
             SubGraphs/ vat_vertex (1.1), vat_vertex_blend (1.8.2), vat_bone и vat_bone_blend (1.11), vat_rigid (1.15)
   Editor/   VATyakov.Editor.asmdef — VatBakeProfile(+Editor).cs, VatAssetEditor.cs
             Baking/  IVatFrameSource, VatSkinnedFrameSource, VatLayout, VatAssetWriter,
-                     VatVertexEncoder (1.1); Bone/ — VatBoneRig, VatBoneEncoder, VatBonePipeline (1.11); Rigid/ — VatRigidPipeline, VatRigidEncoder, VatRigidPivot (1.15)
+                     VatVertexEncoder (1.1); Bone/ — VatBoneRig, VatBoneEncoder, VatBonePipeline (1.11); Rigid/ — VatRigidPipeline, VatRigidEncoder, VatRigidPivot (1.15), VatRigidNode, VatRigidFitBlend (1.16)
             Baking/Sources/Alembic/ — VatAlembicFrameSource (1.4), VatRigidPieceExtractor (1.15: xform-ноды, 1.16: острова + Kabsch), под #if VAT_ALEMBIC
   Tests/Editor/
   Samples~/ vat_lit_bone и vat_lit_bone_blend (1.11), vat_lit_vertex, vat_lit_vertex_blend (1.8.2), vat_lit_vertex_triplanar (1.4), vat_lit_rigid; сцены `compare` и `stress`

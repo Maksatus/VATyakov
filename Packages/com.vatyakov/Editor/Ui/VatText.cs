@@ -26,7 +26,12 @@ namespace VATyakov.Editor
         public static string Estimate(VatBakeEstimate estimate)
         {
             var layout = estimate.Layout;
-            if (estimate.Mode != VatMode.Vertex)
+            if (estimate.Mode == VatMode.Rigid)
+            {
+                return RigidEstimate(layout);
+            }
+
+            if (estimate.Mode == VatMode.Bone)
             {
                 return BoneEstimate(estimate.Mode, layout);
             }
@@ -142,6 +147,15 @@ namespace VATyakov.Editor
         {
             var frames = Count(layout.Info.TotalRows - VatBoneFormat.PivotRows);
             return $"Result: {mode}, {Clips(layout.Clips.Length)}, {frames} · texture {Size(layout.Info)} · {Bytes(VatMemory.BoneTextureBytes(layout.Info))}";
+        }
+
+        private static string RigidEstimate(VatLayout layout)
+        {
+            var frames = Count(layout.Info.TotalRows - VatBoneFormat.PivotRows);
+            var pieces = Number(layout.Info.Elements / VatMath.TexelsPerBone);
+            var bytes = Bytes(VatMemory.BoneTextureBytes(layout.Info));
+            return $"Result: Rigid, {Clips(layout.Clips.Length)}, {frames} · {pieces} pieces or more (deforming meshes split into islands at bake) · " +
+                $"texture {Size(layout.Info)} or wider · {bytes} or more";
         }
 
         private static double MegabytesOf(VatLayoutInfo info, VatPositionFormat format)

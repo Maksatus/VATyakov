@@ -25,7 +25,8 @@ namespace VATyakov.Editor
             _container.Mesh.Set(asset.Mesh);
             Show(_container.PositionTexture, asset.PositionTexture);
             Show(_container.RotationTexture, asset.RotationTexture);
-            Show(_container.BoneTexture, asset.BoneTexture);
+            Show(_container.BoneTexture, asset.Mode == VatMode.Bone ? asset.BoneTexture : null);
+            Show(_container.PieceTexture, asset.Mode == VatMode.Rigid ? asset.BoneTexture : null);
         }
 
         private static void Show(VatObjectLink link, Texture2D texture)

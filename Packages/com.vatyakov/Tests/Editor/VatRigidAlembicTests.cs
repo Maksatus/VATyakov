@@ -1,4 +1,5 @@
 #if VAT_ALEMBIC
+using System;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
@@ -7,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.SceneManagement;
 using VATyakov.Editor;
+using Object = UnityEngine.Object;
 
 namespace VATyakov.Tests
 {
@@ -20,6 +22,10 @@ namespace VATyakov.Tests
         private const float LowFps = 30f;
         private const float Tolerance = 1e-3f;
         private const int LateSourceFrame = 30;
+        private const int SourceSamples = 61;
+        private const float MillimetersPerMeter = 1000f;
+
+        private static readonly string[] _rigOrder = { "slide", "late", "spin" };
 
         private Scene _scene;
         private VatBakeResult _result;
@@ -64,6 +70,30 @@ namespace VATyakov.Tests
             AssertMatchesPlayer(Deform);
         }
 
+        [TestCase(50f)]
+        [TestCase(100f)]
+        public void DeformGeometry_BetweenSourceSamples_MatchesTransformGeometry(float fps)
+        {
+            _result = Bake(Deform, fps);
+            Assert.AreEqual(3 * VatMath.TexelsPerBone, _result.Layout.Info.Elements, "interpolated vertices between samples keep the pieces rigid");
+            AssertMatchesPlayer(Rigid, _rigOrder);
+        }
+
+        [Test]
+        public void SampleTimes_AreReadFromTheAlembic()
+        {
+            var player = Instance(Rigid).GetComponent<AlembicStreamPlayer>();
+
+            var times = VatAlembicSampleTimes.Read(player);
+
+            Assert.IsNotNull(times, "the internals of the Alembic package changed: the fps check falls back to 3 points per interval");
+            Assert.AreEqual(SourceSamples, times.Length, "every sample of the fixture");
+            for (var sample = 0; sample < times.Length; sample++)
+            {
+                Assert.AreEqual(sample / SourceFps, times[sample], 1e-5, $"sample {sample}");
+            }
+        }
+
         [Test]
         public void PieceHiddenOnFrame0_IsScaledToZero_UntilItShows()
         {
@@ -78,7 +108,8 @@ namespace VATyakov.Tests
                 Assert.AreEqual(frame < firstVisible ? 0f : 1f, offsetScale.w, Tolerance, $"frame {frame}");
                 if (frame < firstVisible)
                 {
-                    Assert.AreEqual((Vector3)decoder.Texel(late, clip.StartRow + firstVisible), (Vector3)offsetScale, $"frame {frame}");
+                    var collapse = Vector3.Distance(decoder.Texel(late, clip.StartRow + firstVisible), offsetScale);
+                    Assert.Less(collapse, Tolerance, $"frame {frame}: the offset of the first visible frame, up to the rounding of the pivot");
                     Assert.AreEqual(decoder.Texel(late + 1, clip.StartRow + firstVisible), decoder.Texel(late + 1, clip.StartRow + frame), $"frame {frame}");
                 }
             }
@@ -121,6 +152,10 @@ namespace VATyakov.Tests
             Assert.AreEqual(asset, binding.Asset);
             Assert.IsFalse(binding.IsStale, "the template is fresh");
 
+            _profile.MaxPositionError *= 2f;
+            Assert.IsFalse(VatSourceHash.IsOutdated(_profile, asset), "Max Position Error doesn't change a Rigid bake");
+            StringAssert.Contains("3 pieces or more", VatText.Estimate(VatBakeEstimate.For(_profile)), "deforming meshes add pieces at bake");
+
             _profile.Mode = VatMode.Vertex;
             Assert.IsTrue(VatSourceHash.IsOutdated(_profile, asset), "the mode is in the hash");
         }
@@ -135,10 +170,10 @@ namespace VATyakov.Tests
             StringAssert.Contains("Mode = Vertex", error.Message);
         }
 
-        private void AssertMatchesPlayer(string fixture)
+        private void AssertMatchesPlayer(string fixture, string[] order = null)
         {
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
-            var reference = new Reference(Instance(fixture), _scene);
+            var reference = new Reference(Instance(fixture), _scene, order);
             var rest = _result.Mesh.vertices;
             var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
             var clip = _result.Layout.Clips[0];
@@ -156,7 +191,7 @@ namespace VATyakov.Tests
                 }
             }
 
-            Assert.Less(maxError, _result.Precision.Error + Tolerance, $"max error {maxError * 1000f:0.###} mm");
+            Assert.Less(maxError, _result.Precision.Error + Tolerance, FormattableString.Invariant($"max error {maxError * MillimetersPerMeter:0.###} mm"));
             Assert.Less(_result.Precision.Error, Tolerance, "half precision of the piece texture");
         }
 
@@ -216,13 +251,13 @@ namespace VATyakov.Tests
             private readonly AlembicStreamPlayer _player;
             private readonly MeshFilter[] _pieces;
 
-            public Reference(GameObject alembic, Scene scene)
+            public Reference(GameObject alembic, Scene scene, string[] order)
             {
                 var instance = Object.Instantiate(alembic);
                 SceneManager.MoveGameObjectToScene(instance, scene);
                 _player = instance.GetComponent<AlembicStreamPlayer>();
                 _player.UpdateImmediately(0f);
-                _pieces = instance.GetComponentsInChildren<MeshFilter>(true);
+                _pieces = instance.GetComponentsInChildren<MeshFilter>(true).OrderBy(piece => order == null ? 0 : Array.IndexOf(order, piece.name)).ToArray();
             }
 
             public Vector3[] Sample(double time, out bool[] visible)

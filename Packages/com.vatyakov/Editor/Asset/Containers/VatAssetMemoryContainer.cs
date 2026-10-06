@@ -5,6 +5,7 @@ namespace VATyakov.Editor
         public readonly VatInfoRow PositionTexture = new("Position Texture");
         public readonly VatInfoRow RotationTexture = new("Rotation Texture");
         public readonly VatInfoRow BoneTexture = new("Bone Texture");
+        public readonly VatInfoRow PieceTexture = new("Piece Texture");
         public readonly VatInfoRow Padding = new("Padding");
 
         public VatAssetMemoryContainer()
@@ -15,6 +16,7 @@ namespace VATyakov.Editor
                 PositionTexture,
                 RotationTexture,
                 BoneTexture,
+                PieceTexture,
                 Padding));
         }
     }

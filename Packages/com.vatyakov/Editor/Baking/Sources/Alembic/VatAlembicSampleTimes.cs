@@ -9,6 +9,7 @@ namespace VATyakov.Editor
     internal static class VatAlembicSampleTimes
     {
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        private const double Epsilon = 1e-6;
 
         public static double[] Read(AlembicStreamPlayer player)
         {
@@ -16,7 +17,7 @@ namespace VATyakov.Editor
             {
                 return ReadContext(Get(Get(player, "abcStream"), "abcContext"), player.StartTime);
             }
-            catch (Exception e) when (e is NullReferenceException or TargetInvocationException or InvalidCastException or AmbiguousMatchException)
+            catch (Exception)
             {
                 return null;
             }
@@ -36,9 +37,16 @@ namespace VATyakov.Editor
                 }
             }
 
-            var result = new double[times.Count];
-            times.CopyTo(result);
-            return result;
+            var result = new List<double>();
+            foreach (var time in times)
+            {
+                if (result.Count == 0 || time - result[result.Count - 1] > Epsilon)
+                {
+                    result.Add(time);
+                }
+            }
+
+            return result.ToArray();
         }
 
         private static object Get(object target, string name)

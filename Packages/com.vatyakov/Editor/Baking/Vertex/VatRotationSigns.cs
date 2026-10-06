@@ -40,9 +40,14 @@ namespace VATyakov.Editor
 
         public void CloseLoop(string clip)
         {
+            CloseLoop(clip, _ => true);
+        }
+
+        public void CloseLoop(string clip, Predicate<int> isSeamShown)
+        {
             for (var index = 0; index < _first.Length; index++)
             {
-                if (Vector4.Dot(_previous[index], _first[index]) < 0f)
+                if (isSeamShown(index) && Vector4.Dot(_previous[index], _first[index]) < 0f)
                 {
                     SeamCount++;
                     FirstSeam ??= FormattableString.Invariant($"{_element} {index}, clip '{clip}'");

@@ -41,6 +41,30 @@ namespace VATyakov.Editor
             return new VatRigidInnerTimes(intervals, fractions, times);
         }
 
+        public static bool Contains(IReadOnlyList<double> sortedTimes, double time)
+        {
+            var low = 0;
+            var high = sortedTimes.Count - 1;
+            while (low <= high)
+            {
+                var middle = (low + high) / 2;
+                if (sortedTimes[middle] < time - Epsilon)
+                {
+                    low = middle + 1;
+                }
+                else if (sortedTimes[middle] > time + Epsilon)
+                {
+                    high = middle - 1;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static IEnumerable<double> Inside(double start, double end, IReadOnlyList<double> sourceTimes)
         {
             if (sourceTimes == null)

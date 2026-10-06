@@ -17,9 +17,10 @@ namespace VATyakov.Dev
 
         public static void RecordDeforming(string path, GameObject rig, string name, int frames, float fps, Action<int> pose)
         {
+            VatDeformGeometry geometry = null;
             try
             {
-                var geometry = new VatDeformGeometry(rig, name);
+                geometry = new VatDeformGeometry(rig, name);
                 Record(path, geometry.Root, frames, fps, false, frame =>
                 {
                     pose(frame);
@@ -28,6 +29,7 @@ namespace VATyakov.Dev
             }
             finally
             {
+                geometry?.Dispose();
                 Object.DestroyImmediate(rig);
             }
         }
@@ -43,6 +45,8 @@ namespace VATyakov.Dev
 
         private static void Record(string path, GameObject root, int frames, float fps, bool isConstant, Action<int> pose)
         {
+            var meta = $"{path}.meta";
+            var metaText = File.Exists(meta) ? File.ReadAllText(meta) : null;
             AssetDatabase.DeleteAsset(path);
             try
             {
@@ -63,6 +67,11 @@ namespace VATyakov.Dev
             finally
             {
                 Object.DestroyImmediate(root);
+            }
+
+            if (metaText != null)
+            {
+                File.WriteAllText(meta, metaText);
             }
 
             AssetDatabase.ImportAsset(path);

@@ -6,6 +6,7 @@ namespace VATyakov.Editor
         public readonly VatObjectLink PositionTexture = new("Position Texture");
         public readonly VatObjectLink RotationTexture = new("Rotation Texture");
         public readonly VatObjectLink BoneTexture = new("Bone Texture");
+        public readonly VatObjectLink PieceTexture = new("Piece Texture");
 
         public VatAssetContentsContainer()
         {
@@ -14,7 +15,8 @@ namespace VATyakov.Editor
                 Mesh,
                 PositionTexture,
                 RotationTexture,
-                BoneTexture));
+                BoneTexture,
+                PieceTexture));
         }
     }
 }

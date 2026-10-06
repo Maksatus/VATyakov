@@ -11,7 +11,7 @@ namespace VATyakov.Editor
         private readonly double[,] _normal = new double[Size, Size];
         private readonly double[] _right = new double[Size];
 
-        public static Vector3 Solve(Matrix4x4[] motions, VatRigidVisibility visibility, Vector3 center)
+        public static Vector3 Solve(Matrix4x4[] motions, VatRigidVisibility visibility, Bounds rest)
         {
             var pivot = new VatRigidPivot();
             for (var frame = 1; frame < motions.Length - 1; frame++)
@@ -22,7 +22,7 @@ namespace VATyakov.Editor
                 }
             }
 
-            return pivot.TrySolve(out var point) ? point : center;
+            return pivot.TrySolve(out var point) && Vector3.Distance(point, rest.center) <= rest.extents.magnitude ? point : rest.center;
         }
 
         private void Add(Matrix4x4 previous, Matrix4x4 current, Matrix4x4 next)

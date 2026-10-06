@@ -119,4 +119,4 @@ InitTestScene*.unity*
 # Local Claude Code settings
 .claude/settings.local.json
 # Temporary assets of the package tests
-/[Aa]ssets/__VatTestTemp*
+/[Aa]ssets/__Vat*Temp*

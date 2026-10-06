@@ -12,7 +12,7 @@ namespace VATyakov.Editor
         private const float MillimetersPerMeter = 1000f;
 
         [Tooltip("Skinned Mesh Renderer: a renderer with clips. Alembic: an .abc with constant topology (cloth, soft body, liquid) " +
-                 "or rigid pieces on xform nodes (destruction).")]
+                 "or rigid pieces, on xform nodes or in a deforming mesh (destruction).")]
         [SerializeField]
         private VatSourceKind _kind;
 
@@ -23,7 +23,8 @@ namespace VATyakov.Editor
         [Tooltip("Vertex: positions and rotations of every vertex per frame, any deformation. " +
                  "Bone: rotation, uniform scale and offset of every bone per frame, two bones per vertex, much less memory. " +
                  "A bone that scales non-uniformly or a blend shape bakes the asset as Vertex. Skinned Mesh Renderer only. " +
-                 "Rigid: rotation, uniform scale and offset of every piece per frame, pieces on xform nodes of an Alembic or rigid parts of a deforming mesh (destruction), up to 2048 pieces.")]
+                 "Rigid: rotation, uniform scale and offset of every piece per frame, up to 2048 pieces (destruction). " +
+                 "Pieces are the xform nodes of an Alembic or the rigid parts of a deforming mesh.")]
         [SerializeField]
         private VatMode _mode;
 

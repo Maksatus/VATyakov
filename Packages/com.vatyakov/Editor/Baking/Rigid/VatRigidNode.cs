@@ -10,6 +10,9 @@ namespace VATyakov.Editor
 
         public readonly VatRigidTrack Track;
 
+        private readonly double[] _times;
+        private readonly bool[] _isFitted;
+
         private VatRigidIsland[] _islands;
 
         public bool IsSplit => _islands != null;
@@ -18,18 +21,27 @@ namespace VATyakov.Editor
         public VatRigidNode(VatRigidTrack track)
         {
             Track = track;
+            _times = new double[track.SampleCount];
+            _isFitted = new bool[track.SampleCount];
         }
 
-        public void Sample(int sample, IReadOnlyList<Vector3> positions, Matrix4x4 localToWorld, bool isVisible, double time)
+        public bool IsFitted(int sample)
+        {
+            return _isFitted[sample];
+        }
+
+        public void Sample(int sample, IReadOnlyList<Vector3> positions, Matrix4x4 localToWorld, bool isVisible, double time, bool isSourceSample)
         {
             Track.SetSample(sample, localToWorld, isVisible);
+            _times[sample] = time;
+            _isFitted[sample] = isSourceSample;
             var rest = Track.Local.Positions;
             if (_islands == null && Deforms(rest, positions))
             {
                 Split(sample);
             }
 
-            if (_islands == null)
+            if (_islands == null || !isSourceSample)
             {
                 return;
             }
@@ -47,7 +59,7 @@ namespace VATyakov.Editor
                 return new[] { Track };
             }
 
-            var groups = VatRigidIslandMerge.Group(_islands, Track);
+            var groups = VatRigidIslandMerge.Group(_islands, this);
             var pieces = new VatRigidTrack[groups.Count];
             for (var index = 0; index < pieces.Length; index++)
             {
@@ -70,6 +82,8 @@ namespace VATyakov.Editor
                     _islands[index].Hold(held);
                 }
             }
+
+            Array.Fill(_isFitted, true, 0, sample);
         }
 
         private VatRigidTrack Piece(string name, VatRigidIslandGroup group)
@@ -77,12 +91,18 @@ namespace VATyakov.Editor
             var vertices = group.Vertices();
             var mesh = VatRigidSubset.Mesh(Track.Source, vertices, name);
             var piece = new VatRigidTrack(name, mesh, VatRigidSubset.Frame(Track.Local, vertices), Track.Frames.Length, Track.Inner.Length);
+            var fits = VatRigidFitBlend.Fill(group.Representative.Fits, Center(vertices), _times, _isFitted);
             for (var sample = 0; sample < Track.SampleCount; sample++)
             {
-                piece.SetSample(sample, Track.Sample(sample) * group.Representative.Fits[sample], Track.IsVisibleAt(sample));
+                piece.SetSample(sample, Track.Sample(sample) * fits[sample], Track.IsVisibleAt(sample));
             }
 
             return piece;
+        }
+
+        private Vector3 Center(int[] vertices)
+        {
+            return VatCentroid.Of(Array.ConvertAll(vertices, vertex => Track.Local.Positions[vertex]));
         }
 
         private static bool Deforms(Vector3[] rest, IReadOnlyList<Vector3> positions)

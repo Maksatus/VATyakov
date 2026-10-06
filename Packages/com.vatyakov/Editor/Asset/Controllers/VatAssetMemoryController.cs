@@ -26,7 +26,8 @@ namespace VATyakov.Editor
             var asset = _context.Asset;
             ShowTexture(_container.PositionTexture, asset.PositionTexture);
             ShowTexture(_container.RotationTexture, asset.RotationTexture);
-            ShowTexture(_container.BoneTexture, asset.BoneTexture);
+            ShowTexture(_container.BoneTexture, asset.Mode == VatMode.Bone ? asset.BoneTexture : null);
+            ShowTexture(_container.PieceTexture, asset.Mode == VatMode.Rigid ? asset.BoneTexture : null);
             _container.Padding.Set(VatText.Padding(new VatAssetMemory(asset)), PaddingHint);
         }
 

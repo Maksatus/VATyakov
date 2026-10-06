@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 
 namespace VATyakov.Editor
@@ -6,6 +7,11 @@ namespace VATyakov.Editor
     {
         public static string[] ShownClips(VatBakeProfile profile)
         {
+            if (!profile.IsBone)
+            {
+                return Array.Empty<string>();
+            }
+
             return profile.ExtraRenderers.Select(extra => VatTemplateMaterial.ShownClip(profile.Asset, extra.Material)).ToArray();
         }
 

@@ -98,7 +98,7 @@ namespace VATyakov.Editor
             }
 
             return profile.Kind == VatSourceKind.Skinned && profile.Mode == VatMode.Rigid
-                ? "Mode = Rigid takes an Alembic with pieces on xform nodes: use Vertex or Bone for a Skinned Mesh Renderer."
+                ? "Mode = Rigid takes an Alembic with rigid pieces: use Vertex or Bone for a Skinned Mesh Renderer."
                 : null;
         }
 

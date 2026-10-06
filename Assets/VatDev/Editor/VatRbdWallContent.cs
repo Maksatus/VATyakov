@@ -26,6 +26,7 @@ namespace VATyakov.Dev
         private const float DebrisDespawn = 2f;
         private const float DespawnSpread = 1.5f;
         private const int Seed = 15;
+
         private static readonly Vector3 _blastCenter = new(0f, 1.5f, -1f);
 
         public static void Regenerate()

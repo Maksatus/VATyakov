@@ -28,6 +28,7 @@
 | 1.14 Замер толпы и бюджеты | готово, замер на Galaxy S21+ (Mali); Redmi 9A, Adreno, iPhone не мерены | 0.14.0 |
 | 1.15 Rigid из Alembic с xform-нодами | готово в редакторе, устройства не проверены, экспорт из Houdini не проверен | 0.15.0 |
 | 1.16 Rigid без xform-нод | готово в редакторе, устройства не проверены, экспорт из Houdini не проверен | 0.16.0 |
+| Аудит 1.15–1.16: исправления Rigid | готово в редакторе | 0.16.1 |
 | 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -108,32 +109,44 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - **Rigid (1.15):** профиль — Source = Alembic, Mode = Rigid (`VatBakeProfile.IsRigid`; поле Mode стоит и в блоке
   Alembic, несовпадение режима и источника — проблема `VatBakeValidator`). `VatBakePipeline.Run` при IsRigid —
   `VatAlembic.OpenRigid` → `VatRigidPieceExtractor` (`IVatRigidSource`: Clip, PieceCount, SampleTimes, Extract) →
-  `VatRigidPipeline.Run`. Порядок: раскладка `VatLayout.ForRigid` (до 2048 кусков) для времён кадров →
-  `VatRigidInnerTimes.Between` (отсчёты исходника между кадрами, `VatAlembicSampleTimes` рефлексией, иначе 3 точки) →
-  `Extract` (на кадр — `UpdateImmediately`, проверка топологии и деформации меша куска, `localToWorldMatrix` и
-  `activeInHierarchy` каждой меш-ноды; потом то же на внутренних отсчётах) → `VatRigidTrack[]` → `VatRigidVisibility`
-  (первый видимый кадр, кадр-источник позы) → невидимые выбрасываются с предупреждением → `VatRigidPiece` (покой —
-  первый видимый кадр, движения `P_f = M_f·M_rest⁻¹`, позы покоя вертексов, пивот `VatRigidPivot` в half) →
-  `VatRigidEncoder` (`VatRigidSkin` — один `VatBoneSkin` на все куски, `VatSourceMeshes.MergeSlots` сливает сабмеши
-  по слоту; `VatBoneCheck` на масштаб; запись через `VatBoneTexels`; скрытые кадры — `s = 0`; ошибка по видимым кадрам;
-  капсулы `VatBoneBounds` по пивотам) → `VatRigidFpsCheck` (предупреждение > 5 мм, `VatRigidFormat.Tolerance`) →
-  меш `VatRigidMeshBuilder` (`VatRigidStream0`: позиция + `(i_hi, i_lo, 0, 0)` в TexCoord6, формат `VatBoneFormat.Attributes`).
+  `VatRigidPipeline.Run`. Порядок: раскладка `VatLayout.ForRigid(min(нод, 2048))` только ради времён кадров →
+  `VatRigidInnerTimes.Between` (отсчёты исходника между кадрами, `VatAlembicSampleTimes` рефлексией — объединение
+  time sampling'ов, близкие времена склеены; при любом сбое — 3 точки и предупреждение) → `Extract` (на кадр и на
+  внутренний отсчёт — `UpdateImmediately`, проверка топологии, вертексы, `localToWorldMatrix` и `activeInHierarchy`
+  каждой меш-ноды в `VatRigidNode.Sample`; прогресс и отмена на обоих циклах) → `VatRigidTrack[]` →
+  `VatRigidVisibility.Of` (видим = нода активна и `|det| > 1e-12`: нулевой масштаб — скрытый кадр; первый видимый
+  кадр, кадр-источник позы) → невидимые выбрасываются с предупреждением, лимит 2048 — по оставшимся → `VatRigidPiece`
+  (покой — первый видимый кадр, движения `P_f = M_f·M_rest⁻¹`, позы покоя вертексов, центр баунда покоя; пивот
+  `VatRigidPivot` — МНК, только если в сфере баунда покоя, иначе центр, в half; при `det M_rest < 0` порядок обхода
+  треугольников переворачивает `VatSourceWinding`) → `VatRigidEncoder` (`VatRigidSkin` — один `VatBoneSkin` на все
+  куски, `VatSourceMeshes.MergeSlots` сливает сабмеши по слоту; `VatBoneCheck` на масштаб; запись через
+  `VatBoneTexels`; скрытый кадр — `s = 0` и `Δ = P_источника(центр) − p̃`, кусок схлопывается в свой центр; точные
+  позы хранятся рядом с half; ошибка по видимым кадрам; капсулы `VatBoneBounds` по пивотам; шов знака петли — только у
+  кусков, видимых на конце клипа) → `VatRigidFpsCheck` (`ExactPoint` — интерполяция точных поз против исходника,
+  без ошибки half; предупреждение > 5 мм, `VatRigidFormat.Tolerance`) → меш `VatRigidMeshBuilder` (`VatRigidStream0`:
+  позиция + `(i_hi, i_lo, 0, 0)` в TexCoord6, формат `VatBoneFormat.Attributes`).
   Ассет: `VatMode.Rigid`, `SetBoneData(mode, …)`, `HasBoneTexture` (Bone и Rigid), текстура `_VatPieceTex`
-  (`VatShaderIds.DataTexture(mode)` — по ней же `VatTemplateShader.Fits` и `VatMaterialBinding`), сабассет `_piece`.
-  Шаблон — `vat_lit_rigid` (`VatBaker.RigidShaderName`), без бленда при любом `_VatFrameB`. Хэш: режим добавляется
-  только для Rigid. Лог: «pieces», допуск ошибки 5 мм со своей подсказкой; сводка — стат Pieces.
+  (`VatShaderIds.DataTexture(mode)` — по ней же `VatTemplateShader.Fits` и `VatMaterialBinding`), сабассет `_piece`;
+  в инспекторе ассета — строка Piece Texture. Шаблон — `vat_lit_rigid` (`VatBaker.RigidShaderName`), без бленда при
+  любом `_VatFrameB`. Хэш: режим добавляется только для Rigid, Max Position Error — только не для Rigid (в профиле
+  Rigid поле скрыто). Extra Renderers применяются только при `IsBone` (`VatExtraMaterials.ShownClips`). Оценка в
+  профиле (`VatText.RigidEstimate`) — «N pieces or more»: N — меш-ноды, острова известны только после бейка.
+  Лог: «pieces», допуск ошибки 5 мм со своей подсказкой; сводка — стат Pieces.
   Шейдер: `VatPieceTexel` (`VatCore.hlsl`, CPU — `VatMath.PieceTexel`) → `VatRigidVertex_float` → `VatBoneSkin`.
   SubGraph `vat_rigid` и `vat_lit_rigid` — копии `vat_bone` и `vat_lit_bone` (`CopyAsset` + правка JSON: имя функции,
   `VatBoneTex` → `VatPieceTex`, слоты `PieceUv`/`PieceTex`, GUID сабграфа и `promotedFromAssetID`).
-  Без xform-нод (1.16): `Extract` на каждом кадре и внутреннем отсчёте (индекс отсчёта — кадры, потом внутренние,
-  `VatRigidTrack.Sample/SetSample/IsVisibleAt`) отдаёт вертексы и `localToWorldMatrix` каждой ноды в `VatRigidNode.Sample`.
-  Нода, чьи вертексы ушли от покоя (время 0) больше 0.01 мм, режется: `VatRigidIslands.Find` (`VatUnionFind` по
-  примитивам сабмешей) → `VatRigidIsland` на остров (до первого сдвига — единичная подгонка), на отсчёт —
-  `VatRigidFit.Solve` (центроиды и ковариация в double → `VatHornRotation`: матрица Хорна 4×4, Якоби, кватернион) и
-  невязка в пространстве корня. В конце `VatRigidSplit.Pieces`: острова с невязкой > `VatRigidFormat.MaxIslandResidual`
-  (0.5 мм) → `VatBakeException` с отчётом; иначе `VatRigidNode.Pieces` → `VatRigidIslandMerge.Group`
-  (`VatRigidIslandGroup`, представитель — самый большой остров) → трек куска `<нода>/<i>` с матрицами
-  `L2W · K_представителя`, мешем и покоем из `VatRigidSubset`. Нерезаная нода отдаёт свой трек как в 1.15.
+  Без xform-нод (1.16): индекс отсчёта — кадры, потом внутренние (`VatRigidTrack.Sample/SetSample/IsVisibleAt`).
+  Отсчёт «настоящий», если его время есть среди отсчётов исходника (`VatRigidInnerTimes.Contains`; без отсчётов
+  настоящими считаются кадры). Нода, чьи вертексы ушли от покоя (время 0) больше 0.01 мм, режется: `VatRigidIslands.Find`
+  (`VatUnionFind` по примитивам сабмешей, вертекс без примитива — свой остров) → `VatRigidIsland` на остров (до первого
+  сдвига — единичная подгонка); подгонка `VatRigidFit.Solve` (центроиды и ковариация в double → `VatHornRotation`:
+  матрица Хорна 4×4, Якоби, кватернион) и невязка в пространстве корня — только на настоящих отсчётах: между ними
+  Alembic линейно интерполирует вертексы, и вращающийся остров «сжимается». В конце `VatRigidSplit.Pieces`: острова с
+  невязкой > `VatRigidFormat.MaxIslandResidual` (0.5 мм) → `VatBakeException` с отчётом; иначе `VatRigidNode.Pieces` →
+  `VatRigidIslandMerge.Group` (`VatRigidIslandGroup`, представитель — самый большой остров, сравнение только на
+  настоящих отсчётах) → `VatRigidFitBlend.Fill` (остальные отсчёты — slerp поворота и lerp центроида куска между
+  соседними настоящими, как xform-нода у Alembic) → трек куска `<нода>/<i>` (один кусок — имя ноды) с матрицами
+  `L2W · K`, мешем и покоем из `VatRigidSubset`. Нерезаная нода отдаёт свой трек как в 1.15.
 - **Инспекторы (1.10):** память — `VatAssetMemory` (по самим `Texture2D`: байты текстур, padding `blocks·W − E`,
   доля клипа `blocks·W·F`), сводка `VatAssetSummary` (общая для инспектора ассета и Result профиля) пишет всего и долю
   клипа в строку клипа (`VatInfoRow`), карточка Memory ассета — `VatAssetMemory*`. «Бейк устарел» —
@@ -243,10 +256,10 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `Samples/LitVertexTriplanar/` — vat_lit_vertex_triplanar.shadergraph (меши без UV);
   `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11); `Samples/LitRigid/` — vat_lit_rigid.shadergraph (1.15)
 - `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatExtraMaterials (1.13), VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
-- `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind
+- `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind; аудит (0.16.1) — VatRigidFitBlend
 - `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBinding (1.13), VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
-- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh
+- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1)
 - `Editor/Baking/Sources/Alembic/` — под `#if VAT_ALEMBIC`: VatAlembicFrameSource, VatAlembicCopy, VatAlembicDuration (1.15), VatAlembicSampleTimes (1.15), VatRigidPieceExtractor (1.15); без условия: VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
@@ -630,3 +643,21 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   Подвох: копия профиля через `CopyAsset` несёт ссылку на результат (`Asset`) и шаблон — бейк копии перезаписал
   `rbd_test_vat`; откатил из git, перед бейком копии обнулять `Asset` и `Material`.
   `water.abc` в Rigid: «1 of 1 islands … 1430.475 mm at 1.292 s». Проверено: 253 теста зелёные (5 новых).
+- **Аудит 1.15–1.16 (0.16.1):** ревью в 9 направлениях с перекрёстной проверкой; две главные находки подтверждены в
+  редакторе. (1) LS-пивот падающего и медленно кувыркающегося куска уходил на g/ω² от него (12°/с — 3 км): ошибка
+  95 мм, баунды 3 км, при 1°/с — ложное «scales non-uniformly (error NaN mm)»; теперь пивот МНК только внутри сферы
+  баунда покоя, иначе центр (тест `FallingPiece_ThatTumblesSlowly_KeepsThePivotInsideIt`; still point в тестах
+  перенесён внутрь куска). (2) Deform Geometry падал при fps, не кратном частоте исходника (фикстура на 50 и 100 fps —
+  11.56 мм): у импортёра по умолчанию Interpolate Samples, Alembic лерпит вертексы меша с постоянной топологией, а xform
+  — slerp; теперь острова подгоняются только на настоящих отсчётах, остальное — `VatRigidFitBlend` (тест
+  `DeformGeometry_BetweenSourceSamples_MatchesTransformGeometry` против плеера xform-фикстуры). Интерполяция идёт вокруг
+  центроида вертексов куска — совпадает с xform, если пивот packed-куска в Houdini в его центре. `rbd_test_deform` на
+  30 fps (исходник 24 Гц) теперь печётся: 114 кусков, ошибка 1.22 мм, честное предупреждение о fps.
+  Остальное — в CHANGELOG 0.16.1. Фикстура `vat_rigid.abc` давала 93 отсчёта вместо 61: у скрытого с середины куска
+  свой time sampling, его времена расходятся с основным в последних знаках — склеиваются с допуском 1e-6. Рекордер VatDev
+  сохраняет `.meta` при перезаписи .abc (GUID не меняется), `VatDeformGeometry` уничтожает свои меши, нормали — через
+  обратную транспонированную, сабмеши сохраняются. Не исправлено: Fits — `Matrix4x4` на остров и отсчёт (64 Б); у
+  островов меньше ~5 вертексов это больше, чем хранить вертексы (12 Б), — для мелких гранёных обломков памяти бейка
+  может не хватить, кандидат на компактную позу; невязка считается и на отсчётах, где нода скрыта (у Deform-экспорта
+  видимости нет, на практике не встречается). Хэш Rigid изменился (без Max Position Error): `rbd_test`, `rbd_wall`,
+  `rbd_test_deform` перепечены, цифры прежние. Проверено: 272 теста зелёные (19 новых).

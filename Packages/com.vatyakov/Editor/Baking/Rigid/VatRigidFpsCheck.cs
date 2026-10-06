@@ -38,8 +38,8 @@ namespace VATyakov.Editor
             var error = FormattableString.Invariant($"{MaxError * MillimetersPerMeter:0.#} mm at {WorstTime:0.###} s");
             var threshold = FormattableString.Invariant($"{VatRigidFormat.Tolerance * MillimetersPerMeter:0.#} mm");
             var pieces = FormattableString.Invariant($"{PiecesOver} {(PiecesOver == 1 ? "piece moves" : "pieces move")}");
-            return FormattableString.Invariant(
-                $"{pieces} too fast for {fps:0.###} fps: between baked frames the source differs by up to {error} (piece '{piece}'), over {threshold}. Raise Frames Per Second.");
+            var difference = FormattableString.Invariant($"between baked frames the source differs by up to {error} (piece '{piece}'), over {threshold}");
+            return FormattableString.Invariant($"{pieces} too fast for {fps:0.###} fps: {difference}. Raise Frames Per Second.");
         }
 
         private void MeasurePiece(int index)
@@ -74,7 +74,7 @@ namespace VATyakov.Editor
             var piece = _encoder.Pieces[index];
             var frame0 = _inner.Intervals[sample];
             var frame1 = (frame0 + 1) % Clip.FrameCount;
-            if (!piece.Visibility.IsVisible(frame0) || !piece.Visibility.IsVisible(frame1) || !piece.Track.InnerVisible[sample])
+            if (!piece.Visibility.IsVisible(frame0) || !piece.Visibility.IsVisible(frame1) || !piece.IsVisibleInside(sample))
             {
                 return 0f;
             }
@@ -84,7 +84,7 @@ namespace VATyakov.Editor
             var error = 0f;
             foreach (var rest in piece.RestPositions)
             {
-                error = Mathf.Max(error, Vector3.Distance(_encoder.Point(index, frame0, frame1, fraction, rest), motion.MultiplyPoint3x4(rest)));
+                error = Mathf.Max(error, Vector3.Distance(_encoder.ExactPoint(index, frame0, frame1, fraction, rest), motion.MultiplyPoint3x4(rest)));
             }
 
             return error;

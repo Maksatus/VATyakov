@@ -6,7 +6,7 @@ namespace VATyakov.Editor
     {
         public static VatBoneSkin Build(string name, VatRigidPiece[] pieces)
         {
-            var source = VatSourceMeshes.MergeSlots(name, Array.ConvertAll(pieces, piece => piece.Track.Source));
+            var source = VatSourceMeshes.MergeSlots(name, Array.ConvertAll(pieces, piece => piece.Source));
             var frame = new VatFrame(source.VertexCount);
             var influences = new VatBoneInfluence[source.VertexCount];
             var offset = 0;
