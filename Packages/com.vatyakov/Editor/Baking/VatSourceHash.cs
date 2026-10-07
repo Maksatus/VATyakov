@@ -32,7 +32,12 @@ namespace VATyakov.Editor
 
         public static bool IsOutdated(VatBakeProfile profile, VatAsset asset)
         {
-            return asset.TryValidate(out _) && VatBakeValidator.Validate(profile).Count == 0 && Compute(profile) != asset.SourceHash;
+            return IsOutdated(profile, asset, VatBakeValidator.Validate(profile).Count > 0);
+        }
+
+        public static bool IsOutdated(VatBakeProfile profile, VatAsset asset, bool hasProblems)
+        {
+            return !hasProblems && asset.TryValidate(out _) && Compute(profile) != asset.SourceHash;
         }
 
         private static void AppendAlembic(ref Hash128 hash, VatBakeProfile profile)
@@ -59,21 +64,6 @@ namespace VATyakov.Editor
             {
                 hash.Append(DependencyHash(clip));
                 hash.Append(clip.name);
-            }
-
-            if (profile.ExtraRenderers.Count > 0)
-            {
-                AppendExtraRenderers(ref hash, profile);
-            }
-        }
-
-        private static void AppendExtraRenderers(ref Hash128 hash, VatBakeProfile profile)
-        {
-            hash.Append(profile.ExtraRenderers.Count);
-            foreach (var extra in profile.ExtraRenderers)
-            {
-                hash.Append(AnimationUtility.CalculateTransformPath(extra.Renderer.transform, extra.Renderer.transform.root));
-                hash.Append(extra.Renderer.GetType().Name);
             }
         }
 

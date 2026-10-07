@@ -5,7 +5,12 @@ namespace VATyakov.Editor
 {
     internal static class VatSourceWinding
     {
-        public static VatSourceMesh Reversed(VatSourceMesh mesh)
+        public static VatSourceMesh Oriented(VatSourceMesh mesh, Matrix4x4 toRoot)
+        {
+            return toRoot.determinant < 0f ? Reversed(mesh) : mesh;
+        }
+
+        private static VatSourceMesh Reversed(VatSourceMesh mesh)
         {
             return new VatSourceMesh(mesh.Name, mesh.VertexCount, mesh.Uv0, Array.ConvertAll(mesh.SubMeshes, Reversed));
         }

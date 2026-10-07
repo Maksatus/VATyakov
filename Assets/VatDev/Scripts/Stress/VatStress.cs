@@ -49,6 +49,7 @@ namespace VATyakov.Dev
         private string _startVariant = "vat";
 
         private readonly List<IVatStressUnit> _units = new();
+        private readonly List<int> _clips = new();
         private readonly List<float> _switchTimes = new();
         private readonly List<float> _transitionEnds = new();
 
@@ -103,7 +104,8 @@ namespace VATyakov.Dev
                     continue;
                 }
 
-                _units[i].CrossFade(Random.Range(0, ClipCount), _fadeDuration);
+                _clips[i] = NextClip(_clips[i]);
+                _units[i].CrossFade(_clips[i], _fadeDuration);
                 _switchTimes[i] = time + HoldTime();
                 _transitionEnds[i] = time + _fadeDuration;
             }
@@ -127,13 +129,15 @@ namespace VATyakov.Dev
             var offset = new Vector3(index % _columns - (_columns - 1) * 0.5f, 0f, index / _columns - (RowCount - 1) * 0.5f) * _spacing;
             var position = transform.position + transform.rotation * offset;
             var unit = Variant.Mode == VatStressMode.Smr ? SpawnSmr(position) : SpawnVat(position);
-            unit.Play(Random.Range(0, ClipCount), Random.value);
+            var clip = Random.Range(0, ClipCount);
+            unit.Play(clip, Random.value);
             if (Variant.ForcedLod != VatStressVariant.AutoLod)
             {
                 unit.Root.GetComponent<LODGroup>().ForceLOD(Variant.ForcedLod);
             }
 
             _units.Add(unit);
+            _clips.Add(clip);
             _switchTimes.Add(Time.time + HoldTime());
             _transitionEnds.Add(0f);
         }
@@ -164,8 +168,14 @@ namespace VATyakov.Dev
             }
 
             _units.Clear();
+            _clips.Clear();
             _switchTimes.Clear();
             _transitionEnds.Clear();
+        }
+
+        private int NextClip(int clip)
+        {
+            return ClipCount > 1 ? (clip + Random.Range(1, ClipCount)) % ClipCount : clip;
         }
 
         private float HoldTime()

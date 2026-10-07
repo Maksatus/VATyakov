@@ -27,11 +27,6 @@ namespace VATyakov.Editor
             return $"{assetName}{MeshSuffix}";
         }
 
-        public static string ExtraMeshName(string assetName, string rendererName)
-        {
-            return $"{MeshName(assetName)}_{rendererName.Replace(' ', '_').ToLowerInvariant()}";
-        }
-
         private static string NextToProfile(VatBakeProfile profile)
         {
             var profilePath = AssetDatabase.GetAssetPath(profile);

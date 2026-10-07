@@ -6,7 +6,6 @@ namespace VATyakov.Editor
     {
         public readonly VatStat Mode = new("Mode");
         public readonly VatStat Vertices = new("Vertices");
-        public readonly VatStat Meshes = new("Meshes");
         public readonly VatStat Bones = new("Bones");
         public readonly VatStat Pieces = new("Pieces");
         public readonly VatStat Texture = new("Texture");
@@ -16,7 +15,7 @@ namespace VATyakov.Editor
 
         public VatAssetSummaryContainer()
         {
-            Root.WithElements(VatUi.Stats().WithElements(Mode, Vertices, Meshes, Bones, Pieces, Texture, Memory), Fallback, Clips);
+            Root.WithElements(VatUi.Stats().WithElements(Mode, Vertices, Bones, Pieces, Texture, Memory), Fallback, Clips);
         }
     }
 }

@@ -5,16 +5,18 @@ namespace VATyakov
 {
     internal sealed class VatMaterialCopies
     {
+        private readonly VatAsset _asset;
         private readonly List<Renderer> _renderers = new();
         private readonly List<Material[]> _shared = new();
         private readonly Dictionary<Material, Material> _copies = new();
         private readonly List<Material> _materials = new();
 
-        public IReadOnlyList<Material> Materials => _materials;
+        public List<Material> Materials => _materials;
         public bool CanBlend { get; }
 
-        public VatMaterialCopies(Renderer[] renderers, string owner)
+        public VatMaterialCopies(Renderer[] renderers, string owner, VatAsset asset)
         {
+            _asset = asset;
             foreach (var renderer in renderers)
             {
                 Replace(renderer, owner);
@@ -86,6 +88,11 @@ namespace VATyakov
             }
 
             copy = new Material(template) { name = $"{template.name} ({owner})", hideFlags = HideFlags.DontSave };
+            if (_asset.Owns(copy))
+            {
+                _asset.ApplyData(copy);
+            }
+
             _copies.Add(template, copy);
             _materials.Add(copy);
             return copy;

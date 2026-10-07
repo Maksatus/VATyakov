@@ -268,11 +268,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5e8579495f42b654da25df6619993385, type: 3}
---- !u!205 &575943769 stripped
-LODGroup:
-  m_CorrespondingSourceObject: {fileID: 2004521969354768273, guid: 5e8579495f42b654da25df6619993385, type: 3}
-  m_PrefabInstance: {fileID: 575943768}
-  m_PrefabAsset: {fileID: 0}
 --- !u!23 &575943770 stripped
 MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 2665466020491299314, guid: 5e8579495f42b654da25df6619993385, type: 3}
@@ -505,7 +500,6 @@ MonoBehaviour:
   - {fileID: 1835650150}
   _lodGroups:
   - {fileID: 1036905242}
-  - {fileID: 575943769}
 --- !u!4 &1431722772
 Transform:
   m_ObjectHideFlags: 0

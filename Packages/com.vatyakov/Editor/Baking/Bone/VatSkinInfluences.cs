@@ -18,17 +18,5 @@ namespace VATyakov.Editor
 
             return influences;
         }
-
-        public static VatBoneInfluence[] Remap(VatBoneInfluence[] influences, int[] boneMap)
-        {
-            return Array.ConvertAll(influences, influence => influence.Remapped(boneMap));
-        }
-
-        public static VatBoneInfluence[] Single(int vertexCount, int bone)
-        {
-            var influences = new VatBoneInfluence[vertexCount];
-            Array.Fill(influences, VatBoneInfluence.Single(bone));
-            return influences;
-        }
     }
 }

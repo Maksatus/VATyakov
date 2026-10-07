@@ -6,8 +6,6 @@ namespace VATyakov.Editor
     internal static class VatBakePipeline
     {
         private const string FallbackHint = "Bone mode takes only rotation and uniform scale of bones, so the asset is baked as Vertex.";
-        private const string ExtraRenderersHint =
-            "Bone mode takes only rotation and uniform scale of bones, and Extra Renderers bake only in Bone mode: fix the clip or remove the Extra Renderers.";
 
         public static VatBakeResult Run(VatBakeProfile profile, string name)
         {
@@ -26,11 +24,6 @@ namespace VATyakov.Editor
                 if (bone != null)
                 {
                     return bone;
-                }
-
-                if (profile.ExtraRenderers.Count > 0)
-                {
-                    throw new VatBakeException($"{problem} {ExtraRenderersHint}");
                 }
 
                 fallback = $"{problem} {FallbackHint}";

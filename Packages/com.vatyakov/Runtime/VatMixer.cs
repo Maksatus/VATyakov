@@ -30,6 +30,11 @@ namespace VATyakov
             return HasTarget ? _weight.Value(time) : 0f;
         }
 
+        public bool IsPlayingLoop(VatClip clip)
+        {
+            return clip.IsLooping && clip == Clip;
+        }
+
         public void Play(VatClip clip, double time)
         {
             _source.Play(clip, time);
@@ -47,6 +52,12 @@ namespace VATyakov
             if (_source.Clip == null)
             {
                 Play(clip, time);
+                return;
+            }
+
+            if (clip.IsLooping && (clip == _source.Clip || clip == _target.Clip))
+            {
+                ContinueTo(clip, time, duration);
                 return;
             }
 
@@ -100,7 +111,29 @@ namespace VATyakov
 
             var isTargetFinished = _target.Evaluate(time, out frameB);
             frameB.w = _weight.Value(time);
+            if (frameB.w == 1f)
+            {
+                frame = new Vector4(frameB.x, frameB.y, frameB.z, 0f);
+            }
+
             return isTargetFinished;
+        }
+
+        private void ContinueTo(VatClip clip, double time, float duration)
+        {
+            if (!HasTarget)
+            {
+                return;
+            }
+
+            var weight = _weight.Value(time);
+            if (clip == _source.Clip)
+            {
+                (_source, _target) = (_target, _source);
+                weight = 1f - weight;
+            }
+
+            _weight.Start(time, weight, 1f, duration * (1f - weight));
         }
 
         private void ClearTarget()

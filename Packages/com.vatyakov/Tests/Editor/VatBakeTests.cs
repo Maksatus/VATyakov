@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -21,6 +22,11 @@ namespace VATyakov.Tests
         private const float MinTopTwist = 30f;
         private const int TwoBlockVertexCount = 5000;
         private const int OneBlockVertexCount = 300;
+        private const float Millimeter = 1e-3f;
+        private const float GpuTolerance = 1e-5f;
+        private const string LitShaderName = "Universal Render Pipeline/Lit";
+
+        private static readonly Vector3 _modelShift = new(0.1f, -0.2f, 0.3f);
 
         private Scene _scene;
         private VatTestRig _rig;
@@ -164,6 +170,69 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void Rebake_OfAMovedModel_PutsTheNewVerticesOnTheGpu([Values(VatMode.Vertex, VatMode.Bone)] VatMode mode)
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            _profile.Mode = mode;
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Moved.asset");
+            var before = VatTestUtil.GpuPositions(asset.Mesh);
+            _rig.Root.transform.Find("Model").localPosition += _modelShift;
+
+            var rebaked = VatBaker.Bake(_profile);
+
+            var rest = rebaked.Mesh.vertices;
+            var gpu = VatTestUtil.GpuPositions(rebaked.Mesh);
+            Assert.That(Vector3.Distance(before[0], rest[0]), Is.GreaterThan(Millimeter), "the move changes the rest pose");
+            for (var v = 0; v < rest.Length; v++)
+            {
+                Assert.That(Vector3.Distance(gpu[v], rest[v]), Is.LessThan(GpuTolerance), $"vertex {v} on the GPU is the rebaked one");
+            }
+        }
+
+        [Test]
+        public void DuplicatedProfile_SharesTheResult_UntilItIsCleared()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            var original = CreateProfile(_rig);
+            AssetDatabase.CreateAsset(original, $"{TempFolder}/original.asset");
+            VatBaker.Bake(original);
+            var copyPath = $"{TempFolder}/copy.asset";
+            AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(original), copyPath);
+            var copy = AssetDatabase.LoadAssetAtPath<VatBakeProfile>(copyPath);
+            copy.Source = _rig.Renderer;
+            copy.SetClips(_rig.Clip);
+
+            AssertProblem(VatBaker.Validate(copy), "VAT Asset 'original_vat' is baked by profile 'original' too");
+            AssertProblem(VatBaker.Validate(original), "VAT Asset 'original_vat' is baked by profile 'copy' too");
+
+            copy.Asset = null;
+            AssertProblem(VatBaker.Validate(copy), "Template Material 'original_vat' is baked by profile 'original' too");
+
+            copy.Material = null;
+            CollectionAssert.IsEmpty(VatBaker.Validate(copy), "a cleared copy has its own result");
+            CollectionAssert.IsEmpty(VatBaker.Validate(original), "the original owns its result again, before the copy is saved");
+            Assert.AreNotSame(original.Asset, VatBaker.Bake(copy), "the copy bakes a separate asset");
+        }
+
+        [Test]
+        public void TemplateMaterial_WithoutAVatShader_IsAProblem()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            var material = new Material(Shader.Find(LitShaderName)) { name = "Lit" };
+            try
+            {
+                _profile.Material = material;
+                AssertProblem(VatBaker.Validate(_profile), $"Template Material 'Lit' uses '{LitShaderName}', not a VAT shader");
+            }
+            finally
+            {
+                Object.DestroyImmediate(material);
+            }
+        }
+
+        [Test]
         public void Rebake_FormatThreeAsset_PlaysAgainWithoutTheDriftTexture()
         {
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
@@ -208,6 +277,11 @@ namespace VATyakov.Tests
             var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(TwoBlockVertexCount, clips));
             StringAssert.Contains("4096", error.Message);
             StringAssert.Contains("fps", error.Message);
+        }
+
+        private static void AssertProblem(List<string> problems, string expected)
+        {
+            Assert.That(problems.Exists(problem => problem.StartsWith(expected, StringComparison.Ordinal)), $"'{expected}' in:\n{string.Join("\n", problems)}");
         }
 
         private static int LoopFrameCount(float fps)

@@ -66,7 +66,7 @@ namespace VATyakov.Editor
 
         private void ShowOutdated(VatBakeProfile profile)
         {
-            var isOutdated = profile.Asset != null && VatSourceHash.IsOutdated(profile, profile.Asset);
+            var isOutdated = profile.Asset != null && VatSourceHash.IsOutdated(profile, profile.Asset, _context.Model.HasProblems.Value);
             _container.Outdated.SetMessage(isOutdated ? OutdatedMessage : null);
         }
     }

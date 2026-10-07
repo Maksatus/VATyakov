@@ -26,12 +26,12 @@ namespace VATyakov.Editor
             Fit(profile.Material != null ? profile.Material : Create(profile, asset.Mode, assetPath), asset, clipName);
         }
 
-        public static void Fit(Material material, VatAsset asset, string clipName)
+        private static void Fit(Material material, VatAsset asset, string clipName)
         {
             material.enableInstancing = false;
             if (VatTemplateShader.TryFit(material, asset.Mode, out var previous))
             {
-                Debug.Log($"VAT '{asset.name}': {ShaderSwitch(material, previous, asset.Mode)}", material);
+                Debug.LogWarning($"VAT '{asset.name}': {ShaderSwitch(material, previous, asset.Mode)}", material);
             }
 
             asset.ApplyTo(material, Mathf.Max(asset.IndexOf(clipName), 0));

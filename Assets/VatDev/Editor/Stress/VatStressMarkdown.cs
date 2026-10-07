@@ -12,7 +12,7 @@ namespace VATyakov.Dev
         {
             ("Random clips", VatStressVariant.Smr, VatStressVariant.Vat),
             ("CrossFade every frame", VatStressVariant.SmrCrossFade, VatStressVariant.VatCrossFade),
-            ("LOD0 forced", VatStressVariant.SmrLod0, VatStressVariant.VatLod0)
+            ("LOD0 forced", VatStressVariant.SmrLod0, VatStressVariant.Vat)
         };
 
         private static readonly (string Title, string Column)[] _netMetrics =

@@ -55,12 +55,11 @@ namespace VATyakov.Editor
             return null;
         }
 
-        public Mesh BuildMesh(int skinIndex, string name)
+        public Mesh BuildMesh(string name)
         {
-            var skin = Rig.Skins[skinIndex];
-            var subMeshes = new VatSubMeshes(skin.Source);
-            var bounds = _bounds.Build(skin, subMeshes);
-            return VatBoneMeshBuilder.Build(name, skin, subMeshes, bounds);
+            var subMeshes = new VatSubMeshes(Rig.Skin.Source);
+            var bounds = _bounds.Build(Rig.Skin, subMeshes);
+            return VatBoneMeshBuilder.Build(name, Rig.Skin, subMeshes, bounds);
         }
 
         public Texture2D BuildTexture(string name)
@@ -80,18 +79,10 @@ namespace VATyakov.Editor
 
         private void MeasureError(Matrix4x4[] skin)
         {
-            foreach (var boneSkin in Rig.Skins)
+            for (var vertex = 0; vertex < Rig.Skin.Influences.Length; vertex++)
             {
-                MeasureError(boneSkin, skin);
-            }
-        }
-
-        private void MeasureError(VatBoneSkin boneSkin, Matrix4x4[] skin)
-        {
-            for (var vertex = 0; vertex < boneSkin.Influences.Length; vertex++)
-            {
-                var influence = boneSkin.Influences[vertex];
-                var rest = boneSkin.Rest.Positions[vertex];
+                var influence = Rig.Skin.Influences[vertex];
+                var rest = Rig.Skin.Rest.Positions[vertex];
                 var decoded = Vector3.LerpUnclamped(Point(influence.Bone1, rest), Point(influence.Bone0, rest), influence.StoredWeight0);
                 var reference = Vector3.LerpUnclamped(skin[influence.Bone1].MultiplyPoint3x4(rest), skin[influence.Bone0].MultiplyPoint3x4(rest),
                     influence.Weight0);

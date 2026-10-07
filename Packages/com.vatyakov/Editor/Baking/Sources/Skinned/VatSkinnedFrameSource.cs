@@ -9,6 +9,7 @@ namespace VATyakov.Editor
     {
         private readonly AnimationClip[] _clips;
         private readonly VatSourceClip[] _clipInfos;
+        private readonly VatClipTravel _travel;
 
         private VatBakeCopy _copy;
         private VatClipPlayer _player;
@@ -18,21 +19,18 @@ namespace VATyakov.Editor
 
         public VatSourceMesh Mesh { get; }
         public IReadOnlyList<VatSourceClip> Clips => _clipInfos;
-        public IReadOnlyList<string> Warnings => Array.Empty<string>();
+        public IReadOnlyList<string> Warnings => _travel.Warnings();
         public VatBakeCopy Copy => _copy;
 
-        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips) : this(source, clips, Array.Empty<Renderer>())
-        {
-        }
-
-        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips, IReadOnlyList<Renderer> extras)
+        public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
         {
             _clips = clips.ToArray();
             _clipInfos = Array.ConvertAll(_clips, clip => new VatSourceClip(clip.name, clip.length));
-            Mesh = VatSourceMesh.Read(source.sharedMesh);
+            _travel = new VatClipTravel(_clipInfos);
             try
             {
-                Create(source, extras);
+                Create(source);
+                Mesh = VatSourceWinding.Oriented(VatSourceMesh.Read(source.sharedMesh), _copy.RendererToRoot);
             }
             catch
             {
@@ -55,6 +53,7 @@ namespace VATyakov.Editor
             }
 
             _player.Sample(_clips[clip], time);
+            _travel.Add(clip, time, _copy);
         }
 
         public void Rewind()
@@ -76,11 +75,11 @@ namespace VATyakov.Editor
             _clip = clip;
         }
 
-        private void Create(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
+        private void Create(SkinnedMeshRenderer source)
         {
-            _copy = new VatBakeCopy(source, extras);
-            _player = new VatClipPlayer(_copy.Root, NeedsAnimator() ? _copy.PrepareAnimator() : null);
-            _reader = new VatFrameReader(Mesh.VertexCount);
+            _copy = new VatBakeCopy(source);
+            _player = new VatClipPlayer(_copy.LegacyRoot(), NeedsAnimator() ? _copy.PrepareAnimator() : null);
+            _reader = new VatFrameReader(source.sharedMesh.vertexCount);
             _pose = new VatPoseSnapshot(_copy.Root);
         }
 

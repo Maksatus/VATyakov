@@ -41,10 +41,5 @@ namespace VATyakov.Editor
         {
             return new VatBoneInfluence(bone, bone, 1f);
         }
-
-        public VatBoneInfluence Remapped(int[] boneMap)
-        {
-            return new VatBoneInfluence(boneMap[Bone0], boneMap[Bone1], Weight0);
-        }
     }
 }

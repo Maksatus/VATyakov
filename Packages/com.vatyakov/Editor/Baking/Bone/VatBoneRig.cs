@@ -8,7 +8,7 @@ namespace VATyakov.Editor
     {
         public readonly Transform[] Bones;
         public readonly Vector3[] Pivots;
-        public readonly VatBoneSkin[] Skins;
+        public readonly VatBoneSkin Skin;
         public readonly Vector3[][] BonePoints;
 
         private readonly Matrix4x4[] _bindposes;
@@ -24,8 +24,8 @@ namespace VATyakov.Editor
             _bindposes = renderer.sharedMesh.bindposes;
             _rootToMesh = meshToRoot.inverse;
             Pivots = HalfPivots(_bindposes, meshToRoot);
-            Skins = ReadSkins(copy, meshToRoot);
-            BonePoints = GroupByBone(Skins, Bones.Length);
+            Skin = VatBoneSkin.Skinned(renderer, meshToRoot);
+            BonePoints = GroupByBone(Skin, Bones.Length);
         }
 
         public static string Problem(SkinnedMeshRenderer renderer)
@@ -66,29 +66,7 @@ namespace VATyakov.Editor
             }
         }
 
-        private VatBoneSkin[] ReadSkins(VatBakeCopy copy, Matrix4x4 meshToRoot)
-        {
-            var skins = new VatBoneSkin[copy.Extras.Length + 1];
-            var space = new VatRootSpace(meshToRoot);
-            skins[0] = VatBoneSkin.Skinned(copy.Renderer, VatBoneBinding.BoneMap(copy.Renderer, copy.Renderer), space);
-            for (var i = 0; i < copy.Extras.Length; i++)
-            {
-                skins[i + 1] = copy.Extras[i] is SkinnedMeshRenderer skinned
-                    ? VatBoneSkin.Skinned(skinned, VatBoneBinding.BoneMap(copy.Renderer, skinned), space)
-                    : Rigid((MeshRenderer)copy.Extras[i], meshToRoot);
-            }
-
-            return skins;
-        }
-
-        private VatBoneSkin Rigid(MeshRenderer renderer, Matrix4x4 meshToRoot)
-        {
-            var bone = VatBoneBinding.ParentBone(Bones, renderer.transform);
-            var rendererToBone = Bones[bone].worldToLocalMatrix * renderer.transform.localToWorldMatrix;
-            return VatBoneSkin.Rigid(renderer, bone, new VatRootSpace(meshToRoot * _bindposes[bone].inverse * rendererToBone));
-        }
-
-        private static Vector3[][] GroupByBone(VatBoneSkin[] skins, int boneCount)
+        private static Vector3[][] GroupByBone(VatBoneSkin skin, int boneCount)
         {
             var groups = new List<Vector3>[boneCount];
             for (var bone = 0; bone < boneCount; bone++)
@@ -96,17 +74,14 @@ namespace VATyakov.Editor
                 groups[bone] = new List<Vector3>();
             }
 
-            foreach (var skin in skins)
+            for (var vertex = 0; vertex < skin.Influences.Length; vertex++)
             {
-                for (var vertex = 0; vertex < skin.Influences.Length; vertex++)
+                var influence = skin.Influences[vertex];
+                var point = skin.Rest.Positions[vertex];
+                groups[influence.Bone0].Add(point);
+                if (influence.Bone1 != influence.Bone0)
                 {
-                    var influence = skin.Influences[vertex];
-                    var point = skin.Rest.Positions[vertex];
-                    groups[influence.Bone0].Add(point);
-                    if (influence.Bone1 != influence.Bone0)
-                    {
-                        groups[influence.Bone1].Add(point);
-                    }
+                    groups[influence.Bone1].Add(point);
                 }
             }
 

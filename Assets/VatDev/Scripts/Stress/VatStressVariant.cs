@@ -10,9 +10,8 @@ namespace VATyakov.Dev
         public static readonly VatStressVariant SmrCrossFade = new("smr_crossfade", VatStressMode.Smr, true, AutoLod);
         public static readonly VatStressVariant VatCrossFade = new("vat_crossfade", VatStressMode.Vat, true, AutoLod);
         public static readonly VatStressVariant SmrLod0 = new("smr_lod0", VatStressMode.Smr, false, 0);
-        public static readonly VatStressVariant VatLod0 = new("vat_lod0", VatStressMode.Vat, false, 0);
 
-        public static readonly VatStressVariant[] All = { Empty, Smr, Vat, SmrCrossFade, VatCrossFade, SmrLod0, VatLod0 };
+        public static readonly VatStressVariant[] All = { Empty, Smr, Vat, SmrCrossFade, VatCrossFade, SmrLod0 };
 
         public readonly string Name;
         public readonly VatStressMode Mode;

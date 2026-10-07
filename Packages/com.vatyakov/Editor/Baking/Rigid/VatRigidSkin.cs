@@ -19,7 +19,7 @@ namespace VATyakov.Editor
 
             var basis = new VatTangentFrames(source.VertexCount);
             basis.Build(0, frame);
-            return new VatBoneSkin(name, source, influences, new VatRestPose(frame, basis));
+            return new VatBoneSkin(source, influences, new VatRestPose(frame, basis));
         }
     }
 }

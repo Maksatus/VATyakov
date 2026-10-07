@@ -120,6 +120,11 @@ namespace VATyakov
             return Mixer.NormalizedTime(Now);
         }
 
+        internal Renderer[] OwnRenderers()
+        {
+            return Array.FindAll(GetComponentsInChildren<Renderer>(true), renderer => renderer.GetComponentInParent<VatAnimator>(true) == this);
+        }
+
         private void OnEnable()
         {
             if (Copies != null && _playOnEnable)
@@ -155,27 +160,31 @@ namespace VATyakov
                 return null;
             }
 
-            return new VatMaterialCopies(GetComponentsInChildren<Renderer>(true), name);
+            return new VatMaterialCopies(OwnRenderers(), name, _asset);
         }
 
         private void CrossFade(VatClip clip, float duration)
         {
-            if (Copies != null && !Copies.CanBlend)
+            if (Copies == null || Copies.CanBlend)
             {
-                Mixer.Play(clip, Now);
+                Mixer.CrossFade(clip, Now, duration);
                 return;
             }
 
-            Mixer.CrossFade(clip, Now, duration);
+            if (!Mixer.IsPlayingLoop(clip))
+            {
+                Mixer.Play(clip, Now);
+            }
         }
 
         private bool WriteFrame()
         {
             using var _ = _writeMarker.Auto();
             var isFinished = _mixer.Evaluate(Now, out var frame, out var frameB);
-            if (!_hasWrittenFrame || !frame.Equals(_writtenFrame) || !frameB.Equals(_writtenFrameB))
+            var isFrameBChanged = !_hasWrittenFrame || !frameB.Equals(_writtenFrameB);
+            if (isFrameBChanged || !frame.Equals(_writtenFrame))
             {
-                Write(frame, frameB);
+                Write(frame, frameB, isFrameBChanged);
                 _writtenFrame = frame;
                 _writtenFrameB = frameB;
                 _hasWrittenFrame = true;
@@ -184,11 +193,11 @@ namespace VATyakov
             return isFinished;
         }
 
-        private void Write(Vector4 frame, Vector4 frameB)
+        private void Write(Vector4 frame, Vector4 frameB, bool isFrameBChanged)
         {
             var hasDrift = _asset.HasDrift;
             var drift = hasDrift ? _asset.Drift(frame, frameB) : Vector4.zero;
-            var canBlend = _copies.CanBlend;
+            var isFrameBWritten = _copies.CanBlend && isFrameBChanged;
             foreach (var material in _copies.Materials)
             {
                 material.SetVector(VatShaderIds.Frame, frame);
@@ -197,7 +206,7 @@ namespace VATyakov
                     material.SetVector(VatShaderIds.Drift, drift);
                 }
 
-                if (canBlend)
+                if (isFrameBWritten)
                 {
                     material.SetVector(VatShaderIds.FrameB, frameB);
                 }

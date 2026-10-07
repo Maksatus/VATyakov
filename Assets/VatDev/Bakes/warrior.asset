@@ -20,11 +20,6 @@ MonoBehaviour:
   - {fileID: -5178957620353875854, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
   - {fileID: -9009526262329929909, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
   - {fileID: 3012392024595009210, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
-  _extraRenderers:
-  - _renderer: {fileID: 2909372772542648526, guid: bf3d23f13e406a7448e44eab8c863716, type: 3}
-    _material: {fileID: 0}
-  - _renderer: {fileID: 2080806357169975141, guid: bf3d23f13e406a7448e44eab8c863716, type: 3}
-    _material: {fileID: 2100000, guid: 8a4b84c71ba18304fac569efa6a52c26, type: 2}
   _alembic: {fileID: 0}
   _isLooping: 1
   _fps: 30

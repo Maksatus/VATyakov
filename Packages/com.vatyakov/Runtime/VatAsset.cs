@@ -18,8 +18,6 @@ namespace VATyakov
         [SerializeField]
         private Mesh _mesh;
         [SerializeField]
-        private Mesh[] _extraMeshes = Array.Empty<Mesh>();
-        [SerializeField]
         private Texture2D _positionTexture;
         [SerializeField]
         private Texture2D _rotationTexture;
@@ -44,7 +42,6 @@ namespace VATyakov
         public VatMode Mode => _mode;
         public VatLayoutInfo Layout => _layout;
         public Mesh Mesh => _mesh;
-        public IReadOnlyList<Mesh> ExtraMeshes => _extraMeshes;
         public Texture2D PositionTexture => _positionTexture;
         public Texture2D RotationTexture => _rotationTexture;
         public Texture2D BoneTexture => _boneTexture;
@@ -59,9 +56,9 @@ namespace VATyakov
         public bool HasBoneTexture => _mode != VatMode.Vertex;
         public int BoneCount => HasBoneTexture ? _layout.Elements / VatMath.TexelsPerBone : 0;
 
-        private bool IsComplete => _mesh != null && _clips.Length > 0 && (HasBoneTexture ? IsBoneComplete : IsVertexComplete);
+        private Texture2D DataTexture => HasBoneTexture ? _boneTexture : _positionTexture;
+        private bool IsComplete => _mesh != null && _clips.Length > 0 && (HasBoneTexture ? _boneTexture != null : IsVertexComplete);
         private bool IsVertexComplete => _positionTexture != null && _rotationTexture != null && _drift.Length == _layout.TotalRows;
-        private bool IsBoneComplete => _boneTexture != null && Array.TrueForAll(_extraMeshes, mesh => mesh != null);
 
         public bool TryValidate(out string error)
         {
@@ -84,6 +81,18 @@ namespace VATyakov
 
         public void ApplyTo(Material material, int clipIndex)
         {
+            ApplyData(material);
+            ApplyFrame(material, _clips[clipIndex].Frame(0.0));
+        }
+
+        public bool Owns(Material material)
+        {
+            var id = VatShaderIds.DataTexture(_mode);
+            return DataTexture != null && material.HasTexture(id) && material.GetTexture(id) == DataTexture;
+        }
+
+        public void ApplyData(Material material)
+        {
             if (HasBoneTexture)
             {
                 material.SetTexture(VatShaderIds.DataTexture(_mode), _boneTexture);
@@ -94,7 +103,6 @@ namespace VATyakov
             }
 
             material.SetVector(VatShaderIds.Layout, _layout.ShaderLayout);
-            ApplyFrame(material, _clips[clipIndex].Frame(0.0));
         }
 
         public void ApplyFrame(Material material, Vector4 frame)
@@ -127,11 +135,10 @@ namespace VATyakov
             _drift = drift;
         }
 
-        internal void SetBoneData(VatMode mode, VatLayoutInfo layout, Mesh mesh, Mesh[] extraMeshes, Texture2D boneTexture, VatClip[] clips,
-            VatPrecision precision, string sourceHash)
+        internal void SetBoneData(VatMode mode, VatLayoutInfo layout, Mesh mesh, Texture2D boneTexture, VatClip[] clips, VatPrecision precision,
+            string sourceHash)
         {
             SetCommon(mode, layout, mesh, clips, precision, sourceHash);
-            _extraMeshes = extraMeshes;
             _boneTexture = boneTexture;
         }
 
@@ -146,7 +153,6 @@ namespace VATyakov
             _mode = mode;
             _layout = layout;
             _mesh = mesh;
-            _extraMeshes = Array.Empty<Mesh>();
             _clips = clips;
             _precision = precision;
             _sourceHash = sourceHash;

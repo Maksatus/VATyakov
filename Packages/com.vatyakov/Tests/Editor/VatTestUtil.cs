@@ -42,6 +42,21 @@ namespace VATyakov.Tests
             }
         }
 
+        public static Vector3[] GpuPositions(Mesh mesh)
+        {
+            using var buffer = mesh.GetVertexBuffer(0);
+            var stride = buffer.stride / sizeof(float);
+            var data = new float[buffer.count * stride];
+            buffer.GetData(data);
+            var positions = new Vector3[buffer.count];
+            for (var v = 0; v < positions.Length; v++)
+            {
+                positions[v] = new Vector3(data[v * stride], data[v * stride + 1], data[v * stride + 2]);
+            }
+
+            return positions;
+        }
+
         public static Vector3 PositionSample(byte[] texels, VatLayoutInfo layout, VatPositionFormat format, int element, int row)
         {
             var texel = VatMath.Texel(element, layout.Width, layout.TotalRows, row);

@@ -9,7 +9,6 @@ namespace VATyakov.Editor
         public readonly VatMode Mode;
         public readonly VatLayout Layout;
         public readonly Mesh Mesh;
-        public readonly Mesh[] ExtraMeshes = Array.Empty<Mesh>();
         public readonly VatBakeTextures Textures;
         public readonly VatPositionFormat PositionFormat;
         public readonly VatPositionRange PositionRange = VatPositionRange.Identity;
@@ -40,12 +39,11 @@ namespace VATyakov.Editor
             Fallback = fallback;
         }
 
-        public VatBakeResult(VatBoneEncoder encoder, Mesh[] meshes, VatBakeTextures textures, IReadOnlyList<string> warnings)
+        public VatBakeResult(VatBoneEncoder encoder, Mesh mesh, VatBakeTextures textures, IReadOnlyList<string> warnings)
         {
             Mode = VatMode.Bone;
             Layout = encoder.Layout;
-            Mesh = meshes[0];
-            ExtraMeshes = meshes[1..];
+            Mesh = mesh;
             Textures = textures;
             Precision = encoder.Precision;
             Signs = encoder.Signs;

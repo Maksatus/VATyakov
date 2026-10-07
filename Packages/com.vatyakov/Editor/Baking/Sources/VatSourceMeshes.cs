@@ -6,23 +6,6 @@ namespace VATyakov.Editor
 {
     internal static class VatSourceMeshes
     {
-        public static VatSourceMesh Combine(string name, VatSourceMesh[] parts)
-        {
-            var vertexCount = 0;
-            var subMeshes = new List<VatSourceSubMesh>();
-            foreach (var part in parts)
-            {
-                foreach (var subMesh in part.SubMeshes)
-                {
-                    subMeshes.Add(Shift(subMesh, vertexCount));
-                }
-
-                vertexCount += part.VertexCount;
-            }
-
-            return new VatSourceMesh(name, vertexCount, CombineUv(parts, vertexCount), subMeshes.ToArray());
-        }
-
         public static VatSourceMesh MergeSlots(string name, VatSourceMesh[] parts)
         {
             var vertexCount = 0;

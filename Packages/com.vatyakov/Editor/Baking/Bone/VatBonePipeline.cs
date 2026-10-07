@@ -51,7 +51,7 @@ namespace VATyakov.Editor
                 VatBakeProgress.Report(clip, frame);
                 source.Pose(clipIndex, clip.FrameTime(frame));
                 encoder.Rig.ReadSkin(source.Copy.Root.transform, skin);
-                var problem = VatBlendShapeCheck.Problem(source.Copy) ?? encoder.AddFrame(clipIndex, frame, skin);
+                var problem = VatBlendShapeCheck.Problem(source.Copy.Renderer) ?? encoder.AddFrame(clipIndex, frame, skin);
                 if (problem != null)
                 {
                     return FormattableString.Invariant($"Clip '{clip.Name}', frame {frame}: {problem}.");
@@ -63,24 +63,14 @@ namespace VATyakov.Editor
 
         private static VatBakeResult Build(VatBoneEncoder encoder, string name, IReadOnlyList<string> warnings)
         {
-            var skins = encoder.Rig.Skins;
-            var meshes = new Mesh[skins.Length];
+            var mesh = encoder.BuildMesh(VatAssetPath.MeshName(name));
             try
             {
-                for (var i = 0; i < meshes.Length; i++)
-                {
-                    meshes[i] = encoder.BuildMesh(i, i == 0 ? VatAssetPath.MeshName(name) : VatAssetPath.ExtraMeshName(name, skins[i].Name));
-                }
-
-                return new VatBakeResult(encoder, meshes, VatBakeTextures.Build(encoder, name), warnings);
+                return new VatBakeResult(encoder, mesh, VatBakeTextures.Build(encoder, name), warnings);
             }
             catch
             {
-                foreach (var mesh in meshes)
-                {
-                    Object.DestroyImmediate(mesh);
-                }
-
+                Object.DestroyImmediate(mesh);
                 throw;
             }
         }

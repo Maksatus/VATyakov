@@ -91,6 +91,20 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void SeveralMeshNodes_BakeIntoOneSubMesh_AndWarnAboutHiddenNodes()
+        {
+            var instance = Instance("vat_rigid");
+            instance.GetComponent<AlembicStreamPlayer>().UpdateImmediately(0f);
+            var indexCount = instance.GetComponentsInChildren<MeshFilter>(true).Sum(node => node.sharedMesh.triangles.Length);
+
+            _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_rigid")), Fps, isLooping: false);
+
+            Assert.AreEqual(1, _bake.Mesh.subMeshCount, "one material draws every node");
+            Assert.AreEqual(indexCount, _bake.Mesh.GetIndices(0).Length, "the submesh has the triangles of every node");
+            Assert.IsTrue(_bake.Warnings.Any(warning => warning.Contains("hidden on some frames")), string.Join("\n", _bake.Warnings));
+        }
+
+        [Test]
         public void ZeroDuration_FailsTheBake()
         {
             var instance = Instance("vat_cloth");

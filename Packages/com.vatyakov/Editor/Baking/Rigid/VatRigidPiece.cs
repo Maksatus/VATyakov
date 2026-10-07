@@ -25,7 +25,7 @@ namespace VATyakov.Editor
             Visibility = visibility;
             _rest = track.Frames[visibility.First];
             _restInverse = _rest.inverse;
-            Source = _rest.determinant < 0f ? VatSourceWinding.Reversed(track.Source) : track.Source;
+            Source = VatSourceWinding.Oriented(track.Source, _rest);
             Motions = Array.ConvertAll(track.Frames, frame => frame * _restInverse);
             RestPositions = Array.ConvertAll(track.Local.Positions, _rest.MultiplyPoint3x4);
             var bounds = RestBounds(RestPositions);

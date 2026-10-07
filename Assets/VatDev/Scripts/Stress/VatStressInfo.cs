@@ -98,7 +98,13 @@ namespace VATyakov.Dev
 
         private static Renderer[] LodRenderers(IVatStressUnit unit, int lod)
         {
-            return unit.Root.GetComponent<LODGroup>().GetLODs()[lod].renderers;
+            var group = unit.Root.GetComponent<LODGroup>();
+            if (group != null)
+            {
+                return group.GetLODs()[lod].renderers;
+            }
+
+            return lod == 0 ? unit.Root.GetComponentsInChildren<Renderer>() : Array.Empty<Renderer>();
         }
 
         private static Mesh SharedMesh(Renderer renderer)

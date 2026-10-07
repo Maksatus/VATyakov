@@ -36,8 +36,6 @@ namespace VATyakov.Dev
             VatStressVariant.SmrCrossFade,
             VatStressVariant.VatCrossFade,
             VatStressVariant.SmrLod0,
-            VatStressVariant.VatLod0,
-            VatStressVariant.VatLod0,
             VatStressVariant.SmrLod0,
             VatStressVariant.VatCrossFade,
             VatStressVariant.SmrCrossFade,

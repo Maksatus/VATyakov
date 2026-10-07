@@ -32,11 +32,6 @@ namespace VATyakov.Editor
         [SerializeField]
         private AnimationClip[] _clips = Array.Empty<AnimationClip>();
 
-        [Tooltip("Bone mode only. More meshes of the same rig on the same bone texture: LOD meshes, other skins, equipment. " +
-                 "The asset gets one mesh per renderer, in this order.")]
-        [SerializeField]
-        private VatExtraRenderer[] _extraRenderers = Array.Empty<VatExtraRenderer>();
-
         [Tooltip(".abc from the project. The whole importer Time Range is baked; positions are in the .abc root space. " +
                  "Requires com.unity.formats.alembic 2.4.5 or newer.")]
         [SerializeField]
@@ -58,12 +53,13 @@ namespace VATyakov.Editor
         [SerializeField]
         private float _maxPositionError = VatPositionEncoding.ByteTolerance * MillimetersPerMeter;
 
-        [HideInInspector]
+        [Tooltip("VAT asset the bake writes into. Created next to the profile when empty. " +
+                 "A duplicated profile shares it with the original: clear it to bake a separate result.")]
         [SerializeField]
         private VatAsset _asset;
 
-        [Tooltip("Material the baker writes the textures into. Created next to the profile when empty. " +
-                 "A rebake keeps the clip it shows when the clip is still there.")]
+        [Tooltip("Material the baker writes the textures into. Created next to the VAT asset when empty. A rebake keeps the clip it shows " +
+                 "when the clip is still there. A duplicated profile shares it with the original: clear it to bake a separate result.")]
         [SerializeField]
         private Material _material;
 
@@ -75,7 +71,6 @@ namespace VATyakov.Editor
         public VatMode Mode { get => _mode; set => _mode = value; }
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
         public IReadOnlyList<AnimationClip> Clips => _clips;
-        public IReadOnlyList<VatExtraRenderer> ExtraRenderers => _extraRenderers;
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
         public bool IsLooping { get => _isLooping; set => _isLooping = value; }
         public float Fps { get => _fps; set => _fps = value; }
@@ -90,11 +85,6 @@ namespace VATyakov.Editor
         public void SetClips(params AnimationClip[] clips)
         {
             _clips = (AnimationClip[])clips.Clone();
-        }
-
-        public void SetExtraRenderers(params VatExtraRenderer[] extraRenderers)
-        {
-            _extraRenderers = (VatExtraRenderer[])extraRenderers.Clone();
         }
 
         private void Reset()

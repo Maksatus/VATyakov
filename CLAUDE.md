@@ -84,7 +84,7 @@
 - MaterialPropertyBlock запрещён, копии материалов — только в Play mode (§1.6).
 - Контент — файлы ассетов (модели, текстуры, материалы, префабы, сцены, профили и результаты бейка) — маленькими
   буквами через `_`: `bow_default_vat.prefab`. Папки и код (скрипты, шейдеры, asmdef) — PascalCase, как в `D:\client`.
-  Бейкер называет результат `<профиль>_vat` (ассет, материал, префаб), сабассеты — `_mesh`, `_pos`, `_rot`, у Bone — `_mesh`, `_bone`, у Rigid — `_mesh`, `_piece` (дрейф — массив в самом ассете, 1.8.1).
+  Бейкер называет результат `<профиль>_vat` (ассет и материал; префаб юнита собирают руками), сабассеты — `_mesh`, `_pos`, `_rot`, у Bone — `_mesh`, `_bone`, у Rigid — `_mesh`, `_piece` (дрейф — массив в самом ассете, 1.8.1).
   Переименовывать через Unity (`AssetDatabase.RenameAsset`), а в git смену одного регистра фиксировать заново
   (`git rm --cached` + `git add`): `core.ignorecase = true` её не видит.
 
@@ -100,8 +100,9 @@
   (`vat_lit_vertex_blend`, 1.8.2). В `compare` третья пара — Bone (1.11–1.12): `bow_bone` (SMR с Skin Weights = 2 Bones и
   `bow_bone_vat`); `bow_squash` — неиспечённый Bone-профиль с неравномерным масштабом кости, его бейк откатывается в Vertex.
 - `Assets/VatDev/Content/Characters` — воин (Humanoid, 57 костей, 10 скинов, топоры — MeshRenderer в осях кисти) и его клипы;
-  `warrior.prefab` — префаб для бейка (скин Default, топор под RPalm, LOD-SMR). Профиль `Bakes/warrior` с Extra Renderers
-  (LOD и топор), префаб `warrior_vat` с LODGroup, сцена `warrior` (1.13, не в сборке; L — переключить LOD).
+  `warrior.prefab` — префаб для бейка (скин Default, топор под RPalm, LOD-SMR). Профиль `Bakes/warrior` печёт
+  один меш тела (Extra Renderers удалены в 0.16.2), префаб `warrior_vat` — тело без LOD и топора; у SMR-стороны в `stress` и
+  `warrior` LOD и топор остались. Сцена `warrior` (1.13, не в сборке; L — переключить LOD SMR).
 - `Assets/VatDev/Content/RBDDestroy` — разрушения (1.15): `rbd_test.abc` (перегнан из `rbd_test_rig.fbx`, 114 кусков) и `rbd_wall.abc`
   (500 кусков с появлением и исчезновением), `rbd_test_deform.abc` (тот же тест одним деформирующимся мешем, 1.16), генератор — меню VATyakov → Dev → Regenerate Rigid Content; профили
   `Bakes/rbd_test`, `Bakes/rbd_wall`, `Bakes/rbd_test_deform` (Mode = Rigid), сцена `compare_rigid` (не в сборке).

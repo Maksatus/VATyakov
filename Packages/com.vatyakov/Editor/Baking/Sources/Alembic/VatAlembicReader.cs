@@ -29,8 +29,12 @@ namespace VATyakov.Editor
 
         public VatSourceMesh SourceMesh(string name)
         {
-            var meshes = Array.ConvertAll(_nodes, node => VatSourceMesh.Read(node.sharedMesh));
-            return VatSourceMeshes.Combine(name, meshes);
+            return VatSourceMeshes.MergeSlots(name, Array.ConvertAll(_nodes, NodeMesh));
+        }
+
+        private static VatSourceMesh NodeMesh(MeshFilter node)
+        {
+            return VatSourceWinding.Oriented(VatSourceMesh.Read(node.sharedMesh), node.transform.localToWorldMatrix);
         }
 
         private void ReadNode(Mesh mesh)

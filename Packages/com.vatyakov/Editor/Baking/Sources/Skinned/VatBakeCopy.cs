@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -16,14 +15,13 @@ namespace VATyakov.Editor
 
         public GameObject Root { get; private set; }
         public SkinnedMeshRenderer Renderer { get; private set; }
-        public Renderer[] Extras { get; private set; } = Array.Empty<Renderer>();
         public Matrix4x4 RendererToRoot => Root.transform.worldToLocalMatrix * Renderer.transform.localToWorldMatrix;
 
-        public VatBakeCopy(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
+        public VatBakeCopy(SkinnedMeshRenderer source)
         {
             try
             {
-                Create(source, extras);
+                Create(source);
             }
             catch
             {
@@ -32,9 +30,15 @@ namespace VATyakov.Editor
             }
         }
 
+        public GameObject LegacyRoot()
+        {
+            var animation = Renderer.GetComponentInParent<Animation>(true);
+            return animation != null ? animation.gameObject : Root;
+        }
+
         public Animator PrepareAnimator()
         {
-            var animator = Root.GetComponentInChildren<Animator>(true);
+            var animator = FindAnimator();
             if (animator == null)
             {
                 animator = Root.AddComponent<Animator>();
@@ -61,21 +65,27 @@ namespace VATyakov.Editor
 
             Root = null;
             Renderer = null;
-            Extras = Array.Empty<Renderer>();
         }
 
-        private void Create(SkinnedMeshRenderer source, IReadOnlyList<Renderer> extras)
+        private void Create(SkinnedMeshRenderer source)
         {
             var sourceRoot = source.transform.root;
             _scene = EditorSceneManager.NewPreviewScene();
             Root = Instantiate(sourceRoot.gameObject, NewHolder());
-            Renderer = FindRenderer<SkinnedMeshRenderer>(source, sourceRoot);
+            Renderer = FindRenderer(source, sourceRoot);
             Renderer.quality = SkinQuality.Bone4;
-            Extras = new Renderer[extras.Count];
-            for (var i = 0; i < Extras.Length; i++)
+        }
+
+        private Animator FindAnimator()
+        {
+            var parents = Renderer.GetComponentsInParent<Animator>(true);
+            var withAvatar = Array.Find(parents, animator => animator.avatar != null);
+            if (withAvatar != null)
             {
-                Extras[i] = FindRenderer<Renderer>(extras[i], sourceRoot);
+                return withAvatar;
             }
+
+            return parents.Length > 0 ? parents[0] : Root.GetComponentInChildren<Animator>(true);
         }
 
         private Transform NewHolder()
@@ -94,17 +104,16 @@ namespace VATyakov.Editor
             return root;
         }
 
-        private T FindRenderer<T>(Renderer source, Transform sourceRoot) where T : Renderer
+        private SkinnedMeshRenderer FindRenderer(SkinnedMeshRenderer source, Transform sourceRoot)
         {
-            var path = AnimationUtility.CalculateTransformPath(source.transform, sourceRoot);
-            var transform = path.Length == 0 ? Root.transform : Root.transform.Find(path);
-            var renderer = transform != null ? transform.GetComponent<T>() : null;
-            if (renderer == null)
+            var index = Array.IndexOf(sourceRoot.GetComponentsInChildren<SkinnedMeshRenderer>(true), source);
+            var renderers = Root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            if (index >= renderers.Length || renderers[index].sharedMesh != source.sharedMesh)
             {
-                throw new InvalidOperationException($"Renderer '{path}' not found in the bake copy of '{Root.name}'.");
+                throw new VatBakeException($"'{source.name}' is not found in the bake copy of '{Root.name}': a script of the prefab changes its renderers.");
             }
 
-            return renderer;
+            return renderers[index];
         }
     }
 }

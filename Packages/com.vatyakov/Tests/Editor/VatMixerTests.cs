@@ -129,6 +129,100 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void IsPlayingLoop_IsTrueForTheCurrentLoopOnly()
+        {
+            var idle = Loop();
+            var other = Other();
+            var fire = OneShot();
+            var mixer = new VatMixer(1f);
+            mixer.Play(idle, 0.0);
+            Assert.IsTrue(mixer.IsPlayingLoop(idle), "the only playing loop");
+            Assert.IsFalse(mixer.IsPlayingLoop(other), "another clip");
+
+            mixer.CrossFade(other, 1.0, 0.5f);
+            Assert.IsTrue(mixer.IsPlayingLoop(other), "the target loop of a transition");
+            Assert.IsFalse(mixer.IsPlayingLoop(idle), "the source of a transition");
+
+            mixer.Play(fire, 2.0);
+            Assert.IsFalse(mixer.IsPlayingLoop(fire), "a one-shot restarts on a repeated cross-fade");
+        }
+
+        [Test]
+        public void CrossFade_IntoTheOnlyPlayingLoop_KeepsPlaying()
+        {
+            var idle = Loop();
+            var mixer = new VatMixer(1f);
+            mixer.Play(idle, 0.0);
+
+            mixer.CrossFade(idle, 0.5, 0.2f);
+
+            Assert.IsNull(mixer.TargetClip, "no transition into itself");
+            Assert.AreEqual(0.5f, mixer.NormalizedTime(0.5), Tolerance, "the loop keeps its phase");
+        }
+
+        [Test]
+        public void CrossFade_IntoTheTargetLoop_KeepsItsPhaseAndRate()
+        {
+            var other = Other();
+            var mixer = PlayingLoop();
+            mixer.CrossFade(other, 0.0, 1f);
+
+            mixer.CrossFade(other, 0.25, 1f);
+
+            Assert.AreEqual(0.5f, mixer.Weight(0.5), Tolerance, "the weight keeps rising at the same rate");
+            Assert.AreEqual(0.5f, mixer.NormalizedTime(0.5), Tolerance, "the target keeps its phase");
+        }
+
+        [Test]
+        public void CrossFade_IntoTheTargetLoop_AfterSetWeightToZero_FadesItInAgain()
+        {
+            var other = Other();
+            var mixer = PlayingLoop();
+            mixer.CrossFade(other, 0.0, 0.2f);
+            mixer.SetWeight(1.0, 0f, 0f);
+
+            mixer.CrossFade(other, 1.0, 0.2f);
+
+            Assert.AreEqual(0.5f, mixer.Weight(1.1), Tolerance, "the target comes back");
+            Assert.AreEqual(1f, mixer.Weight(1.2), Tolerance, "in the given duration");
+        }
+
+        [Test]
+        public void CrossFade_IntoTheSourceLoop_ReversesWithoutAJump()
+        {
+            var idle = Loop();
+            var mixer = new VatMixer(1f);
+            mixer.Play(idle, 0.0);
+            mixer.CrossFade(Other(), 0.0, 1f);
+            mixer.Evaluate(0.3, out var before, out var beforeB);
+
+            mixer.CrossFade(idle, 0.3, 1f);
+
+            mixer.Evaluate(0.3, out var after, out var afterB);
+            Assert.AreSame(idle, mixer.TargetClip, "the source becomes the target");
+            Assert.AreEqual(new Vector4(before.x, before.y, before.z, 1f - beforeB.w), afterB, "the source keeps its frame and its share");
+            Assert.AreEqual(new Vector4(beforeB.x, beforeB.y, beforeB.z, 0f), after, "the old target keeps its frame");
+            Assert.AreEqual(1f, mixer.Weight(0.6), Tolerance, "the way back takes the share it had");
+        }
+
+        [Test]
+        public void Evaluate_AfterATransitionIntoAOneShot_StopsBothFrames()
+        {
+            var mixer = PlayingLoop();
+            mixer.CrossFade(OneShot(), 0.0, 0.5f);
+
+            mixer.Evaluate(2.0, out var frame, out var frameB);
+            mixer.Evaluate(2.5, out var later, out var laterB);
+            Assert.AreEqual(new Vector4(frameB.x, frameB.y, frameB.z, 0f), frame, "at weight 1 the source frame is the target frame");
+            Assert.AreEqual(frame, later, "a finished one-shot stops the source frame too");
+            Assert.AreEqual(frameB, laterB, "and its own frame");
+
+            mixer.SetWeight(3.0, 0f, 0f);
+            mixer.Evaluate(3.0, out var back, out _);
+            Assert.That(back.x, Is.GreaterThanOrEqualTo(OneShotFrameCount), "a weight below 1 shows the moving source again");
+        }
+
+        [Test]
         public void CrossFade_WithNothingPlaying_Plays()
         {
             var mixer = new VatMixer(1f);

@@ -4,6 +4,9 @@ namespace VATyakov.Editor
 {
     internal static class VatBakeValidator
     {
+        private const string NotVatHint = "Duplicate a VAT template, or clear the field to create one.";
+        private const string SharedHint = "clear VAT Asset and Template Material in Output of the duplicate to bake a separate result.";
+
         public static List<string> Validate(VatBakeProfile profile)
         {
             var problems = new List<string>();
@@ -19,6 +22,7 @@ namespace VATyakov.Editor
             Add(problems, ModeProblem(profile));
             Add(problems, FpsProblem(profile));
             Add(problems, MaterialProblem(profile));
+            Add(problems, SharedProblem(profile));
             return problems;
         }
 
@@ -40,26 +44,7 @@ namespace VATyakov.Editor
                 Add(problems, VatBoneRig.Problem(profile.Source));
             }
 
-            if (sourceProblem == null)
-            {
-                AddExtraRenderers(problems, profile);
-            }
-
             problems.AddRange(VatClipListProblems.Find(profile.Clips));
-        }
-
-        private static void AddExtraRenderers(List<string> problems, VatBakeProfile profile)
-        {
-            if (profile.ExtraRenderers.Count > 0 && !profile.IsBone)
-            {
-                problems.Add("Extra Renderers bake only in Mode = Bone.");
-                return;
-            }
-
-            foreach (var extra in profile.ExtraRenderers)
-            {
-                Add(problems, VatBoneBinding.Problem(profile.Source, extra.Renderer));
-            }
         }
 
         private static void Add(List<string> problems, string problem)
@@ -109,9 +94,29 @@ namespace VATyakov.Editor
 
         private static string MaterialProblem(VatBakeProfile profile)
         {
-            return profile.Material != null || VatTemplateMaterial.ResolveShader(profile) != null
+            var material = profile.Material;
+            if (material != null)
+            {
+                return VatMaterialCopies.IsVat(material)
+                    ? null
+                    : $"Template Material '{material.name}' uses '{material.shader.name}', not a VAT shader, and the bake would replace it. {NotVatHint}";
+            }
+
+            return VatTemplateMaterial.ResolveShader(profile) != null
                 ? null
                 : $"No template material: assign a Template Material or a Shader (default '{VatBaker.DefaultShaderName}').";
+        }
+
+        private static string SharedProblem(VatBakeProfile profile)
+        {
+            var other = VatProfileLookup.Sharing(profile, out var shared);
+            if (other == null)
+            {
+                return null;
+            }
+
+            var field = shared is VatAsset ? "VAT Asset" : "Template Material";
+            return $"{field} '{shared.name}' is baked by profile '{other.name}' too: {SharedHint}";
         }
 
         private static bool IsPositive(float value)
