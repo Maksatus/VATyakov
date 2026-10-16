@@ -160,7 +160,7 @@ namespace VATyakov
                 return null;
             }
 
-            return new VatMaterialCopies(OwnRenderers(), name, _asset);
+            return new VatMaterialCopies(OwnRenderers(), name);
         }
 
         private void CrossFade(VatClip clip, float duration)

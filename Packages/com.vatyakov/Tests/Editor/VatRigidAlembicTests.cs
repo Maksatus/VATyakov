@@ -166,6 +166,7 @@ namespace VATyakov.Tests
             using var source = VatAlembic.OpenRigid(Load("vat_cloth"));
             var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, LowFps, false, "Cloth"));
             StringAssert.Contains("islands of deforming meshes don't move rigidly", error.Message);
+            StringAssert.Contains("Packed Transform = Transform Geometry", error.Message);
             StringAssert.Contains("' island 0: ", error.Message, "the report lists the islands");
             StringAssert.Contains("Mode = Vertex", error.Message);
         }

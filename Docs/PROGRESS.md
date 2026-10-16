@@ -31,7 +31,7 @@
 | Аудит 1.15–1.16: исправления Rigid | готово в редакторе | 0.16.1 |
 | Аудит пакета: исправления, Extra Renderers удалены | готово в редакторе, устройства не проверены | 0.16.2 |
 | Аудит пакета: баги (бэклог, раздел 1) | готово в редакторе | 0.16.3 |
-| Аудит пакета: инспекторы и удобство (бэклог, раздел 2) | готово в редакторе, инспекторы глазами не проверены | 0.16.4 |
+| Аудит пакета: инспекторы, удобство, раздел 3 и минимальный рантайм | готово в редакторе | 0.16.4 |
 | 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -252,14 +252,14 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `Samples/LitBone/` — vat_lit_bone.shadergraph, `Samples/LitBoneBlend/` — vat_lit_bone_blend.shadergraph (1.11); `Samples/LitRigid/` — vat_lit_rigid.shadergraph (1.15)
 - `Editor/Baking/` — VatAssetPath, VatAssetWriter, VatBakeEstimate, VatBakeException, VatBakeLog, VatBakePipeline, VatBakeProgress, VatBakeResult, VatBakeTextures, VatBakeValidator, VatBaker, VatClipListProblems, VatMemory, VatSourceHash, VatTemplateMaterial, VatTemplateShader
 - `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind; аудит (0.16.1) — VatRigidFitBlend
-- `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13)
+- `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13), VatBoneFpsCheck (0.16.4)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
 - `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1), VatLostAttributes (0.16.3)
 - `Editor/Baking/Sources/Alembic/` — под `#if VAT_ALEMBIC`: VatAlembicFrameSource, VatAlembicCopy, VatAlembicDuration (1.15), VatAlembicSampleTimes (1.15), VatRigidPieceExtractor (1.15); без условия: VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
-- `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2), VatClipMotion и VatConstraints (0.16.3)
+- `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2), VatClipMotion и VatConstraints (0.16.3), VatClipEvents (0.16.4)
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatBatchBake (0.16.4, пункт меню Assets → Bake VAT Profiles), VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*, поля VAT Asset и Template Material под кнопкой Bake — VatOutputFieldsContainer, «Out of date» — VatOutdated*, 0.16.4; секций Output и Result нет)
-- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память меша и текстур, padding и Total — VatAssetMemory*, 0.16.4; Max Error и формат позиций — плитки сводки VatAssetSummary, карточек Precision и Contents нет с 0.16.4; профиль и «Out of date» — VatAssetProfile*)
+- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatAssetValidation (0.16.4, `TryValidate` — extension), VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память меша и текстур, padding и Total — VatAssetMemory*, 0.16.4; Max Error и формат позиций — плитки сводки VatAssetSummary, карточек Precision и Contents нет с 0.16.4; профиль и «Out of date» — VatAssetProfile*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
@@ -727,3 +727,15 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   Профиль: секций Output и Result нет (по просьбе пользователя) — под карточкой Source проблемы, «Out of date»
   (`VatOutdatedController`), кнопка Bake и привязанные поля VAT Asset и Template Material (их очищают у дубликата);
   сводка ассета (`VatAssetSummary`) — только в инспекторе ассета.
+  Раздел 3 бэклога (решения пользователя): события клипов — только предупреждение (`VatClipEvents`); Random Start не
+  делаем — пакет даёт минимальный функционал, удобства на пользователях; Bone проверяет точность между кадрами
+  (`VatBoneFpsCheck`: три внутренние точки 1/4, 1/2, 3/4 — одна середина не ловит симметричный поворот, nlerp в точке
+  0.5 совпадает с Unity; порог 1 см; `VatBoneEncoder.InnerError` — `lerp` хранимых поз прошлого и текущего кадра);
+  RG-1 — совет Transform Geometry в отчёте `VatRigidSplit`. На VatDev Bone-предупреждение о fps срабатывает:
+  `bow_bone` BakeSave 31.9 мм, `warrior` Mowing 38.8 мм при 30 fps; у `warrior` клип Warrior_Run с событиями.
+  Минимальный рантайм (решение пользователя): `VatMaterialCopies` не пишет данные ассета в копии (конструктор без
+  ассета, `VatAsset.Owns` удалён); валидация ассета — `VatAssetValidation` в редакторе (`VatAsset.DriftRows` — internal
+  для неё), `VatCompare` в VatDev без неё; флаг `_isDestroyed` у `VatAnimator` оставлен. Проверено: 296 тестов
+  зелёные; отрицательный контроль — без исправлений краснеют fps Bone, события и совет Rigid.
+  Порог fps-предупреждения Bone — 1 см (решение пользователя: ошибка Mowing у воина 130 / 39 / 8.5 мм при 15 / 30 /
+  60 fps; при 2 мм предупреждение горело бы почти у любого персонажа). Временная сцена сравнения fps удалена.

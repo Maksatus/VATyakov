@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -12,6 +13,8 @@ namespace VATyakov.Editor
         private readonly VatBoneBounds _bounds;
         private readonly Vector4[] _offsetScales;
         private readonly Vector4[] _rotations;
+        private readonly Vector4[] _previousOffsetScales;
+        private readonly Vector4[] _previousRotations;
 
         public float MaxError { get; private set; }
         public VatPrecision Precision => new VatPrecision(0f, MaxError, 0f);
@@ -25,6 +28,8 @@ namespace VATyakov.Editor
             _bounds = new VatBoneBounds(rig.Pivots);
             _offsetScales = new Vector4[rig.BoneCount];
             _rotations = new Vector4[rig.BoneCount];
+            _previousOffsetScales = new Vector4[rig.BoneCount];
+            _previousRotations = new Vector4[rig.BoneCount];
             for (var bone = 0; bone < rig.BoneCount; bone++)
             {
                 _texels.WritePivot(bone, rig.Pivots[bone]);
@@ -35,6 +40,8 @@ namespace VATyakov.Editor
         public string AddFrame(int clip, int frame, Matrix4x4[] skin)
         {
             var clipLayout = Layout.Clips[clip];
+            Array.Copy(_offsetScales, _previousOffsetScales, Rig.BoneCount);
+            Array.Copy(_rotations, _previousRotations, Rig.BoneCount);
             for (var bone = 0; bone < Rig.BoneCount; bone++)
             {
                 var similarity = VatSimilarity.Of(skin[bone]);
@@ -54,6 +61,21 @@ namespace VATyakov.Editor
             }
 
             return null;
+        }
+
+        public float InnerError(Matrix4x4[] skin, float fraction)
+        {
+            var error = 0f;
+            for (var vertex = 0; vertex < Rig.Skin.Influences.Length; vertex++)
+            {
+                var influence = Rig.Skin.Influences[vertex];
+                var rest = Rig.Skin.Rest.Positions[vertex];
+                var decoded = Vector3.LerpUnclamped(InnerPoint(influence.Bone1, rest, fraction), InnerPoint(influence.Bone0, rest, fraction),
+                    influence.StoredWeight0);
+                error = Mathf.Max(error, Vector3.Distance(decoded, Reference(skin, influence, rest)));
+            }
+
+            return error;
         }
 
         public Mesh BuildMesh(string name)
@@ -85,15 +107,25 @@ namespace VATyakov.Editor
                 var influence = Rig.Skin.Influences[vertex];
                 var rest = Rig.Skin.Rest.Positions[vertex];
                 var decoded = Vector3.LerpUnclamped(Point(influence.Bone1, rest), Point(influence.Bone0, rest), influence.StoredWeight0);
-                var reference = Vector3.LerpUnclamped(skin[influence.Bone1].MultiplyPoint3x4(rest), skin[influence.Bone0].MultiplyPoint3x4(rest),
-                    influence.Weight0);
-                MaxError = Mathf.Max(MaxError, Vector3.Distance(decoded, reference));
+                MaxError = Mathf.Max(MaxError, Vector3.Distance(decoded, Reference(skin, influence, rest)));
             }
         }
 
         private Vector3 Point(int bone, Vector3 rest)
         {
             return VatMath.BonePoint(_offsetScales[bone], _rotations[bone], Rig.Pivots[bone], rest);
+        }
+
+        private Vector3 InnerPoint(int bone, Vector3 rest, float fraction)
+        {
+            var offsetScale = Vector4.LerpUnclamped(_previousOffsetScales[bone], _offsetScales[bone], fraction);
+            var rotation = Vector4.LerpUnclamped(_previousRotations[bone], _rotations[bone], fraction);
+            return VatMath.BonePoint(offsetScale, rotation, Rig.Pivots[bone], rest);
+        }
+
+        private static Vector3 Reference(Matrix4x4[] skin, VatBoneInfluence influence, Vector3 rest)
+        {
+            return Vector3.LerpUnclamped(skin[influence.Bone1].MultiplyPoint3x4(rest), skin[influence.Bone0].MultiplyPoint3x4(rest), influence.Weight0);
         }
     }
 }

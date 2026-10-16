@@ -11,10 +11,6 @@ namespace VATyakov.Tests
         private const string UnlitShaderName = "VATyakov/vat_unlit_vertex";
         private const string BlendShaderName = "VATyakov/vat_lit_vertex_blend";
         private const string PlainShaderName = "Universal Render Pipeline/Lit";
-        private const int Elements = 4;
-        private const int Rows = 3;
-
-        private static readonly Vector4 _foreignLayout = new(7f, 9f, 0f, 0f);
 
         private Scene _scene;
         private GameObject _root;
@@ -22,7 +18,6 @@ namespace VATyakov.Tests
         private Material _otherVat;
         private Material _blend;
         private Material _plain;
-        private VatAsset _asset;
         private VatMaterialCopies _copies;
 
         [SetUp]
@@ -34,7 +29,6 @@ namespace VATyakov.Tests
             _otherVat = new Material(Shader.Find(UnlitShaderName)) { name = "OtherVat" };
             _blend = new Material(Shader.Find(BlendShaderName)) { name = "Blend" };
             _plain = new Material(Shader.Find(PlainShaderName)) { name = "Plain" };
-            _asset = ScriptableObject.CreateInstance<VatAsset>();
         }
 
         [TearDown]
@@ -47,7 +41,6 @@ namespace VATyakov.Tests
             Object.DestroyImmediate(_otherVat);
             Object.DestroyImmediate(_blend);
             Object.DestroyImmediate(_plain);
-            Object.DestroyImmediate(_asset);
             EditorSceneManager.ClosePreviewScene(_scene);
         }
 
@@ -59,7 +52,7 @@ namespace VATyakov.Tests
             var weapon = AddRenderer(Child("Weapon"), _otherVat);
             var plain = AddRenderer(Child("Plain"), _plain);
 
-            _copies = new VatMaterialCopies(_root.GetComponentsInChildren<Renderer>(true), _root.name, _asset);
+            _copies = new VatMaterialCopies(_root.GetComponentsInChildren<Renderer>(true), _root.name);
 
             Assert.AreEqual(2, _copies.Materials.Count, "one copy per unique VAT template");
             var copy = body.sharedMaterials[0];
@@ -76,7 +69,7 @@ namespace VATyakov.Tests
         public void Dispose_RestoresTheTemplates_AndDestroysTheCopies()
         {
             var body = AddRenderer(_root, _vat, _plain);
-            _copies = new VatMaterialCopies(new Renderer[] { body }, _root.name, _asset);
+            _copies = new VatMaterialCopies(new Renderer[] { body }, _root.name);
             var copy = _copies.Materials[0];
 
             _copies.Dispose();
@@ -94,36 +87,6 @@ namespace VATyakov.Tests
 
             Assert.AreEqual(0, animator.Materials.Count, "no copies in edit mode");
             Assert.AreSame(_vat, body.sharedMaterial, "the template stays");
-        }
-
-        [Test]
-        public void Copies_OfTheAssetMaterials_GetTheAssetData_OthersKeepTheirs()
-        {
-            var position = new Texture2D(Elements, Rows);
-            var foreign = new Texture2D(Elements, Rows);
-            try
-            {
-                var clip = new VatClip("Clip", 0, Rows, 1f, Rows - 1f, isLooping: false);
-                _asset.SetData(new VatLayoutInfo(Elements, Elements, 1, Rows), null, position, null, VatPositionFormat.Half, VatPositionRange.Identity,
-                    new Vector3[Rows], new[] { clip }, default, string.Empty);
-                _vat.SetTexture(VatShaderIds.PositionTexture, position);
-                _otherVat.SetTexture(VatShaderIds.PositionTexture, foreign);
-                _otherVat.SetVector(VatShaderIds.Layout, _foreignLayout);
-                var templateLayout = _vat.GetVector(VatShaderIds.Layout);
-                var body = AddRenderer(_root, _vat);
-                var weapon = AddRenderer(Child("Weapon"), _otherVat);
-
-                _copies = new VatMaterialCopies(_root.GetComponentsInChildren<Renderer>(true), _root.name, _asset);
-
-                Assert.AreEqual(_asset.Layout.ShaderLayout, body.sharedMaterial.GetVector(VatShaderIds.Layout), "a stale copy gets the asset layout");
-                Assert.AreEqual(_foreignLayout, weapon.sharedMaterial.GetVector(VatShaderIds.Layout), "a material of another asset keeps its data");
-                Assert.AreEqual(templateLayout, _vat.GetVector(VatShaderIds.Layout), "the template stays as it is");
-            }
-            finally
-            {
-                Object.DestroyImmediate(position);
-                Object.DestroyImmediate(foreign);
-            }
         }
 
         [Test]
@@ -147,11 +110,11 @@ namespace VATyakov.Tests
             var body = AddRenderer(_root, _blend, _plain);
             var weapon = AddRenderer(Child("Weapon"), _vat);
 
-            _copies = new VatMaterialCopies(new Renderer[] { body }, _root.name, _asset);
+            _copies = new VatMaterialCopies(new Renderer[] { body }, _root.name);
             Assert.IsTrue(_copies.CanBlend, "blend template and a plain material");
             _copies.Dispose();
 
-            _copies = new VatMaterialCopies(new Renderer[] { body, weapon }, _root.name, _asset);
+            _copies = new VatMaterialCopies(new Renderer[] { body, weapon }, _root.name);
             Assert.IsFalse(_copies.CanBlend, "a VAT template without a transition");
         }
 

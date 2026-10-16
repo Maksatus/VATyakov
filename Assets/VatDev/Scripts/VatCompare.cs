@@ -95,7 +95,7 @@ namespace VATyakov.Dev
 
         private void OnEnable()
         {
-            if (_asset == null || !HasSource() || _vat == null || !_asset.TryValidate(out _))
+            if (_asset == null || !HasSource() || _vat == null)
             {
                 Debug.LogError($"{name}: VatCompare is not set up.", this);
                 enabled = false;

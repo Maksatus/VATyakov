@@ -51,20 +51,11 @@ namespace VATyakov
         public VatPrecision Precision => _precision;
         public string Fallback => _fallback;
         public string SourceHash => _sourceHash;
-        public bool IsFormatSupported => _formatVersion == CurrentFormatVersion;
         public bool HasDrift => _mode == VatMode.Vertex;
         public bool HasBoneTexture => _mode != VatMode.Vertex;
         public int BoneCount => HasBoneTexture ? _layout.Elements / VatMath.TexelsPerBone : 0;
+        internal int DriftRows => _drift.Length;
 
-        private Texture2D DataTexture => HasBoneTexture ? _boneTexture : _positionTexture;
-        private bool IsComplete => _mesh != null && _clips.Length > 0 && (HasBoneTexture ? _boneTexture != null : IsVertexComplete);
-        private bool IsVertexComplete => _positionTexture != null && _rotationTexture != null && _drift.Length == _layout.TotalRows;
-
-        public bool TryValidate(out string error)
-        {
-            error = !IsFormatSupported ? FormatError() : !IsComplete ? IncompleteError() : null;
-            return error == null;
-        }
 
         public int IndexOf(string clipName)
         {
@@ -83,12 +74,6 @@ namespace VATyakov
         {
             ApplyData(material);
             ApplyFrame(material, _clips[clipIndex].Frame(0.0));
-        }
-
-        public bool Owns(Material material)
-        {
-            var id = VatShaderIds.DataTexture(_mode);
-            return DataTexture != null && material.HasTexture(id) && material.GetTexture(id) == DataTexture;
         }
 
         public void ApplyData(Material material)
@@ -170,17 +155,6 @@ namespace VATyakov
             material.SetTexture(VatShaderIds.PositionTexture, _positionTexture);
             material.SetTexture(VatShaderIds.RotationTexture, _rotationTexture);
             material.SetVector(VatShaderIds.PositionScale, _positionRange.ShaderScale);
-        }
-
-        private string FormatError()
-        {
-            return FormattableString.Invariant(
-                $"VAT asset '{name}' has format version {_formatVersion}, this package plays version {CurrentFormatVersion}. Rebake it.");
-        }
-
-        private string IncompleteError()
-        {
-            return $"VAT asset '{name}' is incomplete (mesh, textures or clips missing). Rebake it.";
         }
     }
 }

@@ -11,24 +11,25 @@ namespace VATyakov.Editor
         {
             var rig = new VatBoneRig(source.Copy);
             var encoder = new VatBoneEncoder(VatLayout.ForBone(rig.BoneCount, requests), rig);
-            problem = SampleAll(source, encoder);
+            var fps = new VatBoneFpsCheck(rig.BoneCount);
+            problem = SampleAll(source, encoder, fps);
             if (problem == null)
             {
-                return Build(encoder, name, source.Warnings);
+                return Build(encoder, name, Warnings(source, fps));
             }
 
             source.Rewind();
             return null;
         }
 
-        private static string SampleAll(VatSkinnedFrameSource source, VatBoneEncoder encoder)
+        private static string SampleAll(VatSkinnedFrameSource source, VatBoneEncoder encoder, VatBoneFpsCheck fps)
         {
             var skin = new Matrix4x4[encoder.Rig.BoneCount];
             try
             {
                 for (var clipIndex = 0; clipIndex < encoder.Layout.Clips.Length; clipIndex++)
                 {
-                    var problem = SampleClip(source, encoder, clipIndex, skin);
+                    var problem = SampleClip(source, encoder, clipIndex, skin, fps);
                     if (problem != null)
                     {
                         return problem;
@@ -43,22 +44,45 @@ namespace VATyakov.Editor
             }
         }
 
-        private static string SampleClip(VatSkinnedFrameSource source, VatBoneEncoder encoder, int clipIndex, Matrix4x4[] skin)
+        private static string SampleClip(VatSkinnedFrameSource source, VatBoneEncoder encoder, int clipIndex, Matrix4x4[] skin, VatBoneFpsCheck fps)
         {
             var clip = encoder.Layout.Clips[clipIndex];
+            var root = source.Copy.Root.transform;
             for (var frame = 0; frame < clip.FrameCount; frame++)
             {
                 VatBakeProgress.Report(clip, frame);
+                if (frame > 0)
+                {
+                    fps.SampleBefore(source, encoder.Rig, clipIndex, clip, frame);
+                }
+
                 source.Pose(clipIndex, clip.FrameTime(frame));
-                encoder.Rig.ReadSkin(source.Copy.Root.transform, skin);
+                encoder.Rig.ReadSkin(root, skin);
                 var problem = VatBlendShapeCheck.Problem(source.Copy.Renderer) ?? encoder.AddFrame(clipIndex, frame, skin);
                 if (problem != null)
                 {
                     return FormattableString.Invariant($"Clip '{clip.Name}', frame {frame}: {problem}.");
                 }
+
+                if (frame > 0)
+                {
+                    fps.Measure(encoder, clip, frame);
+                }
             }
 
             return null;
+        }
+
+        private static List<string> Warnings(VatSkinnedFrameSource source, VatBoneFpsCheck fps)
+        {
+            var warnings = new List<string>(source.Warnings);
+            var warning = fps.Warning();
+            if (warning != null)
+            {
+                warnings.Add(warning);
+            }
+
+            return warnings;
         }
 
         private static VatBakeResult Build(VatBoneEncoder encoder, string name, IReadOnlyList<string> warnings)

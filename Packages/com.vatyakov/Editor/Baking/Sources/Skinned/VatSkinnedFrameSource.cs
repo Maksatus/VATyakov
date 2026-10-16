@@ -87,6 +87,7 @@ namespace VATyakov.Editor
             _pose = new VatPoseSnapshot(_copy.Root);
             AddWarning(VatLostAttributes.Warning(source.name, new[] { source.sharedMesh }));
             AddWarning(VatConstraints.Warning(_copy.Root));
+            AddWarning(VatClipEvents.Warning(_clips));
         }
 
         private void AddWarning(string warning)

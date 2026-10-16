@@ -23,6 +23,7 @@ namespace VATyakov.Tests
         private const int HalfWeightVertexCount = 66;
         private const int TwoBlockVertexCount = 5000;
         private const float TallFps = 2100f;
+        private const float WaveAmplitude = 5f;
         private const float Millimeter = 1e-3f;
         private const float AngleTolerance = 1f;
         private const float BoundsTolerance = 1e-5f;
@@ -157,18 +158,20 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void ConstraintsAndVertexColors_WarnThatTheyAreNotBaked()
+        public void ConstraintsVertexColorsAndEvents_WarnThatTheyAreNotBaked()
         {
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
             _rig.Root.AddComponent<ParentConstraint>();
             var mesh = _rig.Renderer.sharedMesh;
             mesh.colors = new Color[mesh.vertexCount];
+            AnimationUtility.SetAnimationEvents(_rig.Clip, new[] { new AnimationEvent { time = 0.1f, functionName = "Hit" } });
 
             _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, false), "Lost");
 
             var warnings = string.Join("\n", _result.Warnings);
             StringAssert.Contains("has constraints or Animation Rigging", warnings);
             StringAssert.Contains("has Color: the VAT mesh keeps only UV0", warnings);
+            StringAssert.Contains($"Clips '{_rig.Clip.name}' have Animation Events", warnings);
         }
 
         [Test]
@@ -242,6 +245,26 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void BoneThatMovesAndReturnsBetweenBakedFrames_WarnsAboutFps()
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
+            var wave = new AnimationClip { name = "Wave", legacy = true };
+            var curve = new AnimationCurve(new Keyframe(0f, 0f), new Keyframe(0.5f, WaveAmplitude), new Keyframe(1f, 0f));
+            wave.SetCurve("Model/Bone0", typeof(Transform), "localPosition.x", curve);
+            try
+            {
+                _result = VatBakePipeline.Run(Profile(_rig.Renderer, wave, SwingFps, false), "Wave");
+
+                Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
+                StringAssert.Contains("Clip 'Wave' moves too fast for 1 fps", string.Join("\n", _result.Warnings));
+            }
+            finally
+            {
+                Object.DestroyImmediate(wave);
+            }
+        }
+
+        [Test]
         public void Reconstruction_MatchesBakeMeshWithTwoBones_WithinAMillimeter()
         {
             _rig = new VatTestRig(_scene, HalfWeightVertexCount, isLegacy: true, hasTwist: true);
@@ -254,6 +277,7 @@ namespace VATyakov.Tests
             Assert.Less(errors[SkinQuality.Bone2], Millimeter, "positions against BakeMesh at Skin Weights = 2 Bones");
             Assert.Less(angle, AngleTolerance, "normals against BakeMesh at Skin Weights = 2 Bones");
             Assert.Greater(errors[SkinQuality.Bone1], 10f * Millimeter, "control: one-bone skinning is visibly different");
+            Assert.IsFalse(_result.Warnings.Any(warning => warning.Contains("too fast")), string.Join("\n", _result.Warnings));
         }
 
         [Test]

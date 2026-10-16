@@ -9,6 +9,8 @@ namespace VATyakov.Editor
     {
         private const int ListedIslands = 10;
         private const float MillimetersPerMeter = 1000f;
+        private const string DeformHint = " A deforming mesh gives Rigid mode only rotation and offset of its parts, no scale: export pieces that shrink with " +
+            "Packed Transform = Transform Geometry, and use Mode = Vertex for meshes that bend.";
 
         public static VatRigidTrack[] Pieces(IReadOnlyList<VatRigidNode> nodes, string name)
         {
@@ -29,7 +31,7 @@ namespace VATyakov.Editor
             var limit = VatRigidFormat.MaxIslandResidual * MillimetersPerMeter;
             var report = new StringBuilder(FormattableString.Invariant(
                 $"'{name}': {failures.Count} of {islandCount} islands of deforming meshes don't move rigidly (residual over {limit:0.###} mm)."));
-            report.Append(" Rigid mode needs every connected part of a mesh to move as a whole: use Mode = Vertex for deforming meshes.");
+            report.Append(DeformHint);
             foreach (var (node, island) in failures.Take(ListedIslands))
             {
                 var center = node.Track.Frames[0].MultiplyPoint3x4(island.Center);
