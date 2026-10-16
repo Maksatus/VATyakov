@@ -5,13 +5,16 @@ namespace VATyakov.Editor
 {
     internal static class VatAnimationFields
     {
+        private const string NotAssignedHint =
+            "No animation assigned. Duplicate a baked template material (<profile>_vat) to get another material of the same VAT asset.";
+
         private static readonly GUIContent _assetLabel = new("VAT Asset", "VAT asset the material takes its animation from. Click to ping it in Project.");
 
         public static void Draw(MaterialEditor editor)
         {
             if (editor.targets.Length > 1)
             {
-                EditorGUILayout.HelpBox("Several materials are selected: the animation is shown for one.", MessageType.Info);
+                EditorGUILayout.HelpBox("Several materials are selected: select one to see and edit its animation.", MessageType.Info);
             }
             else
             {
@@ -25,8 +28,7 @@ namespace VATyakov.Editor
             switch (binding.Status)
             {
                 case VatMaterialStatus.NotAssigned:
-                    EditorGUILayout.HelpBox("No animation assigned. Set this material as the Template Material of a bake profile and press Bake.",
-                        MessageType.Info);
+                    EditorGUILayout.HelpBox(NotAssignedHint, MessageType.Info);
                     break;
                 case VatMaterialStatus.Foreign:
                     EditorGUILayout.HelpBox("The animation texture is not from a VAT asset or the asset is broken. Rebake the profile.", MessageType.Warning);
@@ -46,7 +48,7 @@ namespace VATyakov.Editor
                 VatFrameField.Draw(material, binding);
             }
 
-            if (binding.IsStale)
+            if (binding.IsStale && EditorUtility.IsPersistent(material))
             {
                 DrawStale(material, binding);
             }

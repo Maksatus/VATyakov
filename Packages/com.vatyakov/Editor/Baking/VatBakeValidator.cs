@@ -5,7 +5,7 @@ namespace VATyakov.Editor
     internal static class VatBakeValidator
     {
         private const string NotVatHint = "Duplicate a VAT template, or clear the field to create one.";
-        private const string SharedHint = "clear VAT Asset and Template Material in Output of the duplicate to bake a separate result.";
+        private const string SharedHint = "clear VAT Asset and Template Material of the duplicate (under Bake) to bake a separate result.";
 
         public static List<string> Validate(VatBakeProfile profile)
         {
@@ -95,16 +95,12 @@ namespace VATyakov.Editor
         private static string MaterialProblem(VatBakeProfile profile)
         {
             var material = profile.Material;
-            if (material != null)
+            if (material == null || VatMaterialCopies.IsVat(material))
             {
-                return VatMaterialCopies.IsVat(material)
-                    ? null
-                    : $"Template Material '{material.name}' uses '{material.shader.name}', not a VAT shader, and the bake would replace it. {NotVatHint}";
+                return null;
             }
 
-            return VatTemplateMaterial.ResolveShader(profile) != null
-                ? null
-                : $"No template material: assign a Template Material or a Shader (default '{VatBaker.DefaultShaderName}').";
+            return $"Template Material '{material.name}' uses '{material.shader.name}', not a VAT shader, and the bake would replace it. {NotVatHint}";
         }
 
         private static string SharedProblem(VatBakeProfile profile)

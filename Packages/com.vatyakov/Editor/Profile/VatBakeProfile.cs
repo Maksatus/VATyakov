@@ -63,10 +63,6 @@ namespace VATyakov.Editor
         [SerializeField]
         private Material _material;
 
-        [Tooltip("Shader of a new template material. A template whose shader does not fit the baked mode gets the default shader of that mode.")]
-        [SerializeField]
-        private Shader _shader;
-
         public VatSourceKind Kind { get => _kind; set => _kind = value; }
         public VatMode Mode { get => _mode; set => _mode = value; }
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
@@ -77,7 +73,6 @@ namespace VATyakov.Editor
         public float MaxPositionError { get => _maxPositionError / MillimetersPerMeter; set => _maxPositionError = value * MillimetersPerMeter; }
         public VatAsset Asset { get => _asset; set => _asset = value; }
         public Material Material { get => _material; set => _material = value; }
-        public Shader Shader { get => _shader; set => _shader = value; }
         public bool IsBone => _kind == VatSourceKind.Skinned && _mode == VatMode.Bone;
         public bool IsRigid => _kind == VatSourceKind.Alembic && _mode == VatMode.Rigid;
         public bool IsBaked => _asset != null && _asset.TryValidate(out _) && _material != null;
@@ -85,11 +80,6 @@ namespace VATyakov.Editor
         public void SetClips(params AnimationClip[] clips)
         {
             _clips = (AnimationClip[])clips.Clone();
-        }
-
-        private void Reset()
-        {
-            _shader = Shader.Find(VatBaker.DefaultShaderName);
         }
     }
 }

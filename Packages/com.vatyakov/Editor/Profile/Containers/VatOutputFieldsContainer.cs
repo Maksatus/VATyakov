@@ -7,11 +7,9 @@ namespace VATyakov.Editor
         public VatOutputFieldsContainer()
         {
             Root.WithElements(
-                VatUi.Hint("Every bake writes into the VAT asset and the template material. When empty, the first bake creates the VAT asset " +
-                    "next to the profile and the material next to the VAT asset, from the selected shader."),
+                VatUi.Hint("Every bake writes here. When empty, the first bake creates them next to the profile."),
                 new PropertyField { bindingPath = "_asset", label = "VAT Asset" },
-                new PropertyField { bindingPath = "_material", label = "Template Material" },
-                new PropertyField { bindingPath = "_shader", label = "Shader" });
+                new PropertyField { bindingPath = "_material", label = "Template Material" });
         }
     }
 }

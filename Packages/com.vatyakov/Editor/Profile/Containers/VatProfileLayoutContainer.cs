@@ -6,12 +6,10 @@ namespace VATyakov.Editor
     {
         public readonly VisualElement Source = VatUi.Card("Source");
         public readonly VisualElement Actions = new();
-        public readonly VisualElement Result = VatUi.Card("Result");
-        public readonly Foldout Output = VatUi.Foldout("Output", "VatBakeProfile.MaterialFoldout");
 
         public VatProfileLayoutContainer()
         {
-            Root.WithElements(Source, Actions, Result, Output);
+            Root.WithElements(Source, Actions);
         }
     }
 }

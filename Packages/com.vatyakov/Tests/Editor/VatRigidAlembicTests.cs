@@ -228,7 +228,6 @@ namespace VATyakov.Tests
             profile.Alembic = alembic;
             profile.Fps = fps;
             profile.IsLooping = false;
-            profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return profile;
         }
 

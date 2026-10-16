@@ -128,6 +128,15 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void Probe_KeepsOneEntryPerAlembic()
+        {
+            var cloth = VatAlembicProbe.For(Load("vat_cloth"));
+            VatAlembicProbe.For(Load("vat_shuffled"));
+
+            Assert.AreSame(cloth, VatAlembicProbe.For(Load("vat_cloth")), "switching between two .abc does not probe the first again");
+        }
+
+        [Test]
         public void LoopHint_SeesTheClosedCloth()
         {
             var probe = VatAlembicProbe.For(Load("vat_cloth"));
@@ -143,7 +152,6 @@ namespace VATyakov.Tests
             _profile.Kind = VatSourceKind.Alembic;
             _profile.Alembic = alembic;
             _profile.Fps = Fps;
-            _profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return _profile;
         }
 

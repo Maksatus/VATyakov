@@ -31,6 +31,7 @@
 | Аудит 1.15–1.16: исправления Rigid | готово в редакторе | 0.16.1 |
 | Аудит пакета: исправления, Extra Renderers удалены | готово в редакторе, устройства не проверены | 0.16.2 |
 | Аудит пакета: баги (бэклог, раздел 1) | готово в редакторе | 0.16.3 |
+| Аудит пакета: инспекторы и удобство (бэклог, раздел 2) | готово в редакторе, инспекторы глазами не проверены | 0.16.4 |
 | 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -257,8 +258,8 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Baking/Sources/Alembic/` — под `#if VAT_ALEMBIC`: VatAlembicFrameSource, VatAlembicCopy, VatAlembicDuration (1.15), VatAlembicSampleTimes (1.15), VatRigidPieceExtractor (1.15); без условия: VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2), VatClipMotion и VatConstraints (0.16.3)
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
-- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*, секция Output с VAT Asset, Template Material и Shader — VatOutputFieldsContainer, 0.16.2)
-- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память текстур и padding — VatAssetMemory*, ошибка и путь центроида — VatAssetPrecision*, профиль и «Out of date» — VatAssetProfile*)
+- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatBatchBake (0.16.4, пункт меню Assets → Bake VAT Profiles), VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*, поля VAT Asset и Template Material под кнопкой Bake — VatOutputFieldsContainer, «Out of date» — VatOutdated*, 0.16.4; секций Output и Result нет)
+- `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память меша и текстур, padding и Total — VatAssetMemory*, 0.16.4; Max Error и формат позиций — плитки сводки VatAssetSummary, карточек Precision и Contents нет с 0.16.4; профиль и «Out of date» — VatAssetProfile*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
@@ -704,3 +705,25 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   FBX. Проверено: 293 теста зелёные (9 новых, 5 поправлены под новое поведение); отрицательный контроль — без исправлений краснеют все
   новые. Подвох CLI: перебейк всех профилей одним `eval_file` упирается в таймаут главного потока (5 с) — CLI
   отвечает ошибкой, но бейк в редакторе доходит до конца; статус смотреть отдельным вызовом.
+- **Аудит пакета: инспекторы и удобство (0.16.4):** раздел 2 `Docs/fix_backlog.md`. Решения пользователя: строка Mesh в
+  памяти — да; Mode по умолчанию остаётся Vertex (UX-7 отклонён); поле Shader профиля удалено (новый шаблон —
+  `VatTemplateShader.DefaultName(mode, false)`, проблема «No template material» ушла из валидатора); пакетный бейк — да
+  (`VatBatchBake.BakeAll` собирает `VatBakeException` всех профилей в одну, отмену и диалог обрабатывает
+  `VatBakeDialog`). `VatMemory.Bytes(Mesh)` — `vertexCount × stride` по всем потокам плюс индексы (16 или 32 бита),
+  работает на нечитаемом меше; `VatAssetMemory.Textures` — только текстуры (с ними сходятся доли клипов), `Total` —
+  с мешем. Цифры: лук Vertex 3.25 МБ (меш 78 КБ), лук Bone 99 КБ (меш 86 КБ), воин 243 КБ (меш 117 КБ), `rbd_test`
+  2.64 МБ (меш 2.43 МБ), `rbd_wall` 1.6 МБ (меш 457 КБ). Clip у `VatAnimator`: `PopupField<string>` с
+  `bindingPath = "_clip"`, выбор First — пустая строка, подпись «First (клип)» — через `formatSelectedValueCallback` и
+  `formatListItemCallback`; в списке всегда есть текущее значение свойства (иначе привязка не сможет его показать).
+  Инспектор материала: «stale» только у сохранённых материалов (`EditorUtility.IsPersistent`). `VatAlembicProbe` —
+  словарь по `GameObject`, проверка хэша та же. Проверено: 296 тестов зелёные (3 новых); отрицательный контроль — без
+  исправлений краснеют кэш пробы и пакетный бейк. Инспекторы (`VatAnimator` с привязкой Clip и мультивыделением,
+  карточка Memory) глазами в редакторе не смотрелись.
+  Инспектор ассета ужат по просьбе пользователя («слишком много инфы»): карточки Animation (плитки Mode, Vertices, Bones
+  или Pieces, Texture, Positions у Vertex, Max Error; клипы) и Memory (Mesh, текстуры, Padding при > 0, Total; размер и
+  формат текстуры — в подсказке строки), ссылка на профиль. Карточка Precision (путь центроида больше не показывается,
+  он в логе бейка) и раскрывашка Contents (сабассеты видны в Project) удалены. Сводка с теми же плитками — в Result
+  профиля.
+  Профиль: секций Output и Result нет (по просьбе пользователя) — под карточкой Source проблемы, «Out of date»
+  (`VatOutdatedController`), кнопка Bake и привязанные поля VAT Asset и Template Material (их очищают у дубликата);
+  сводка ассета (`VatAssetSummary`) — только в инспекторе ассета.

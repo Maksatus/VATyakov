@@ -7,12 +7,14 @@ namespace VATyakov.Editor
         public readonly long Position;
         public readonly long Rotation;
         public readonly long Bone;
+        public readonly long Mesh;
         public readonly int PaddingTexels;
         public readonly long Padding;
 
         private readonly long _frameBytes;
 
-        public long Total => Position + Rotation + Bone;
+        public long Textures => Position + Rotation + Bone;
+        public long Total => Textures + Mesh;
 
         public VatAssetMemory(VatAsset asset)
         {
@@ -21,6 +23,7 @@ namespace VATyakov.Editor
             Position = Bytes(asset.PositionTexture);
             Rotation = Bytes(asset.RotationTexture);
             Bone = Bytes(asset.BoneTexture);
+            Mesh = asset.Mesh != null ? VatMemory.Bytes(asset.Mesh) : 0L;
             PaddingTexels = info.Blocks * info.Width - info.Elements;
             Padding = PaddingTexels * info.TotalRows * texelBytes;
             _frameBytes = info.Blocks * info.Width * texelBytes;

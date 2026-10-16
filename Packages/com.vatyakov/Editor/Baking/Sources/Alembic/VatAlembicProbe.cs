@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -5,9 +6,8 @@ namespace VATyakov.Editor
 {
     internal sealed class VatAlembicProbe
     {
-        private static VatAlembicProbe _last;
+        private static readonly Dictionary<GameObject, VatAlembicProbe> _probes = new();
 
-        private readonly GameObject _alembic;
         private readonly Hash128 _hash;
 
         public readonly string Problem;
@@ -17,7 +17,6 @@ namespace VATyakov.Editor
 
         private VatAlembicProbe(GameObject alembic, Hash128 hash)
         {
-            _alembic = alembic;
             _hash = hash;
             try
             {
@@ -35,12 +34,13 @@ namespace VATyakov.Editor
         public static VatAlembicProbe For(GameObject alembic)
         {
             var hash = Hash(alembic);
-            if (_last == null || _last._alembic != alembic || _last._hash != hash || !hash.isValid)
+            if (!hash.isValid || !_probes.TryGetValue(alembic, out var probe) || probe._hash != hash)
             {
-                _last = new VatAlembicProbe(alembic, hash);
+                probe = new VatAlembicProbe(alembic, hash);
+                _probes[alembic] = probe;
             }
 
-            return _last;
+            return probe;
         }
 
         private static Hash128 Hash(GameObject alembic)

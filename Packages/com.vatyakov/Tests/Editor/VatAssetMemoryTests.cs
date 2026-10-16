@@ -20,6 +20,8 @@ namespace VATyakov.Tests
         private const long ByteTexelBytes = 4;
         private const long TexelBytes = HalfTexelBytes + ByteTexelBytes;
         private const long ProfilerOverhead = 4096;
+        private const long PositionBytes = 12;
+        private const long ShortIndexBytes = 2;
 
         private VatAsset _asset;
 
@@ -53,7 +55,7 @@ namespace VATyakov.Tests
 
             Assert.AreEqual(Width * Height * HalfTexelBytes, memory.Position, "half position texture");
             Assert.AreEqual(Width * Height * ByteTexelBytes, memory.Rotation, "RGBA8 rotation texture");
-            Assert.AreEqual(memory.Position + memory.Rotation, memory.Total, "total");
+            Assert.AreEqual(memory.Position + memory.Rotation, memory.Textures, "textures");
         }
 
         [Test]
@@ -64,7 +66,7 @@ namespace VATyakov.Tests
             Assert.AreEqual(Blocks * Width - Vertices, memory.PaddingTexels, "empty texels per row");
             Assert.AreEqual(TotalRows * TexelBytes, memory.Padding, "one texel in every row of the last block, both textures");
             Assert.AreEqual(Blocks * Width * ShortFrames * TexelBytes, memory.Clip(_asset.Clips[0]), "rows of the short clip in both blocks");
-            Assert.AreEqual(memory.Total, memory.Clip(_asset.Clips[0]) + memory.Clip(_asset.Clips[1]), "the clips add up to the textures");
+            Assert.AreEqual(memory.Textures, memory.Clip(_asset.Clips[0]) + memory.Clip(_asset.Clips[1]), "the clips add up to the textures");
         }
 
         [Test]
@@ -74,6 +76,20 @@ namespace VATyakov.Tests
 
             AssertProfiler(_asset.PositionTexture, memory.Position);
             AssertProfiler(_asset.RotationTexture, memory.Rotation);
+        }
+
+        [Test]
+        public void Mesh_IsItsVertexBuffersAndIndices()
+        {
+            var mesh = new Mesh { vertices = new Vector3[3], triangles = new[] { 0, 1, 2 } };
+            try
+            {
+                Assert.AreEqual(3 * PositionBytes + 3 * ShortIndexBytes, VatMemory.Bytes(mesh), "positions and 16-bit indices");
+            }
+            finally
+            {
+                Object.DestroyImmediate(mesh);
+            }
         }
 
         [Test]

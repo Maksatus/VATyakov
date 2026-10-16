@@ -2,7 +2,7 @@ namespace VATyakov.Editor
 {
     internal static class VatAssetSummary
     {
-        private const string MemoryHint = "Actual memory of the animation textures, including the empty texels of the last block.";
+        private const string ErrorHint = "Max position error of the VAT against the source on the baked frames, half precision included.";
         private const string ClipHint = "Memory is the share of the clip in the animation textures: its rows in every block.";
         private const string VertexHint = "Every vertex stores its offset and rotation per frame: any deformation.";
         private const string BoneHint = "Every bone stores its offset, uniform scale and rotation per frame; the shader skins two bones per vertex.";
@@ -11,12 +11,12 @@ namespace VATyakov.Editor
         public static void Show(VatAssetSummaryContainer container, VatAsset asset)
         {
             var memory = new VatAssetMemory(asset);
-            ShowLayout(container, asset, memory);
+            ShowLayout(container, asset);
             container.Fallback.SetMessage(asset.Fallback);
             ShowClips(container, asset, memory);
         }
 
-        private static void ShowLayout(VatAssetSummaryContainer container, VatAsset asset, VatAssetMemory memory)
+        private static void ShowLayout(VatAssetSummaryContainer container, VatAsset asset)
         {
             var info = asset.Layout;
             var isBone = asset.Mode == VatMode.Bone;
@@ -28,7 +28,9 @@ namespace VATyakov.Editor
             container.Pieces.SetVisible(isRigid);
             container.Pieces.Set(VatText.Number(asset.BoneCount));
             container.Texture.Set(VatText.Size(info), VatText.Blocks(info));
-            container.Memory.Set(VatText.Bytes(memory.Total), MemoryHint);
+            container.Positions.SetVisible(asset.Mode == VatMode.Vertex);
+            container.Positions.Set(VatText.PositionFormat(asset.PositionFormat), VatText.PositionFormatHint(asset.PositionFormat, asset.Precision));
+            container.Error.Set(VatText.Millimeters(asset.Precision.Error), ErrorHint);
         }
 
         private static void ShowClips(VatAssetSummaryContainer container, VatAsset asset, VatAssetMemory memory)

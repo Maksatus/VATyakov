@@ -271,6 +271,28 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void BatchBake_BakesTheValidProfiles_AndNamesTheFailedOnes()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Batch.asset");
+            _profile.Fps = RebakeFps;
+            var broken = ScriptableObject.CreateInstance<VatBakeProfile>();
+            broken.name = "Broken";
+            try
+            {
+                var error = Assert.Throws<VatBakeException>(() => VatBatchBake.BakeAll(new[] { broken, _profile }));
+
+                StringAssert.Contains("'Broken'", error.Message);
+                Assert.IsFalse(VatSourceHash.IsOutdated(_profile, asset), "the valid profile is baked after the broken one");
+            }
+            finally
+            {
+                Object.DestroyImmediate(broken);
+            }
+        }
+
+        [Test]
         public void SourceHash_AnotherSourceMesh_OutdatesTheBake()
         {
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
@@ -390,7 +412,6 @@ namespace VATyakov.Tests
             profile.Source = rig.Renderer;
             profile.SetClips(rig.Clip);
             profile.Fps = Fps;
-            profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return profile;
         }
 

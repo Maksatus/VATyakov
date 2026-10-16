@@ -89,17 +89,6 @@ namespace VATyakov.Editor
             return FormattableString.Invariant($"{meters * MillimetersPerMeter:0.###} mm");
         }
 
-        public static string Meters(float meters)
-        {
-            return FormattableString.Invariant($"{meters:0.##} m");
-        }
-
-        public static string DriftTravel(float meters)
-        {
-            return FormattableString.Invariant(
-                $"The centroid travels up to {meters:0.##} m from the rest pose. Positions are stored relative to it, so far-travelling bodies stay precise.");
-        }
-
         public static string Megabytes(VatLayoutInfo info, VatPositionFormat format)
         {
             return FormattableString.Invariant($"{MegabytesOf(info, format):0.##} MB");

@@ -390,7 +390,6 @@ namespace VATyakov.Tests
             _profile.Fps = fps;
             _profile.IsLooping = isLooping;
             _profile.Mode = VatMode.Bone;
-            _profile.Shader = Shader.Find(VatBaker.BoneShaderName);
             return _profile;
         }
 

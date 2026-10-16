@@ -14,6 +14,7 @@ namespace VATyakov.Editor
 
         private SerializedProperty _asset;
         private SerializedProperty _clip;
+        private VatAsset _shownAsset;
 
         private SerializedObject SerializedObject => _context.SerializedObject;
 
@@ -25,7 +26,8 @@ namespace VATyakov.Editor
 
         public void Deactivate()
         {
-            _container.Clip.UnregisterValueChangedCallback(OnClipChanged);
+            _container.Clip.formatSelectedValueCallback = null;
+            _container.Clip.formatListItemCallback = null;
             _container.Root.Unbind();
             _container.DestroyView();
         }
@@ -34,11 +36,12 @@ namespace VATyakov.Editor
         {
             _asset = SerializedObject.FindProperty(VatAnimatorContext.AssetPath);
             _clip = SerializedObject.FindProperty(VatAnimatorContext.ClipPath);
+            _container.Clip.formatSelectedValueCallback = Format;
+            _container.Clip.formatListItemCallback = Format;
+            Refresh();
             _container.Root.Bind(SerializedObject);
             _container.Root.TrackPropertyValue(_asset, OnPropertyChanged);
             _container.Root.TrackPropertyValue(_clip, OnPropertyChanged);
-            _container.Clip.RegisterValueChangedCallback(OnClipChanged);
-            Refresh();
         }
 
         private void OnPropertyChanged(SerializedProperty _)
@@ -46,24 +49,26 @@ namespace VATyakov.Editor
             Refresh();
         }
 
-        private void OnClipChanged(ChangeEvent<string> _)
-        {
-            SerializedObject.Update();
-            _clip.stringValue = _container.Clip.index == 0 ? string.Empty : _container.Clip.value;
-            SerializedObject.ApplyModifiedProperties();
-        }
-
         private void Refresh()
         {
             SerializedObject.Update();
-            var asset = _asset.objectReferenceValue as VatAsset;
+            _shownAsset = _asset.objectReferenceValue as VatAsset;
             var clipName = _clip.stringValue;
-            var choices = Choices(asset, clipName);
-            _container.Clip.choices = choices;
-            _container.Clip.SetValueWithoutNotify(string.IsNullOrEmpty(clipName) ? choices[0] : clipName);
+            _container.Clip.choices = Choices(_shownAsset, clipName);
+            _container.Clip.SetValueWithoutNotify(clipName);
             _container.Asset.SetEnabled(!EditorApplication.isPlaying);
-            _container.Clip.SetEnabled(asset != null && !EditorApplication.isPlaying);
-            _container.Problem.SetMessage(Problem(asset, clipName));
+            _container.Clip.SetEnabled(_shownAsset != null && !EditorApplication.isPlaying);
+            _container.Problem.SetMessage(Problem(_shownAsset, clipName));
+        }
+
+        private string Format(string choice)
+        {
+            if (!string.IsNullOrEmpty(choice))
+            {
+                return choice;
+            }
+
+            return _shownAsset != null && _shownAsset.TryValidate(out _) ? $"{FirstChoice} ({_shownAsset.Clips[0].Name})" : FirstChoice;
         }
 
         private static string Problem(VatAsset asset, string clipName)
@@ -83,7 +88,7 @@ namespace VATyakov.Editor
 
         private static List<string> Choices(VatAsset asset, string clipName)
         {
-            var choices = new List<string> { FirstChoiceFor(asset) };
+            var choices = new List<string> { string.Empty };
             if (asset != null)
             {
                 foreach (var clip in asset.Clips)
@@ -92,17 +97,12 @@ namespace VATyakov.Editor
                 }
             }
 
-            if (!string.IsNullOrEmpty(clipName) && !choices.Contains(clipName))
+            if (!choices.Contains(clipName))
             {
                 choices.Add(clipName);
             }
 
             return choices;
-        }
-
-        private static string FirstChoiceFor(VatAsset asset)
-        {
-            return asset != null && asset.TryValidate(out _) ? $"{FirstChoice} ({asset.Clips[0].Name})" : FirstChoice;
         }
     }
 }

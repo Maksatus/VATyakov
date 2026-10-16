@@ -9,6 +9,7 @@ namespace VATyakov.Editor
 
         public readonly PopupField<string> Clip = new("Clip")
         {
+            bindingPath = VatAnimatorContext.ClipPath,
             tooltip = "Clip Play On Enable starts. First follows the first clip of the VAT asset.",
         };
 

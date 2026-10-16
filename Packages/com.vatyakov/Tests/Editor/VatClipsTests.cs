@@ -217,7 +217,6 @@ namespace VATyakov.Tests
             profile.Source = _rig.Renderer;
             profile.SetClips(clips);
             profile.Fps = Fps;
-            profile.Shader = Shader.Find(VatBaker.DefaultShaderName);
             return profile;
         }
     }

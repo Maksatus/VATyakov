@@ -6,11 +6,6 @@ namespace VATyakov.Editor
 {
     internal static class VatTemplateMaterial
     {
-        public static Shader ResolveShader(VatBakeProfile profile)
-        {
-            return profile.Shader != null ? profile.Shader : Shader.Find(VatBaker.DefaultShaderName);
-        }
-
         public static string ShownClip(VatAsset asset, Material material)
         {
             if (material == null || asset == null || !asset.TryValidate(out _))
@@ -40,8 +35,7 @@ namespace VATyakov.Editor
 
         private static Material Create(VatBakeProfile profile, VatMode mode, string assetPath)
         {
-            var material = new Material(ResolveShader(profile));
-            VatTemplateShader.TryFit(material, mode, out _);
+            var material = new Material(Shader.Find(VatTemplateShader.DefaultName(mode, false)));
             AssetDatabase.CreateAsset(material, AssetDatabase.GenerateUniqueAssetPath(Path.ChangeExtension(assetPath, ".mat")));
             profile.Material = material;
             return material;
