@@ -24,5 +24,4 @@ MonoBehaviour:
   _maxPositionError: 8
   _asset: {fileID: 0}
   _material: {fileID: 0}
-  _shader: {fileID: -6465566751694194690, guid: 8bd23652f1d63f7428ab588aab79148e, type: 3}
-  _prefab: {fileID: 0}
+  _ownerGuid: a3e2f5159856edf45910e838fc2c0486
