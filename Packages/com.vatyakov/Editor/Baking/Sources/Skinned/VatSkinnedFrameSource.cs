@@ -10,6 +10,8 @@ namespace VATyakov.Editor
         private readonly AnimationClip[] _clips;
         private readonly VatSourceClip[] _clipInfos;
         private readonly VatClipTravel _travel;
+        private readonly VatClipMotion _motion;
+        private readonly List<string> _sourceWarnings = new();
 
         private VatBakeCopy _copy;
         private VatClipPlayer _player;
@@ -19,7 +21,7 @@ namespace VATyakov.Editor
 
         public VatSourceMesh Mesh { get; }
         public IReadOnlyList<VatSourceClip> Clips => _clipInfos;
-        public IReadOnlyList<string> Warnings => _travel.Warnings();
+        public IReadOnlyList<string> Warnings => _sourceWarnings.Concat(_travel.Warnings()).Concat(_motion.Warnings()).ToList();
         public VatBakeCopy Copy => _copy;
 
         public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
@@ -27,6 +29,7 @@ namespace VATyakov.Editor
             _clips = clips.ToArray();
             _clipInfos = Array.ConvertAll(_clips, clip => new VatSourceClip(clip.name, clip.length));
             _travel = new VatClipTravel(_clipInfos);
+            _motion = new VatClipMotion(_clipInfos);
             try
             {
                 Create(source);
@@ -54,6 +57,7 @@ namespace VATyakov.Editor
 
             _player.Sample(_clips[clip], time);
             _travel.Add(clip, time, _copy);
+            _motion.Add(clip, time, _copy);
         }
 
         public void Rewind()
@@ -81,6 +85,16 @@ namespace VATyakov.Editor
             _player = new VatClipPlayer(_copy.LegacyRoot(), NeedsAnimator() ? _copy.PrepareAnimator() : null);
             _reader = new VatFrameReader(source.sharedMesh.vertexCount);
             _pose = new VatPoseSnapshot(_copy.Root);
+            AddWarning(VatLostAttributes.Warning(source.name, new[] { source.sharedMesh }));
+            AddWarning(VatConstraints.Warning(_copy.Root));
+        }
+
+        private void AddWarning(string warning)
+        {
+            if (warning != null)
+            {
+                _sourceWarnings.Add(warning);
+            }
         }
 
         private bool NeedsAnimator()

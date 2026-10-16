@@ -9,7 +9,7 @@ namespace VATyakov.Editor
         {
             Root.WithElements(
                 new PropertyField { bindingPath = "_playOnEnable", label = "Play On Enable" },
-                new PropertyField { bindingPath = "_speed", label = "Speed" });
+                new PropertyField { bindingPath = VatAnimatorContext.SpeedPath, label = "Speed" });
         }
     }
 }

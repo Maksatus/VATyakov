@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace VATyakov.Editor
@@ -57,7 +58,7 @@ namespace VATyakov.Editor
         {
             var probe = VatAlembic.IsInstalled && profile.Alembic != null ? VatAlembicProbe.For(profile.Alembic) : null;
             var hasSource = probe != null && probe.Problem == null;
-            elementCount = !hasSource ? 0 : profile.IsRigid ? VatAlembic.PieceCount(profile.Alembic) : probe.VertexCount;
+            elementCount = !hasSource ? 0 : profile.IsRigid ? Math.Min(VatAlembic.PieceCount(profile.Alembic), VatRigidFormat.MaxPieces) : probe.VertexCount;
             clips = hasSource ? new List<VatSourceClip> { probe.Clip } : null;
             return hasSource;
         }

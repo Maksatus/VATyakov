@@ -6,6 +6,10 @@ namespace VATyakov.Editor
 {
     internal sealed class VatAlembicTopology
     {
+        private const string TopologyHint =
+            "No mode bakes a changing topology: keep every piece in the .abc and hide it with the visibility instead of deleting it.";
+        private const string UvHint = "Animated UV is not baked: export the .abc with the UV of the first frame.";
+
         private readonly int _vertexCount;
         private readonly Hash128 _indices;
         private readonly Hash128 _uv;
@@ -43,20 +47,20 @@ namespace VATyakov.Editor
         {
             if (other._vertexCount != _vertexCount)
             {
-                return FormattableString.Invariant($"vertices {_vertexCount} → {other._vertexCount}");
+                return FormattableString.Invariant($"vertices {_vertexCount} → {other._vertexCount}. {TopologyHint}");
             }
 
             if (other._subMeshes != _subMeshes)
             {
-                return "sub-mesh split changed";
+                return $"the sub-mesh split changes. {TopologyHint}";
             }
 
             if (other._indices != _indices)
             {
-                return "indices changed";
+                return $"the indices change. {TopologyHint}";
             }
 
-            return other._uv != _uv ? "UV changed" : null;
+            return other._uv != _uv ? $"the UV changes. {UvHint}" : null;
         }
 
         private static void AppendSubMeshes(Mesh mesh, ref Hash128 indices, ref Hash128 subMeshes)

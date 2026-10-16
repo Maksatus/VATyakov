@@ -6,6 +6,8 @@ namespace VATyakov.Editor
 {
     internal static class VatClipListProblems
     {
+        private const string RenameHint = "Rename one in the Animation tab of its model (Mixamo names every clip 'mixamo.com').";
+
         public static IEnumerable<string> Find(IReadOnlyList<AnimationClip> clips)
         {
             if (clips.Count == 0)
@@ -43,7 +45,7 @@ namespace VATyakov.Editor
                 return $"Clip '{clip.name}' is listed twice.";
             }
 
-            return names.Add(clip.name) ? null : $"Two clips are named '{clip.name}': clip names in a VAT asset must be unique.";
+            return names.Add(clip.name) ? null : $"Two clips are named '{clip.name}': clip names in a VAT asset must be unique. {RenameHint}";
         }
 
         private static bool IsListedBefore(IReadOnlyList<AnimationClip> clips, int index)

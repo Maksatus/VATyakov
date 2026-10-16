@@ -87,7 +87,7 @@ namespace VATyakov
                 return copy;
             }
 
-            copy = new Material(template) { name = $"{template.name} ({owner})", hideFlags = HideFlags.DontSave };
+            copy = new Material(template) { name = $"{template.name} ({owner})", hideFlags = HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild };
             if (_asset.Owns(copy))
             {
                 _asset.ApplyData(copy);

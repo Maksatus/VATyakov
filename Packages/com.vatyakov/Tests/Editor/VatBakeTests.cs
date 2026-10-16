@@ -271,6 +271,26 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void SourceHash_AnotherSourceMesh_OutdatesTheBake()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            _profile = CreateProfile(_rig);
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/Remesh.asset");
+            var mesh = _rig.Renderer.sharedMesh;
+            var reexported = Object.Instantiate(mesh);
+            try
+            {
+                _rig.Renderer.sharedMesh = reexported;
+                Assert.IsTrue(VatSourceHash.IsOutdated(_profile, asset), "the source mesh changed");
+            }
+            finally
+            {
+                _rig.Renderer.sharedMesh = mesh;
+                Object.DestroyImmediate(reexported);
+            }
+        }
+
+        [Test]
         public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
         {
             var clips = new[] { new VatClipRequest("Long", 100f, Fps) };

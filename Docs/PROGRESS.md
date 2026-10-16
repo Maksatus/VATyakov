@@ -30,6 +30,7 @@
 | 1.16 Rigid без xform-нод | готово в редакторе, устройства не проверены, экспорт из Houdini не проверен | 0.16.0 |
 | Аудит 1.15–1.16: исправления Rigid | готово в редакторе | 0.16.1 |
 | Аудит пакета: исправления, Extra Renderers удалены | готово в редакторе, устройства не проверены | 0.16.2 |
+| Аудит пакета: баги (бэклог, раздел 1) | готово в редакторе | 0.16.3 |
 | 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -252,9 +253,9 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidMeshBuilder, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind; аудит (0.16.1) — VatRigidFitBlend
 - `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
-- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1)
+- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1), VatLostAttributes (0.16.3)
 - `Editor/Baking/Sources/Alembic/` — под `#if VAT_ALEMBIC`: VatAlembicFrameSource, VatAlembicCopy, VatAlembicDuration (1.15), VatAlembicSampleTimes (1.15), VatRigidPieceExtractor (1.15); без условия: VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
-- `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2)
+- `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2), VatClipMotion и VatConstraints (0.16.3)
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
 - `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*, секция Output с VAT Asset, Template Material и Shader — VatOutputFieldsContainer, 0.16.2)
 - `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память текстур и padding — VatAssetMemory*, ошибка и путь центроида — VatAssetPrecision*, профиль и «Out of date» — VatAssetProfile*)
@@ -686,3 +687,20 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   отрицательного контроля редактор надо перекомпилировать (`AssetDatabase.Refresh`), иначе Play mode и бейки идут на
   старом коде. Ревью собственного диффа (4 ревьюера и скептики) нашло 25 пунктов, исправлены все, кроме: хэш не
   различает одноимённых соседей (SRC-4) и нет тестов на зеркальную ноду Alembic, одноимённых соседей и Animator у ребёнка.
+- **Аудит пакета: баги (0.16.3):** раздел 1 `Docs/fix_backlog.md`. Решения пользователя: пауза держится до `Resume()`
+  (RT-8, README и §1.6); в рантайме — никаких защитных проверок и `OnValidate` (Speed в Play mode применяет инспектор
+  через сеттер `VatAnimator.Speed`), при бейке — все проверки. Хэш Skinned: + `sharedMesh`, аватар
+  (`VatBakeCopy.AnimatorWithAvatar`) и индекс SMR среди `GetComponentsInChildren` корня. `VatSimilarity`: без `Residual`
+  (решение только по ошибке на вершинах, `VatBoneCheck`), почти нулевая матрица — `IsPoint`, s = 0, поворот —
+  `RotationAfter(previous)` (Bone — прошлый кадр кости, Rigid — прошлый видимый). `VatRigidVisibility`: скрытый кадр
+  прямо перед видимым берёт позу этого видимого. Отмена бейка — `OperationCanceledException`, `VatBakeDialog` её
+  глушит. Предупреждения бейка Skinned собирает `VatSkinnedFrameSource`: `VatLostAttributes` (Color, UV1–3; так же у
+  Alembic и Rigid), `VatConstraints` (`IConstraint`, тип с именем `RigBuilder`), `VatClipMotion` (поза костей и
+  блендшейпы ни на одном кадре клипа не отличаются от кадра 0, `VatPoseSnapshot.Matches`). Unlit-граф: выходы 2 и 3
+  сабграфа подключены к Normal и Tangent (правка JSON, тест — по сгенерированному коду: без исправления там
+  `description.Normal = IN.ObjectSpaceNormal`). Проверено на FBX: с Optimize Game Objects у SMR `bones` пуст,
+  bindposes на месте (воин: 0 и 57). Перепечены все профили VatDev, кроме неиспечённого `bow_squash`: цифры прежние
+  (warrior 0.523 мм, rbd_test 1.445 мм, rbd_wall 4.282 мм); бейки лука и воина теперь предупреждают о Color и UV1 из
+  FBX. Проверено: 293 теста зелёные (9 новых, 5 поправлены под новое поведение); отрицательный контроль — без исправлений краснеют все
+  новые. Подвох CLI: перебейк всех профилей одним `eval_file` упирается в таймаут главного потока (5 с) — CLI
+  отвечает ошибкой, но бейк в редакторе доходит до конца; статус смотреть отдельным вызовом.

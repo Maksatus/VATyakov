@@ -49,6 +49,31 @@ namespace VATyakov.Editor
             }
         }
 
+        public bool Matches()
+        {
+            for (var i = 0; i < _transforms.Length; i++)
+            {
+                _transforms[i].GetLocalPositionAndRotation(out var position, out var rotation);
+                if (position != _positions[i] || rotation != _rotations[i] || _transforms[i].localScale != _scales[i])
+                {
+                    return false;
+                }
+            }
+
+            for (var rendererIndex = 0; rendererIndex < _renderers.Length; rendererIndex++)
+            {
+                for (var shapeIndex = 0; shapeIndex < _weights[rendererIndex].Length; shapeIndex++)
+                {
+                    if (_renderers[rendererIndex].GetBlendShapeWeight(shapeIndex) != _weights[rendererIndex][shapeIndex])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         private static float[] Weights(SkinnedMeshRenderer renderer)
         {
             var count = renderer.sharedMesh != null ? renderer.sharedMesh.blendShapeCount : 0;

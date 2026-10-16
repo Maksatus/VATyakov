@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.Animations;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using VATyakov.Editor;
@@ -19,6 +21,8 @@ namespace VATyakov.Tests
         private const float SwingFps = 1f;
         private const int VertexCount = 64;
         private const int HalfWeightVertexCount = 66;
+        private const int TwoBlockVertexCount = 5000;
+        private const float TallFps = 2100f;
         private const float Millimeter = 1e-3f;
         private const float AngleTolerance = 1f;
         private const float BoundsTolerance = 1e-5f;
@@ -76,7 +80,7 @@ namespace VATyakov.Tests
 
             Assert.IsTrue(similarity.IsProper, "det = 1, no mirror");
             Assert.AreEqual(1f, similarity.Scale, 1e-6f, "s = cbrt(det)");
-            Assert.Greater(similarity.Residual, VatBoneCheck.MaxResidual, "‖B − sR‖ / s");
+            Assert.Greater(similarity.Error(Vector3.right), VatBoneCheck.MaxError, "‖(B − sR)·x‖");
         }
 
         [Test]
@@ -97,7 +101,7 @@ namespace VATyakov.Tests
                 var similarity = VatSimilarity.Of(Matrix4x4.TRS(Vector3.one, rotation, Vector3.one * scale));
                 var probe = VatTestUtil.RandomDirection(random);
 
-                Assert.Less(similarity.Residual, 1e-5, $"matrix {i}");
+                Assert.Less(similarity.Error(probe), 1e-5f, $"matrix {i}");
                 Assert.AreEqual(scale, similarity.Scale, scale * 1e-5f, $"scale of matrix {i}");
                 Assert.Less(Vector3.Distance(rotation * probe, VatMath.Rotate(similarity.Rotation, probe)), 1e-5f, $"rotation of matrix {i}");
             }
@@ -115,6 +119,77 @@ namespace VATyakov.Tests
             Assert.IsNotNull(_result.Textures.Position, "Vertex textures");
             StringAssert.Contains("bone 'Bone1' scales non-uniformly", _result.Fallback);
             StringAssert.Contains($"Clip '{_rig.Clip.name}', frame 0", _result.Fallback);
+        }
+
+        [Test]
+        public void FallbackTallerThan4096Rows_NamesTheReasonOfTheFallback()
+        {
+            _rig = new VatTestRig(_scene, TwoBlockVertexCount, isLegacy: true);
+            _rig.Root.transform.Find("Model/Bone0/Bone1").localScale = _nonUniformScale;
+
+            var error = Assert.Throws<VatBakeException>(() => VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, TallFps, true), "Tall"));
+
+            StringAssert.Contains("bone 'Bone1' scales non-uniformly", error.Message);
+            StringAssert.Contains("4096", error.Message);
+        }
+
+        [Test]
+        public void ClipWithForeignBonePaths_WarnsThatItDoesNotMoveTheMesh()
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
+            var foreign = new AnimationClip { name = "Foreign", legacy = true };
+            foreign.SetCurve("Model/Nope", typeof(Transform), "localPosition.x", AnimationCurve.Linear(0f, 0f, 1f, 1f));
+            try
+            {
+                var profile = Profile(_rig.Renderer, _rig.Clip, Fps, false);
+                profile.SetClips(_rig.Clip, foreign);
+
+                _result = VatBakePipeline.Run(profile, "Foreign");
+
+                var warnings = string.Join("\n", _result.Warnings);
+                StringAssert.Contains("Clip 'Foreign' doesn't move the mesh", warnings);
+                StringAssert.DoesNotContain($"Clip '{_rig.Clip.name}' doesn't move", warnings);
+            }
+            finally
+            {
+                Object.DestroyImmediate(foreign);
+            }
+        }
+
+        [Test]
+        public void ConstraintsAndVertexColors_WarnThatTheyAreNotBaked()
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
+            _rig.Root.AddComponent<ParentConstraint>();
+            var mesh = _rig.Renderer.sharedMesh;
+            mesh.colors = new Color[mesh.vertexCount];
+
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, false), "Lost");
+
+            var warnings = string.Join("\n", _result.Warnings);
+            StringAssert.Contains("has constraints or Animation Rigging", warnings);
+            StringAssert.Contains("has Color: the VAT mesh keeps only UV0", warnings);
+        }
+
+        [Test]
+        public void BindposesWithoutBones_PointAtOptimizeGameObjects()
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
+            _rig.Renderer.bones = Array.Empty<Transform>();
+
+            StringAssert.Contains("Optimize Game Objects", VatBoneRig.Problem(_rig.Renderer));
+        }
+
+        [Test]
+        public void ZeroScaleBone_StaysBone_AndDecodesToAPoint()
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
+            _rig.Root.transform.Find("Model/Bone0/Bone1").localScale = Vector3.zero;
+
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Hidden");
+
+            Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
+            Assert.Less(_result.Precision.Error, Millimeter, "decoded against the skinned reference");
         }
 
         [Test]

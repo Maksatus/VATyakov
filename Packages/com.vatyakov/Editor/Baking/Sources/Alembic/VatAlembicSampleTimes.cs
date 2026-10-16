@@ -15,7 +15,8 @@ namespace VATyakov.Editor
         {
             try
             {
-                return ReadContext(Get(Get(player, "abcStream"), "abcContext"), player.StartTime);
+                var times = ReadContext(Get(Get(player, "abcStream"), "abcContext"), player.StartTime);
+                return Array.Exists(times, time => time > -Epsilon && time < player.Duration + Epsilon) ? times : null;
             }
             catch (Exception)
             {

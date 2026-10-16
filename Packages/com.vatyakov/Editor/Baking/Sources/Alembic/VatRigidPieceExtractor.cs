@@ -8,9 +8,7 @@ namespace VATyakov.Editor
     internal sealed class VatRigidPieceExtractor : IVatRigidSource
     {
         private const string RecipeHint =
-            "Rigid mode bakes pieces with a constant topology: export from Houdini with Transform Geometry and s@path, or with Deform Geometry " +
-            "(see the package README). No mode bakes a changing topology yet: keep every piece in the .abc " +
-            "and hide it with the visibility instead of deleting it.";
+            "Rigid mode: export from Houdini with Transform Geometry and s@path, or with Deform Geometry (see the README of the repository).";
 
         private const string SampleTimesMissing =
             "couldn't read the sample times of the .abc from the Alembic package: the fps check takes 3 points between frames, " +
@@ -99,7 +97,13 @@ namespace VATyakov.Editor
 
             if (Array.Exists(_nodes, node => node.sharedMesh.uv.Length != node.sharedMesh.vertexCount))
             {
-                _warnings.Add("some pieces have no UV, use a triplanar template.");
+                _warnings.Add("some pieces have no UV: they sample the texture at UV (0, 0).");
+            }
+
+            var lost = VatLostAttributes.Warning(_name, Array.ConvertAll(_nodes, node => node.sharedMesh));
+            if (lost != null)
+            {
+                _warnings.Add(lost);
             }
         }
 
@@ -124,7 +128,7 @@ namespace VATyakov.Editor
             var difference = _topology.Difference(VatAlembicTopology.Capture(_nodes));
             if (difference != null)
             {
-                throw new VatBakeException(FormattableString.Invariant($"'{_name}': topology changes at {time:0.###} s ({difference}). {RecipeHint}"));
+                throw new VatBakeException(FormattableString.Invariant($"'{_name}' at {time:0.###} s: {difference} {RecipeHint}"));
             }
         }
 

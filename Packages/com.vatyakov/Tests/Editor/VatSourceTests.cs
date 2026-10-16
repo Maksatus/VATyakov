@@ -72,10 +72,38 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void LegacyClip_UnderAWrapperRoot_Animates()
+        public void MirroredAlembicNode_KeepsTheFacesTurnedOut()
         {
-            _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
-            _rig.Root.AddComponent<Animation>();
+            var mesh = new Mesh { vertices = new[] { Vector3.zero, Vector3.right, Vector3.up }, triangles = new[] { 0, 1, 2 } };
+            mesh.RecalculateNormals();
+            _wrapper = EditorUtility.CreateGameObjectWithHideFlags("Alembic", HideFlags.HideAndDontSave);
+            SceneManager.MoveGameObjectToScene(_wrapper, _scene);
+            try
+            {
+                var reader = new VatAlembicReader(new[] { AddNode("Plain", mesh, Vector3.one), AddNode("Mirrored", mesh, new Vector3(-1f, 1f, 1f)) });
+                var source = reader.SourceMesh("Alembic");
+                var frame = new VatFrame(source.VertexCount);
+                reader.Read(frame);
+
+                var indices = source.SubMeshes.SelectMany(subMesh => subMesh.Indices).ToArray();
+                var facing = Facing(mesh)[0];
+                CollectionAssert.AreEqual(new[] { facing, facing }, Facing(frame.Positions, frame.Normals, indices), "both nodes face their normals");
+            }
+            finally
+            {
+                Object.DestroyImmediate(mesh);
+            }
+        }
+
+        [Test]
+        public void Clip_UnderAWrapperRootWithoutAnimator_Animates([Values] bool isLegacy)
+        {
+            _rig = new VatTestRig(_scene, VertexCount, isLegacy);
+            if (isLegacy)
+            {
+                _rig.Root.AddComponent<Animation>();
+            }
+
             _wrapper = EditorUtility.CreateGameObjectWithHideFlags("Wrapper", HideFlags.HideAndDontSave);
             SceneManager.MoveGameObjectToScene(_wrapper, _scene);
             _rig.Root.transform.SetParent(_wrapper.transform, false);
@@ -152,11 +180,23 @@ namespace VATyakov.Tests
             return _profile;
         }
 
+        private MeshFilter AddNode(string name, Mesh mesh, Vector3 scale)
+        {
+            var node = new GameObject(name);
+            node.transform.SetParent(_wrapper.transform, false);
+            node.transform.localScale = scale;
+            node.AddComponent<MeshFilter>().sharedMesh = mesh;
+            return node.GetComponent<MeshFilter>();
+        }
+
         private static int[] Facing(Mesh mesh)
         {
-            var vertices = mesh.vertices;
-            var normals = mesh.normals;
             var indices = Enumerable.Range(0, mesh.subMeshCount).SelectMany(subMesh => mesh.GetIndices(subMesh, true)).ToArray();
+            return Facing(mesh.vertices, mesh.normals, indices);
+        }
+
+        private static int[] Facing(Vector3[] vertices, Vector3[] normals, int[] indices)
+        {
             var facing = new int[indices.Length / 3];
             for (var t = 0; t < facing.Length; t++)
             {

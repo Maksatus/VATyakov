@@ -54,6 +54,34 @@
                 "m_Node": {
                     "m_Id": "5953e7a7b4424eb382bfe0304ccb89bc"
                 },
+                "m_SlotId": 2
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "57d6cd6cd820406fa9ce9137e4502f3d"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "5953e7a7b4424eb382bfe0304ccb89bc"
+                },
+                "m_SlotId": 3
+            },
+            "m_InputSlot": {
+                "m_Node": {
+                    "m_Id": "fb648ff0dd8641fa87b3472bcb0ec693"
+                },
+                "m_SlotId": 0
+            }
+        },
+        {
+            "m_OutputSlot": {
+                "m_Node": {
+                    "m_Id": "5953e7a7b4424eb382bfe0304ccb89bc"
+                },
                 "m_SlotId": 1
             },
             "m_InputSlot": {
@@ -498,6 +526,12 @@
     "m_Slots": [
         {
             "m_Id": "a04760369c064a0cb5af48c81531672f"
+        },
+        {
+            "m_Id": "7c1e0a2b4f8d4e6a9b3c5d7e9f1a2b3c"
+        },
+        {
+            "m_Id": "8d2f1b3c5a9e4f7b8c4d6e8f0a2b3c4d"
         }
     ],
     "synonyms": [],
@@ -1081,4 +1115,50 @@
             "m_Id": "e78b274510e54222948bb7ef392fe4d6"
         }
     ]
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
+    "m_ObjectId": "7c1e0a2b4f8d4e6a9b3c5d7e9f1a2b3c",
+    "m_Id": 2,
+    "m_DisplayName": "Normal",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Normal",
+    "m_StageCapability": 1,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_Labels": []
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
+    "m_ObjectId": "8d2f1b3c5a9e4f7b8c4d6e8f0a2b3c4d",
+    "m_Id": 3,
+    "m_DisplayName": "Tangent",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_ShaderOutputName": "Tangent",
+    "m_StageCapability": 1,
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_Labels": []
 }

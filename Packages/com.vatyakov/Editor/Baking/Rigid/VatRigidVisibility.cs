@@ -29,6 +29,14 @@ namespace VATyakov.Editor
 
                 _poseFrames[frame] = last;
             }
+
+            for (var frame = 1; frame < visible.Length; frame++)
+            {
+                if (visible[frame] && !visible[frame - 1])
+                {
+                    _poseFrames[frame - 1] = frame;
+                }
+            }
         }
 
         public static VatRigidVisibility Of(VatRigidTrack track)

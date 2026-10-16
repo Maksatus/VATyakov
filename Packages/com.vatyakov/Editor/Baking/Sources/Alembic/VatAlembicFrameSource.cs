@@ -7,8 +7,6 @@ namespace VATyakov.Editor
 {
     internal sealed class VatAlembicFrameSource : IVatFrameSource
     {
-        private const string ConstantTopologyHint =
-            "Vertex mode bakes constant topology only: stable point order, no remeshing. Changing topology arrives in patch 2.";
         private const string HiddenNodesWarning =
             "some mesh nodes are hidden on some frames, and Vertex mode bakes them visible: use Mode = Rigid for pieces that appear or disappear.";
 
@@ -76,6 +74,12 @@ namespace VATyakov.Editor
                 _warnings.Add(FormattableString.Invariant(
                     $"{withoutUv} of {_nodes.Length} mesh nodes have no UV, use the triplanar template '{VatBaker.TriplanarShaderName}'."));
             }
+
+            var lost = VatLostAttributes.Warning(_name, Array.ConvertAll(_nodes, node => node.sharedMesh));
+            if (lost != null)
+            {
+                _warnings.Add(lost);
+            }
         }
 
         private List<string> CurrentWarnings()
@@ -99,8 +103,7 @@ namespace VATyakov.Editor
             var difference = _topology.Difference(VatAlembicTopology.Capture(_copy.Meshes()));
             if (difference != null)
             {
-                throw new VatBakeException(
-                    FormattableString.Invariant($"'{_name}': topology changes at {time:0.###} s ({difference}). {ConstantTopologyHint}"));
+                throw new VatBakeException(FormattableString.Invariant($"'{_name}' at {time:0.###} s: {difference}"));
             }
         }
     }

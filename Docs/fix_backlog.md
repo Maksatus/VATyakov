@@ -1,6 +1,6 @@
 # Задача: исправить оставшиеся проблемы из аудита VATyakov
 
-Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.2. Полный аудит с доказательствами —
+Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.3 (раздел 1 сделан). Полный аудит с доказательствами —
 `Docs/audit_2026-10-07.md` (номера в скобках — его пункты: RT, SH, BK, VX, AB, BN, RG, UI, DC, DT, UX, SM, TS, G, SRC, ED).
 Что уже сделано в 0.16.2 — последняя заметка в `Docs/PROGRESS.md`.
 
@@ -34,50 +34,50 @@
 
 ## 1. Баги (делать первыми)
 
-- [ ] **«Out of date» не видит переэкспорт FBX, если Source лежит в префабе (BK-4).** `VatSourceHash.AppendSkinned`
+- [x] **«Out of date» не видит переэкспорт FBX, если Source лежит в префабе (BK-4).** `VatSourceHash.AppendSkinned`
   хэширует только файл, где лежит Source. Добавить `DependencyHash(profile.Source.sharedMesh)` и аватар ближайшего
   Animator над SMR (если есть). Заодно индекс SMR среди `root.GetComponentsInChildren<SkinnedMeshRenderer>(true)`
   (SRC-4: одноимённые соседи). Хэши всех Skinned-бейков один раз сменятся — перепечь VatDev. Тест: сменить
   `sharedMesh` у Source → `IsOutdated`.
-- [ ] **Speed в инспекторе `VatAnimator` в Play mode не действует (RT-6, UI-5).** `private void OnValidate() {
+- [x] **Speed в инспекторе `VatAnimator` в Play mode не действует (RT-6, UI-5).** `private void OnValidate() {
   _mixer?.SetSpeed(Now, _speed); }`. Поля VAT Asset и Clip в инспекторе выключать в Play mode
   (`VatAnimatorClipController`, `SetEnabled(!EditorApplication.isPlaying)`).
-- [ ] **Утечка копий материалов у ни разу не активированного объекта (RT-5).** В `VatMaterialCopies.CopyOf`
+- [x] **Утечка копий материалов у ни разу не активированного объекта (RT-5).** В `VatMaterialCopies.CopyOf`
   `HideFlags.DontSave` → `HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild`. Поправить §7 `00-decisions.md` и
   §1.6 `01-core.md`.
-- [ ] **[решение] Пауза переживает `Play` и возврат из пула (RT-8).** Вариант: `Mixer.Resume(Now)` в `OnEnable` перед
+- [x] **[решение] Пауза переживает `Play` и возврат из пула (RT-8).** Решено: так задумано, записано в README и §1.6. Вариант: `Mixer.Resume(Now)` в `OnEnable` перед
   Play On Enable. Либо записать в README, что так задумано.
-- [ ] **Кость со scale 0 откатывает весь ассет в Vertex (BN-5).** В `VatSimilarity.Of` при почти нулевой матрице
+- [x] **Кость со scale 0 откатывает весь ассет в Vertex (BN-5).** В `VatSimilarity.Of` при почти нулевой матрице
   отдавать Scale = 0, Residual = 0; в `VatBoneEncoder.EncodeBone` брать поворот прошлого кадра этой кости. Тест: кадр
   со scale 0 остаётся в Bone и декодируется в точку.
-- [ ] **Лишняя проверка остатка в `VatBoneCheck` (BN-4).** Убрать условие `similarity.Residual <= MaxResidual`, решать
+- [x] **Лишняя проверка остатка в `VatBoneCheck` (BN-4).** Убрать условие `similarity.Residual <= MaxResidual`, решать
   только по ошибке на вертексах (0.5 мм). Это касается и Rigid — прогнать rbd-тесты и перепечь `rbd_*`.
-- [ ] **«Клип не двигает меш» без предупреждения (VX-4, UX-5).** Если у клипа с FrameCount > 1 все кадры совпадают с
+- [x] **«Клип не двигает меш» без предупреждения (VX-4, UX-5).** Если у клипа с FrameCount > 1 все кадры совпадают с
   кадром 0, предупреждение: Humanoid-клип без Humanoid-аватара, чужие пути костей. В Vertex и Bone.
-- [ ] **Rigid получает текст ошибки топологии от Vertex с «patch 2» (AB-6).** Одна общая подсказка в
+- [x] **Rigid получает текст ошибки топологии от Vertex с «patch 2» (AB-6).** Одна общая подсказка в
   `VatAlembicTopology` для обоих источников («не удаляйте куски — прячьте видимостью»); «UV changed» — отдельный текст
   про анимированные UV. Поправить тест `ChangingTopology_*` в `VatAlembicTests`.
-- [ ] **Сообщения бейка ведут в тупик (UX-10).** Совет «triplanar template» у Rigid (такого шаблона нет); повтор имени
+- [x] **Сообщения бейка ведут в тупик (UX-10).** Совет «triplanar template» у Rigid (такого шаблона нет); повтор имени
   клипа — подсказать Mixamo `mixamo.com` и где переименовать; подсказка высоты 4096 — «or Mode = Bone».
-- [ ] **Констрейнты и Animation Rigging не запекаются молча; Bake в Play mode не заблокирован (G3).** Предупреждение
+- [x] **Констрейнты и Animation Rigging не запекаются молча; Bake в Play mode не заблокирован (G3).** Предупреждение
   валидатора, если под корнем Source есть `IConstraint` или компонент с именем типа `RigBuilder`;
   `VatBaker.Bake` в Play mode → `VatBakeException("Exit Play mode to bake.")`; строка в README.
-- [ ] **Optimize Game Objects (BK-7, BN-7).** Сначала проверить на FBX с Optimize Game Objects, что `bones` исходника
+- [x] **Optimize Game Objects (BK-7, BN-7).** Сначала проверить на FBX с Optimize Game Objects, что `bones` исходника
   пуст. Если да — в `VatBoneRig.Problem` текст «turn off Optimize Game Objects in the Rig tab of the model».
-- [ ] **Rigid: лимит 2048 недостижим из профиля (RG-4).** В `VatBakeEstimate` для Rigid `Math.Min(PieceCount,
+- [x] **Rigid: лимит 2048 недостижим из профиля (RG-4).** В `VatBakeEstimate` для Rigid `Math.Min(PieceCount,
   VatRigidFormat.MaxPieces)`.
-- [ ] **Rigid: повторное появление куска «прилетает» за интервал (RG-2).** Проход с конца в `VatRigidVisibility`:
+- [x] **Rigid: повторное появление куска «прилетает» за интервал (RG-2).** Проход с конца в `VatRigidVisibility`:
   скрытый кадр перед видимым берёт позу следующего видимого. Шов петли — отложить до решения по Loop.
-- [ ] **Мелочи бейка:** откат Bone → Vertex с ошибкой высоты не называет причину отката (BK-8, обернуть `RunVertex`);
+- [x] **Мелочи бейка:** откат Bone → Vertex с ошибкой высоты не называет причину отката (BK-8, обернуть `RunVertex`);
   отмена в прогресс-баре показывает диалог ошибки (BK-9, `OperationCanceledException` и тихий catch в
   `VatBakeDialog`); `profile.Asset` выставлять сразу после записи, `SaveAssets` → `SaveAssetIfDirty` (BK-12).
-- [ ] **Unlit-сэмпл без Normal и Tangent (SH-4).** В `vat_unlit_vertex.shadergraph` подключить выходы 2 и 3 сабграфа к
+- [x] **Unlit-сэмпл без Normal и Tangent (SH-4).** В `vat_unlit_vertex.shadergraph` подключить выходы 2 и 3 сабграфа к
   блокам Normal и Tangent (тени с normal bias, DepthNormals).
-- [ ] **Цвета вертексов и UV1+ теряются молча (BK-6).** Предупреждение в `source.Warnings`, если у меша есть Color или
+- [x] **Цвета вертексов и UV1+ теряются молча (BK-6).** Предупреждение в `source.Warnings`, если у меша есть Color или
   TexCoord1–3; строка в README.
-- [ ] **Alembic (AB-5).** В asmdef `versionDefines` `"[2.4.5,3.0.0)"`; в `VatAlembicSampleTimes.Read` возвращать
+- [x] **Alembic (AB-5).** В asmdef `versionDefines` `"[2.4.5,3.0.0)"`; в `VatAlembicSampleTimes.Read` возвращать
   null, если в [0, Duration] нет ни одного времени.
-- [ ] **Нет тестов на исправления 0.16.2 (SRC-12):** зеркальная нода Alembic (`VatSourceWinding.Oriented` в
+- [x] **Нет тестов на исправления 0.16.2 (SRC-12):** зеркальная нода Alembic (`VatSourceWinding.Oriented` в
   `VatAlembicReader`), Animator на ребёнке-модели под корнем без Animator.
 
 ## 2. Инспекторы и удобство
@@ -143,7 +143,7 @@
   переходов, пример кода); минимум «Adreno 650 / Mali-G78» против целевого Redmi 9A; «невалидный ассет падает
   исключением» — не так; запрет Static объяснён через Vertex ID, а Bone и Rigid его не используют; раздел «Свой шейдер»
   (сабграф не трогать, свойства без префикса `_Vat`, Custom Editor `VatShaderGUI`) (UX-6, G6).
-- [ ] Ошибка Rigid ссылается на «the package README», которого нет — «README of the repository».
+- [x] Ошибка Rigid ссылается на «the package README», которого нет — «README of the repository».
 
 ## Вне чата
 

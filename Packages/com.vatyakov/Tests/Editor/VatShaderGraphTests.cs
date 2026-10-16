@@ -143,10 +143,14 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void UnlitSample_Compiles()
+        public void UnlitSample_CompilesAndTakesNormalAndTangentForShadowsAndDepthNormals()
         {
             Assume.That(AssetDatabase.LoadAssetAtPath<Shader>(UnlitSample), Is.Not.Null, "sample not in the project");
             AssertCompiles(UnlitSample);
+
+            var code = RequireGeneratedCode(UnlitSample);
+            StringAssert.DoesNotContain("description.Normal = IN.ObjectSpaceNormal", code, "the normal comes from the VAT");
+            StringAssert.DoesNotContain("description.Tangent = IN.ObjectSpaceTangent", code, "the tangent comes from the VAT");
         }
 
         private static void AssertInstanceState(string code, params string[] properties)

@@ -29,7 +29,14 @@ namespace VATyakov.Editor
                 fallback = $"{problem} {FallbackHint}";
             }
 
-            return RunVertex(source, requests, profile.MaxPositionError, name, fallback);
+            try
+            {
+                return RunVertex(source, requests, profile.MaxPositionError, name, fallback);
+            }
+            catch (VatBakeException exception) when (fallback != null)
+            {
+                throw new VatBakeException($"{fallback} {exception.Message}");
+            }
         }
 
         private static VatBakeResult RunVertex(IVatFrameSource source, VatClipRequest[] requests, float maxPositionError, string name, string fallback)

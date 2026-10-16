@@ -69,7 +69,7 @@ namespace VATyakov.Tests
             Assert.AreSame(copy, lod.sharedMaterial, "the LOD shares the copy");
             Assert.AreSame(_copies.Materials[1], weapon.sharedMaterial, "another template gets its own copy");
             Assert.AreSame(_plain, plain.sharedMaterial, "a renderer without VAT stays");
-            Assert.AreEqual(HideFlags.DontSave, copy.hideFlags, "the copy is not saved");
+            Assert.AreEqual(HideFlags.DontSaveInEditor | HideFlags.DontSaveInBuild, copy.hideFlags, "the copy is not saved, but unloads as an unused asset");
         }
 
         [Test]

@@ -27,7 +27,7 @@
 - baseVertex = 0; никакого static или dynamic batching и объединённых мешей.
 - Высота VAT-текстуры ≤ 4096 без исключений.
 - После бейка вершины не переставляются.
-- `renderer.material` не трогать; копии материалов — только в Play mode, `DontSave`, уничтожение в `OnDestroy`.
+- `renderer.material` не трогать; копии материалов — только в Play mode, `DontSaveInEditor | DontSaveInBuild` (без `DontUnloadUnusedAsset`: копии объекта, который ни разу не включали, выгружает `UnloadUnusedAssets`), уничтожение в `OnDestroy`.
 - MaterialPropertyBlock запрещён; эффекты юнита пишутся в его материалы через `VatAnimator`.
 - У нового playable foot IK включён — выключать явно. Перед каждым клипом сбрасывать позу и блендшейпы.
 - В кватернионах `sign()` не использовать; `q = 0` не писать.

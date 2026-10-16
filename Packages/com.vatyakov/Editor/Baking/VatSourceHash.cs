@@ -1,5 +1,7 @@
+using System;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace VATyakov.Editor
 {
@@ -57,8 +59,17 @@ namespace VATyakov.Editor
                 hash.Append((int)VatMode.Bone);
             }
 
-            hash.Append(DependencyHash(profile.Source));
-            hash.Append(AnimationUtility.CalculateTransformPath(profile.Source.transform, profile.Source.transform.root));
+            var source = profile.Source;
+            hash.Append(DependencyHash(source));
+            hash.Append(DependencyHash(source.sharedMesh));
+            var animator = VatBakeCopy.AnimatorWithAvatar(source);
+            if (animator != null)
+            {
+                hash.Append(DependencyHash(animator.avatar));
+            }
+
+            hash.Append(AnimationUtility.CalculateTransformPath(source.transform, source.transform.root));
+            hash.Append(Array.IndexOf(source.transform.root.GetComponentsInChildren<SkinnedMeshRenderer>(true), source));
             hash.Append(profile.Clips.Count);
             foreach (var clip in profile.Clips)
             {

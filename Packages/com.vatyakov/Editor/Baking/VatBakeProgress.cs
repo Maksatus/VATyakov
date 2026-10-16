@@ -26,7 +26,7 @@ namespace VATyakov.Editor
         {
             if (EditorUtility.DisplayCancelableProgressBar(Title, info, progress))
             {
-                throw new VatBakeException("Bake cancelled.");
+                throw new OperationCanceledException("Bake cancelled.");
             }
         }
     }

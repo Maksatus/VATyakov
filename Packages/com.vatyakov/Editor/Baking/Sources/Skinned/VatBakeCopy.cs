@@ -30,6 +30,11 @@ namespace VATyakov.Editor
             }
         }
 
+        public static Animator AnimatorWithAvatar(Component renderer)
+        {
+            return Array.Find(renderer.GetComponentsInParent<Animator>(true), animator => animator.avatar != null);
+        }
+
         public GameObject LegacyRoot()
         {
             var animation = Renderer.GetComponentInParent<Animation>(true);
@@ -78,14 +83,14 @@ namespace VATyakov.Editor
 
         private Animator FindAnimator()
         {
-            var parents = Renderer.GetComponentsInParent<Animator>(true);
-            var withAvatar = Array.Find(parents, animator => animator.avatar != null);
+            var withAvatar = AnimatorWithAvatar(Renderer);
             if (withAvatar != null)
             {
                 return withAvatar;
             }
 
-            return parents.Length > 0 ? parents[0] : Root.GetComponentInChildren<Animator>(true);
+            var parent = Renderer.GetComponentInParent<Animator>(true);
+            return parent != null ? parent : Root.GetComponentInChildren<Animator>(true);
         }
 
         private Transform NewHolder()

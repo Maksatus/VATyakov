@@ -32,6 +32,11 @@ namespace VATyakov.Editor
         {
             var bones = renderer.bones;
             var bindposes = renderer.sharedMesh.bindposes;
+            if (bones.Length == 0 && bindposes.Length > 0)
+            {
+                return $"'{renderer.name}' has no bones: turn off Optimize Game Objects in the Rig tab of the model, or use Mode = Vertex.";
+            }
+
             if (bones.Length == 0 || bindposes.Length == 0)
             {
                 return $"'{renderer.name}' has no bones: Bone mode needs a skinned mesh with bindposes. Use Mode = Vertex.";

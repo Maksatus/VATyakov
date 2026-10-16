@@ -61,7 +61,8 @@ namespace VATyakov.Editor
             var choices = Choices(asset, clipName);
             _container.Clip.choices = choices;
             _container.Clip.SetValueWithoutNotify(string.IsNullOrEmpty(clipName) ? choices[0] : clipName);
-            _container.Clip.SetEnabled(asset != null);
+            _container.Asset.SetEnabled(!EditorApplication.isPlaying);
+            _container.Clip.SetEnabled(asset != null && !EditorApplication.isPlaying);
             _container.Problem.SetMessage(Problem(asset, clipName));
         }
 

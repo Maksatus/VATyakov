@@ -1,3 +1,4 @@
+using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
@@ -23,6 +24,20 @@ namespace VATyakov.Editor
         public void Activate()
         {
             _container.Root.Bind(_context.SerializedObject);
+            _container.Root.TrackPropertyValue(_context.SerializedObject.FindProperty(VatAnimatorContext.SpeedPath), OnSpeedChanged);
+        }
+
+        private void OnSpeedChanged(SerializedProperty speed)
+        {
+            if (!EditorApplication.isPlaying)
+            {
+                return;
+            }
+
+            foreach (var target in _context.SerializedObject.targetObjects)
+            {
+                ((VatAnimator)target).Speed = speed.floatValue;
+            }
         }
     }
 }

@@ -15,6 +15,9 @@ namespace VATyakov.Editor
             {
                 EditorUtility.DisplayDialog("VAT", exception.Message, "OK");
             }
+            catch (OperationCanceledException)
+            {
+            }
         }
     }
 }

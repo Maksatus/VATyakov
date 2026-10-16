@@ -7,6 +7,7 @@ namespace VATyakov.Editor
     {
         private const string HeightHint =
             "Lower the fps or the clip length, or split the clips into several VatAssets (transitions work only between clips of one asset).";
+        private const string BoneHint = "A Skinned Mesh Renderer in Mode = Bone takes one row per frame.";
 
         public readonly VatLayoutInfo Info;
         public readonly VatClip[] Clips;
@@ -120,7 +121,8 @@ namespace VATyakov.Editor
             if (height > VatMath.MaxTextureSize)
             {
                 var rows = FormattableString.Invariant($"{Rows(blocks, pivotRows, frames, clips)} = {height} rows");
-                throw new VatBakeException(FormattableString.Invariant($"VAT texture height {rows}, the limit is {VatMath.MaxTextureSize}. {HeightHint}"));
+                var hint = blocks > 1 ? $"{HeightHint} {BoneHint}" : HeightHint;
+                throw new VatBakeException(FormattableString.Invariant($"VAT texture height {rows}, the limit is {VatMath.MaxTextureSize}. {hint}"));
             }
         }
 

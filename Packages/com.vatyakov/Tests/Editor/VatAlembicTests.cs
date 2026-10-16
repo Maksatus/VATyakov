@@ -119,11 +119,11 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void ChangingTopology_FailsTheBake_WithPatch2Message()
+        public void ChangingTopology_FailsTheBake_WithTheVisibilityHint()
         {
             var error = Assert.Throws<VatBakeException>(() => _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_topology")), Fps, isLooping: false));
             StringAssert.Contains("vertices 81 → 100", error.Message);
-            StringAssert.Contains("patch 2", error.Message);
+            StringAssert.Contains("hide it with the visibility", error.Message);
             Assert.IsNotEmpty(VatBaker.Validate(AlembicProfile(Load("vat_topology"))), "the inspector sees it too");
         }
 

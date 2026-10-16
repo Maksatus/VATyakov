@@ -20,22 +20,28 @@ namespace VATyakov.Editor
 
         public static VatAsset Bake(VatBakeProfile profile, string assetPath = null)
         {
+            if (EditorApplication.isPlaying)
+            {
+                throw new VatBakeException("Exit Play mode to bake.");
+            }
+
             VatBakeValidator.ThrowIfInvalid(profile);
             var path = VatAssetPath.Resolve(profile, assetPath);
             var result = VatBakePipeline.Run(profile, Path.GetFileNameWithoutExtension(path));
             var clip = VatTemplateMaterial.ShownClip(profile.Asset, profile.Material);
             var asset = VatAssetWriter.Write(profile.Asset, path, result, VatSourceHash.Compute(profile));
+            profile.Asset = asset;
             VatTemplateMaterial.Apply(profile, asset, path, clip);
-            Save(profile, asset);
+            Save(profile);
             VatBakeLog.Baked(asset, result);
             return asset;
         }
 
-        private static void Save(VatBakeProfile profile, VatAsset asset)
+        private static void Save(VatBakeProfile profile)
         {
-            profile.Asset = asset;
             EditorUtility.SetDirty(profile);
-            AssetDatabase.SaveAssets();
+            AssetDatabase.SaveAssetIfDirty(profile);
+            AssetDatabase.SaveAssetIfDirty(profile.Material);
         }
     }
 }

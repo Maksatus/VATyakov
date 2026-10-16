@@ -5,7 +5,6 @@ namespace VATyakov.Editor
 {
     internal static class VatBoneCheck
     {
-        public const double MaxResidual = 1e-3;
         public const float MaxError = 5e-4f;
 
         private const float MillimetersPerMeter = 1000f;
@@ -23,13 +22,7 @@ namespace VATyakov.Editor
             }
 
             var error = SkinError(similarity, points, pivot);
-            if (similarity.Residual <= MaxResidual && error <= MaxError)
-            {
-                return null;
-            }
-
-            return FormattableString.Invariant(
-                $"{element} scales non-uniformly (residual {similarity.Residual:0.####}, error {error * MillimetersPerMeter:0.###} mm)");
+            return error <= MaxError ? null : FormattableString.Invariant($"{element} scales non-uniformly (error {error * MillimetersPerMeter:0.###} mm)");
         }
 
         private static float SkinError(VatSimilarity similarity, Vector3[] points, Vector3 pivot)

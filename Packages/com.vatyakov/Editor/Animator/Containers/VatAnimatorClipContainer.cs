@@ -5,6 +5,8 @@ namespace VATyakov.Editor
 {
     internal sealed class VatAnimatorClipContainer : VatEditorContainer
     {
+        public readonly PropertyField Asset = new() { bindingPath = VatAnimatorContext.AssetPath, label = "VAT Asset" };
+
         public readonly PopupField<string> Clip = new("Clip")
         {
             tooltip = "Clip Play On Enable starts. First follows the first clip of the VAT asset.",
@@ -15,7 +17,7 @@ namespace VATyakov.Editor
         public VatAnimatorClipContainer()
         {
             Clip.AddToClassList(BaseField<string>.alignedFieldUssClassName);
-            Root.WithElements(new PropertyField { bindingPath = VatAnimatorContext.AssetPath, label = "VAT Asset" }, Clip, Problem);
+            Root.WithElements(Asset, Clip, Problem);
         }
     }
 }

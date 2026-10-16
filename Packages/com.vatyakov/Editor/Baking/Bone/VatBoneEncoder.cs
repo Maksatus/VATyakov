@@ -28,6 +28,7 @@ namespace VATyakov.Editor
             for (var bone = 0; bone < rig.BoneCount; bone++)
             {
                 _texels.WritePivot(bone, rig.Pivots[bone]);
+                _rotations[bone] = VatSimilarity.Identity;
             }
         }
 
@@ -71,7 +72,7 @@ namespace VATyakov.Editor
         {
             var pivot = Rig.Pivots[bone];
             var offset = skin.MultiplyPoint3x4(pivot) - pivot;
-            var rotation = Signs.Align(bone, frame, similarity.Rotation);
+            var rotation = Signs.Align(bone, frame, similarity.RotationAfter(_rotations[bone]));
             var offsetScale = new Vector4(offset.x, offset.y, offset.z, similarity.Scale);
             _texels.WritePose(bone, row, offsetScale, rotation, out _offsetScales[bone], out _rotations[bone]);
             _bounds.Add(bone, pivot + (Vector3)_offsetScales[bone], _offsetScales[bone].w);

@@ -79,6 +79,7 @@ namespace VATyakov.Editor
             var poses = new Vector4[frameCount];
             var rotations = new Vector4[frameCount];
             var aligned = 0;
+            var previous = VatSimilarity.Identity;
             for (var frame = 0; frame < frameCount; frame++)
             {
                 if (piece.Visibility.IsVisible(frame))
@@ -86,7 +87,8 @@ namespace VATyakov.Editor
                     var similarity = Similarity(piece, frame);
                     var offset = piece.Motions[frame].MultiplyPoint3x4(piece.Pivot) - piece.Pivot;
                     poses[frame] = new Vector4(offset.x, offset.y, offset.z, similarity.Scale);
-                    rotations[frame] = Signs.Align(index, aligned, similarity.Rotation);
+                    rotations[frame] = Signs.Align(index, aligned, similarity.RotationAfter(previous));
+                    previous = rotations[frame];
                     aligned++;
                 }
             }

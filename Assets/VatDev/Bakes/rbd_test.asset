@@ -16,7 +16,6 @@ MonoBehaviour:
   _source: {fileID: 0}
   _mode: 2
   _clips: []
-  _extraRenderers: []
   _alembic: {fileID: 9059622643730792015, guid: 327fb6ecafe6e3247b73647e798b0816, type: 3}
   _isLooping: 0
   _fps: 24

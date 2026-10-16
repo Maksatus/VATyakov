@@ -78,6 +78,16 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void ReappearingPiece_GrowsInItsNextPose_InsteadOfFlyingIn()
+        {
+            var visibility = new VatRigidVisibility(new[] { true, false, false, true });
+
+            var poses = Enumerable.Range(0, 4).Select(visibility.PoseFrame).ToArray();
+
+            CollectionAssert.AreEqual(new[] { 0, 0, 3, 3 }, poses, "hides in its last pose, shows up in its next one");
+        }
+
+        [Test]
         public void HiddenPiece_CollapsesIntoItsCenter_NotIntoThePivot()
         {
             var tumbling = new VatSyntheticPiece("tumbling", Tumbling, time => time < LateHide - 1e-6);
