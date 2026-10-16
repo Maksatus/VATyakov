@@ -82,7 +82,7 @@ namespace VATyakov.Editor
         {
             var subMeshes = new VatSubMeshes(Rig.Skin.Source);
             var bounds = _bounds.Build(Rig.Skin, subMeshes);
-            return VatBoneMeshBuilder.Build(name, Rig.Skin, subMeshes, bounds);
+            return VatBoneMeshBuilder.Build(name, Rig.Skin, VatBoneStream0.Build(Rig.Skin), subMeshes, bounds);
         }
 
         public Texture2D BuildTexture(string name)

@@ -1,6 +1,6 @@
 # Задача: исправить оставшиеся проблемы из аудита VATyakov
 
-Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.4 (разделы 1–3 сделаны). Полный аудит с доказательствами —
+Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.4 (разделы 1–4 сделаны). Полный аудит с доказательствами —
 `Docs/audit_2026-10-07.md` (номера в скобках — его пункты: RT, SH, BK, VX, AB, BN, RG, UI, DC, DT, UX, SM, TS, G, SRC, ED).
 Что уже сделано в 0.16.2 — последняя заметка в `Docs/PROGRESS.md`.
 
@@ -108,15 +108,15 @@
 
 ## 4. Упрощения (поведение не меняется)
 
-- [ ] Мёртвое: `VatBakeProfile.IsBaked`, `VatUi.SecondaryButton` и `.vat-secondary-button`, `VatBoneFormat.Strides`,
+- [x] Мёртвое: `VatBakeProfile.IsBaked`, `VatUi.SecondaryButton` и `.vat-secondary-button`, `VatBoneFormat.Strides`,
   `internal set` у `VatAnimator.Asset`, `VatPlayback.Frame`, вторая перегрузка `VatTexture.Create`, мёртвый
   `catch (ArgumentOutOfRangeException)` и обёртка `VatLayout.FrameCount` (BK-11, SM-5, SM-6, RT-11).
-- [ ] `VatRigidMeshBuilder` → generic `VatBoneMeshBuilder.Build<T>` (SM-3).
-- [ ] `VatAnimatorFieldsController` → `VatBoundFieldsController<T>(SerializedObject)` (SM-4).
-- [ ] `VatPositions` без своих копий rest и drift (VX-9).
-- [ ] `VatRigidEncoder` без `_offsetScales`/`_rotations` и публичного `Point` (SM-7).
-- [ ] Дубли Bounds и Centroid (SM-10); общий каркас открытия .abc в двух источниках (AB-7).
-- [ ] 8-битная ошибка: таблица `Sample` на 256 значений вместо `Mathf.FloatToHalf` (VX-6).
+- [x] `VatRigidMeshBuilder` → generic `VatBoneMeshBuilder.Build<T>` (SM-3).
+- [x] `VatAnimatorFieldsController` → `VatBoundFieldsController<T>(SerializedObject)` (SM-4). Не нужно: с 0.16.3 в нём Speed в Play mode.
+- [x] `VatPositions` без своих копий rest и drift (VX-9).
+- [x] `VatRigidEncoder` без `_offsetScales`/`_rotations` и публичного `Point` (SM-7).
+- [x] Дубли Bounds и Centroid (SM-10); общий каркас открытия .abc в двух источниках (AB-7).
+- [x] 8-битная ошибка: таблица `Sample` на 256 значений вместо `Mathf.FloatToHalf` (VX-6).
 - [ ] Не делать: слияние писателей текселей (SM-9), удаление слоёв каркаса UI (правило CLAUDE.md).
 
 ## 5. Тесты

@@ -53,15 +53,14 @@ namespace VATyakov.Editor
         [SerializeField]
         private float _maxPositionError = VatPositionEncoding.ByteTolerance * MillimetersPerMeter;
 
-        [Tooltip("VAT asset the bake writes into. Created next to the profile when empty. " +
-                 "A duplicated profile shares it with the original: clear it to bake a separate result.")]
         [SerializeField]
         private VatAsset _asset;
 
-        [Tooltip("Material the baker writes the textures into. Created next to the VAT asset when empty. A rebake keeps the clip it shows " +
-                 "when the clip is still there. A duplicated profile shares it with the original: clear it to bake a separate result.")]
         [SerializeField]
         private Material _material;
+
+        [SerializeField]
+        private string _ownerGuid = string.Empty;
 
         public VatSourceKind Kind { get => _kind; set => _kind = value; }
         public VatMode Mode { get => _mode; set => _mode = value; }
@@ -73,9 +72,9 @@ namespace VATyakov.Editor
         public float MaxPositionError { get => _maxPositionError / MillimetersPerMeter; set => _maxPositionError = value * MillimetersPerMeter; }
         public VatAsset Asset { get => _asset; set => _asset = value; }
         public Material Material { get => _material; set => _material = value; }
+        public string OwnerGuid { get => _ownerGuid; set => _ownerGuid = value; }
         public bool IsBone => _kind == VatSourceKind.Skinned && _mode == VatMode.Bone;
         public bool IsRigid => _kind == VatSourceKind.Alembic && _mode == VatMode.Rigid;
-        public bool IsBaked => _asset != null && _asset.TryValidate(out _) && _material != null;
 
         public void SetClips(params AnimationClip[] clips)
         {

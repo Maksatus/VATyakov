@@ -7,9 +7,6 @@ namespace VATyakov.Editor
 {
     internal sealed class VatRigidPieceExtractor : IVatRigidSource
     {
-        private const string RecipeHint =
-            "Rigid mode: export from Houdini with Transform Geometry and s@path, or with Deform Geometry (see the README of the repository).";
-
         private const string SampleTimesMissing =
             "couldn't read the sample times of the .abc from the Alembic package: the fps check takes 3 points between frames, " +
             "and deforming meshes are fitted on every baked frame.";
@@ -20,7 +17,6 @@ namespace VATyakov.Editor
 
         private VatAlembicCopy _copy;
         private MeshFilter[] _nodes;
-        private VatAlembicTopology _topology;
 
         public VatSourceClip Clip { get; }
         public int PieceCount => _nodes.Length;
@@ -51,8 +47,7 @@ namespace VATyakov.Editor
                 {
                     VatBakeProgress.Report(clip, frame);
                     var time = clip.FrameTime(frame);
-                    _copy.Player.UpdateImmediately((float)time);
-                    RequireTopology(time);
+                    _copy.Sample(time);
                     Sample(nodes, frame, time, IsSourceTime(time));
                 }
 
@@ -60,8 +55,7 @@ namespace VATyakov.Editor
                 {
                     VatBakeProgress.ReportBetween(clip, sample, inner.Count);
                     var time = inner.Times[sample];
-                    _copy.Player.UpdateImmediately((float)time);
-                    RequireTopology(time);
+                    _copy.Sample(time);
                     Sample(nodes, clip.FrameCount + sample, time, SampleTimes != null);
                 }
             }
@@ -81,14 +75,7 @@ namespace VATyakov.Editor
         private void Open(GameObject alembic)
         {
             _copy = new VatAlembicCopy(alembic);
-            _copy.Player.UpdateImmediately(0f);
-            _nodes = _copy.Meshes();
-            if (_nodes.Length == 0)
-            {
-                throw new VatBakeException($"'{_name}' has no meshes, nothing to bake. Check that Meshes are enabled in the .abc importer.");
-            }
-
-            _topology = VatAlembicTopology.Capture(_nodes);
+            _nodes = _copy.Nodes;
             SampleTimes = VatAlembicSampleTimes.Read(_copy.Player);
             if (SampleTimes == null)
             {
@@ -121,15 +108,6 @@ namespace VATyakov.Editor
             }
 
             return new VatRigidTrack(filter.name, VatSourceMesh.Read(mesh), local, frameCount, innerCount);
-        }
-
-        private void RequireTopology(double time)
-        {
-            var difference = _topology.Difference(VatAlembicTopology.Capture(_nodes));
-            if (difference != null)
-            {
-                throw new VatBakeException(FormattableString.Invariant($"'{_name}' at {time:0.###} s: {difference} {RecipeHint}"));
-            }
         }
 
         private bool IsSourceTime(double time)

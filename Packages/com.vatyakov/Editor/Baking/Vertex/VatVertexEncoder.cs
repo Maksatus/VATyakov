@@ -17,9 +17,10 @@ namespace VATyakov.Editor
         private readonly VatTangentFrames _frames;
 
         private VatRestPose _rest;
+        private VatPositionEncoding _encoding;
 
         public VatPrecision Precision => new VatPrecision(_drift.MaxDistance, Positions.MaxError, Positions.ByteError);
-        public VatPositionEncoding Positions => _positions.Encoding;
+        public VatPositionEncoding Positions => _encoding ??= _positions.Encode(_rest.Positions, _drift.Rows);
         public float MaxOffset => _positions.MaxOffset;
         public Vector3[] Drift => _drift.Rows;
 
@@ -76,7 +77,7 @@ namespace VATyakov.Editor
         {
             var rest = _rest.Positions[vertex];
             RequireFinite(position - rest, vertex, clip, frame);
-            _positions.Write(vertex, row, position, rest, drift);
+            _positions.Write(vertex, row, position - rest - drift);
         }
 
         private void EncodeRotation(int vertex, int row, int frame)

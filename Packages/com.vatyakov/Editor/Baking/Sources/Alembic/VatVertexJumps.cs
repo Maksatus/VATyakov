@@ -35,7 +35,7 @@ namespace VATyakov.Editor
 
         private void Compare(Vector3[] positions, double time)
         {
-            var bounds = Bounds(_previous);
+            var bounds = VatBoundsBuilder.Of(_previous);
             var limit = MaxJumpOfMeshSize * Mathf.Max(bounds.size.x, Mathf.Max(bounds.size.y, bounds.size.z));
             var shift = VatCentroid.Of(positions) - VatCentroid.Of(_previous);
             for (var vertex = 0; vertex < positions.Length; vertex++)
@@ -58,17 +58,6 @@ namespace VATyakov.Editor
         {
             _frames++;
             _first ??= FormattableString.Invariant($"vertex {vertex} at {time:0.###} s, {distance:0.###} m");
-        }
-
-        private static Bounds Bounds(Vector3[] points)
-        {
-            var builder = new VatBoundsBuilder();
-            foreach (var point in points)
-            {
-                builder.Add(point);
-            }
-
-            return builder.Bounds;
         }
     }
 }

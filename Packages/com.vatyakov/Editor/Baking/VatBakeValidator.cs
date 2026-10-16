@@ -5,7 +5,7 @@ namespace VATyakov.Editor
     internal static class VatBakeValidator
     {
         private const string NotVatHint = "Duplicate a VAT template, or clear the field to create one.";
-        private const string SharedHint = "clear VAT Asset and Template Material of the duplicate (under Bake) to bake a separate result.";
+        private const string SharedHint = "the profiles were duplicated before 0.16.4: delete one of them and duplicate the other again.";
 
         public static List<string> Validate(VatBakeProfile profile)
         {

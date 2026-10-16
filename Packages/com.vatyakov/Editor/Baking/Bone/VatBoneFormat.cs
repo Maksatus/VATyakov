@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
@@ -20,7 +19,5 @@ namespace VATyakov.Editor
             new(VertexAttribute.TexCoord0, VertexAttributeFormat.Float16, 2, 1),
             new(VertexAttribute.TexCoord6, VertexAttributeFormat.UNorm8, 4, 0),
         };
-
-        public static readonly int[] Strides = { Marshal.SizeOf<VatBoneStream0>(), Marshal.SizeOf<VatVertexStream1>() };
     }
 }

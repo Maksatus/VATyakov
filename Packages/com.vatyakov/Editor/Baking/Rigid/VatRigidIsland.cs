@@ -17,7 +17,7 @@ namespace VATyakov.Editor
         {
             Index = index;
             Vertices = vertices;
-            Center = Centroid(rest, vertices);
+            Center = VatCentroid.Of(rest, vertices);
             Fits = new Matrix4x4[sampleCount];
         }
 
@@ -41,17 +41,6 @@ namespace VATyakov.Editor
                 Residual = residual;
                 ResidualTime = time;
             }
-        }
-
-        private static Vector3 Centroid(Vector3[] rest, int[] vertices)
-        {
-            var points = new Vector3[vertices.Length];
-            for (var i = 0; i < vertices.Length; i++)
-            {
-                points[i] = rest[vertices[i]];
-            }
-
-            return VatCentroid.Of(points);
         }
     }
 }

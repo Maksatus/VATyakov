@@ -17,7 +17,6 @@ namespace VATyakov.Editor
         private VatAlembicCopy _copy;
         private MeshFilter[] _nodes;
         private VatAlembicReader _reader;
-        private VatAlembicTopology _topology;
         private VatVertexJumps _jumps;
         private bool _hasHiddenNodes;
 
@@ -42,8 +41,7 @@ namespace VATyakov.Editor
 
         public void Sample(int clip, double time, VatFrame frame)
         {
-            _copy.Player.UpdateImmediately((float)time);
-            RequireTopology(time);
+            _copy.Sample(time);
             _reader.Read(frame);
             _jumps.Check(frame.Positions, time);
             _hasHiddenNodes |= Array.Exists(_nodes, node => !node.gameObject.activeInHierarchy);
@@ -57,15 +55,8 @@ namespace VATyakov.Editor
         private void Open(GameObject alembic)
         {
             _copy = new VatAlembicCopy(alembic);
-            _copy.Player.UpdateImmediately(0f);
-            _nodes = _copy.Meshes();
-            if (_nodes.Length == 0)
-            {
-                throw new VatBakeException($"'{_name}' has no meshes, nothing to bake. Check that Meshes are enabled in the .abc importer.");
-            }
-
+            _nodes = _copy.Nodes;
             _reader = new VatAlembicReader(_nodes);
-            _topology = VatAlembicTopology.Capture(_nodes);
             Mesh = _reader.SourceMesh(_name);
             _jumps = new VatVertexJumps(Mesh.VertexCount);
             var withoutUv = Array.FindAll(_nodes, node => node.sharedMesh.uv.Length != node.sharedMesh.vertexCount).Length;
@@ -96,15 +87,6 @@ namespace VATyakov.Editor
             }
 
             return warnings;
-        }
-
-        private void RequireTopology(double time)
-        {
-            var difference = _topology.Difference(VatAlembicTopology.Capture(_copy.Meshes()));
-            if (difference != null)
-            {
-                throw new VatBakeException(FormattableString.Invariant($"'{_name}' at {time:0.###} s: {difference}"));
-            }
         }
     }
 }

@@ -7,12 +7,7 @@ namespace VATyakov.Editor
     {
         public static Texture2D Create<T>(VatLayoutInfo info, GraphicsFormat format, string name, T[] data) where T : struct
         {
-            return Create(info.Width, info.Height, format, name, data);
-        }
-
-        public static Texture2D Create<T>(int width, int height, GraphicsFormat format, string name, T[] data) where T : struct
-        {
-            var texture = new Texture2D(width, height, format, TextureCreationFlags.None)
+            var texture = new Texture2D(info.Width, info.Height, format, TextureCreationFlags.None)
             {
                 name = name,
                 filterMode = FilterMode.Point,

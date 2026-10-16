@@ -14,8 +14,6 @@ namespace VATyakov.Editor
 
         private readonly VatBoneTexels _texels;
         private readonly VatBoneBounds _bounds;
-        private readonly Vector4[][] _offsetScales;
-        private readonly Vector4[][] _rotations;
         private readonly Vector4[][] _exactOffsetScales;
         private readonly Vector4[][] _exactRotations;
 
@@ -31,8 +29,6 @@ namespace VATyakov.Editor
             Signs = new VatRotationSigns(pieces.Length, VatRotationSigns.Piece);
             _texels = new VatBoneTexels(layout.Info);
             _bounds = new VatBoneBounds(Array.ConvertAll(pieces, piece => piece.Pivot));
-            _offsetScales = new Vector4[pieces.Length][];
-            _rotations = new Vector4[pieces.Length][];
             _exactOffsetScales = new Vector4[pieces.Length][];
             _exactRotations = new Vector4[pieces.Length][];
         }
@@ -51,20 +47,17 @@ namespace VATyakov.Editor
             }
         }
 
-        public Vector3 Point(int index, int frame0, int frame1, float fraction, Vector3 rest)
-        {
-            return Point(_offsetScales[index], _rotations[index], index, frame0, frame1, fraction, rest);
-        }
-
         public Vector3 ExactPoint(int index, int frame0, int frame1, float fraction, Vector3 rest)
         {
-            return Point(_exactOffsetScales[index], _exactRotations[index], index, frame0, frame1, fraction, rest);
+            var offsetScale = Vector4.LerpUnclamped(_exactOffsetScales[index][frame0], _exactOffsetScales[index][frame1], fraction);
+            var rotation = Vector4.LerpUnclamped(_exactRotations[index][frame0], _exactRotations[index][frame1], fraction);
+            return VatMath.BonePoint(offsetScale, rotation, Pieces[index].Pivot, rest);
         }
 
         public Mesh BuildMesh(string name)
         {
             var subMeshes = new VatSubMeshes(Skin.Source);
-            return VatRigidMeshBuilder.Build(name, Skin, subMeshes, _bounds.Build(Skin, subMeshes));
+            return VatBoneMeshBuilder.Build(name, Skin, VatRigidStream0.Build(Skin), subMeshes, _bounds.Build(Skin, subMeshes));
         }
 
         public Texture2D BuildTexture(string name)
@@ -112,8 +105,6 @@ namespace VATyakov.Editor
         {
             var piece = Pieces[index];
             var frameCount = poses.Length;
-            _offsetScales[index] = new Vector4[frameCount];
-            _rotations[index] = new Vector4[frameCount];
             _exactOffsetScales[index] = new Vector4[frameCount];
             _exactRotations[index] = new Vector4[frameCount];
             for (var frame = 0; frame < frameCount; frame++)
@@ -122,11 +113,11 @@ namespace VATyakov.Editor
                 var pose = piece.Visibility.IsVisible(frame) ? poses[source] : Collapsed(piece, source);
                 _exactOffsetScales[index][frame] = pose;
                 _exactRotations[index][frame] = rotations[source];
-                _texels.WritePose(index, Clip.StartRow + frame, pose, rotations[source], out _offsetScales[index][frame], out _rotations[index][frame]);
-                _bounds.Add(index, piece.Pivot + (Vector3)_offsetScales[index][frame], _offsetScales[index][frame].w);
+                _texels.WritePose(index, Clip.StartRow + frame, pose, rotations[source], out var storedPose, out var storedRotation);
+                _bounds.Add(index, piece.Pivot + (Vector3)storedPose, storedPose.w);
                 if (piece.Visibility.IsVisible(frame))
                 {
-                    MeasureError(index, frame);
+                    MeasureError(index, frame, storedPose, storedRotation);
                 }
             }
         }
@@ -143,20 +134,13 @@ namespace VATyakov.Editor
             return new Vector4(offset.x, offset.y, offset.z, 0f);
         }
 
-        private Vector3 Point(Vector4[] offsetScales, Vector4[] rotations, int index, int frame0, int frame1, float fraction, Vector3 rest)
-        {
-            var offsetScale = Vector4.LerpUnclamped(offsetScales[frame0], offsetScales[frame1], fraction);
-            var rotation = Vector4.LerpUnclamped(rotations[frame0], rotations[frame1], fraction);
-            return VatMath.BonePoint(offsetScale, rotation, Pieces[index].Pivot, rest);
-        }
-
-        private void MeasureError(int index, int frame)
+        private void MeasureError(int index, int frame, Vector4 offsetScale, Vector4 rotation)
         {
             var piece = Pieces[index];
             var motion = piece.Motions[frame];
             foreach (var rest in piece.RestPositions)
             {
-                MaxError = Mathf.Max(MaxError, Vector3.Distance(Point(index, frame, frame, 0f, rest), motion.MultiplyPoint3x4(rest)));
+                MaxError = Mathf.Max(MaxError, Vector3.Distance(VatMath.BonePoint(offsetScale, rotation, piece.Pivot, rest), motion.MultiplyPoint3x4(rest)));
             }
         }
     }

@@ -25,6 +25,7 @@ namespace VATyakov.Editor
                 throw new VatBakeException("Exit Play mode to bake.");
             }
 
+            VatProfileDuplicate.Detach(profile);
             VatBakeValidator.ThrowIfInvalid(profile);
             var path = VatAssetPath.Resolve(profile, assetPath);
             var result = VatBakePipeline.Run(profile, Path.GetFileNameWithoutExtension(path));

@@ -80,7 +80,7 @@ namespace VATyakov.Editor
             var rows = 0L;
             for (var i = 0; i < frames.Length; i++)
             {
-                frames[i] = FrameCount(requests[i]);
+                frames[i] = VatTiming.FrameCount(requests[i].Length, requests[i].Fps, requests[i].IsLooping);
                 rows += frames[i];
             }
 
@@ -101,18 +101,6 @@ namespace VATyakov.Editor
         {
             var rate = VatTiming.FrameRate(frames, request.Length, request.IsLooping);
             return new VatClip(request.Name, startRow, frames, request.Length, rate, request.IsLooping);
-        }
-
-        private static int FrameCount(VatClipRequest request)
-        {
-            try
-            {
-                return VatTiming.FrameCount(request.Length, request.Fps, request.IsLooping);
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                throw new VatBakeException($"Clip '{request.Name}': {e.Message}");
-            }
         }
 
         private static void RequireHeight(int blocks, int pivotRows, long frames, int clips)

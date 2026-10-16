@@ -5,6 +5,9 @@ namespace VATyakov.Editor
     internal static class VatBytePositions
     {
         private const float ByteMax = 255f;
+        private const int ByteValues = 256;
+
+        private static readonly float[] _samples = Samples();
 
         public static VatPositionRange Range(Vector3[] deltas)
         {
@@ -37,7 +40,7 @@ namespace VATyakov.Editor
 
         public static Vector3 Decode(Color32 texel, VatPositionRange range)
         {
-            return Vector3.Scale(new Vector3(Sample(texel.r), Sample(texel.g), Sample(texel.b)), range.Size) + range.Min;
+            return Vector3.Scale(new Vector3(_samples[texel.r], _samples[texel.g], _samples[texel.b]), range.Size) + range.Min;
         }
 
         private static byte Byte(float value, float min, float size)
@@ -45,9 +48,15 @@ namespace VATyakov.Editor
             return size > 0f ? (byte)Mathf.RoundToInt((value - min) / size * ByteMax) : (byte)0;
         }
 
-        private static float Sample(byte value)
+        private static float[] Samples()
         {
-            return Mathf.HalfToFloat(Mathf.FloatToHalf(value / ByteMax));
+            var samples = new float[ByteValues];
+            for (var value = 0; value < ByteValues; value++)
+            {
+                samples[value] = Mathf.HalfToFloat(Mathf.FloatToHalf(value / ByteMax));
+            }
+
+            return samples;
         }
     }
 }

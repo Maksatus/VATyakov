@@ -45,12 +45,7 @@ namespace VATyakov
 
         public event Action<VatClip> ClipFinished;
 
-        public VatAsset Asset
-        {
-            get => _asset;
-            internal set => _asset = value;
-        }
-
+        public VatAsset Asset => _asset;
         public IReadOnlyList<Material> Materials => Copies?.Materials ?? (IReadOnlyList<Material>)Array.Empty<Material>();
         public VatClip CurrentClip => _mixer?.Clip;
         public float TransitionWeight => _mixer?.Weight(Now) ?? 0f;

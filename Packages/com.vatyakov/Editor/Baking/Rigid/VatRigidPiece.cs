@@ -28,7 +28,7 @@ namespace VATyakov.Editor
             Source = VatSourceWinding.Oriented(track.Source, _rest);
             Motions = Array.ConvertAll(track.Frames, frame => frame * _restInverse);
             RestPositions = Array.ConvertAll(track.Local.Positions, _rest.MultiplyPoint3x4);
-            var bounds = RestBounds(RestPositions);
+            var bounds = VatBoundsBuilder.Of(RestPositions);
             Center = bounds.center;
             Pivot = new VatHalf3(VatRigidPivot.Solve(Motions, visibility, bounds)).ToVector3();
         }
@@ -53,17 +53,6 @@ namespace VATyakov.Editor
                 frame.Normals[offset + vertex] = space.Normal(local.Normals[vertex]);
                 frame.Tangents[offset + vertex] = space.Tangent(local.Tangents[vertex]);
             }
-        }
-
-        private static Bounds RestBounds(Vector3[] points)
-        {
-            var bounds = new VatBoundsBuilder();
-            foreach (var point in points)
-            {
-                bounds.Add(point);
-            }
-
-            return bounds.Bounds;
         }
     }
 }

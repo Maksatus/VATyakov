@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace VATyakov.Editor
@@ -18,6 +19,11 @@ namespace VATyakov.Editor
 
             var count = positions.Length;
             return new Vector3((float)(x / count), (float)(y / count), (float)(z / count));
+        }
+
+        public static Vector3 Of(Vector3[] positions, int[] vertices)
+        {
+            return Of(Array.ConvertAll(vertices, vertex => positions[vertex]));
         }
     }
 }

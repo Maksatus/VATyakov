@@ -9,6 +9,17 @@ namespace VATyakov.Editor
 
         public Bounds Bounds => _bounds;
 
+        public static Bounds Of(Vector3[] points)
+        {
+            var builder = new VatBoundsBuilder();
+            foreach (var point in points)
+            {
+                builder.Add(point);
+            }
+
+            return builder.Bounds;
+        }
+
         public void Add(Vector3 point)
         {
             if (_isEmpty)

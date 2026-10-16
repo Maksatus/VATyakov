@@ -9,6 +9,8 @@ namespace VATyakov.Editor
     {
         protected override IEnumerable<IVatController> CreateControllers(VisualElement root)
         {
+            VatProfileDuplicate.Detach((VatBakeProfile)target);
+            serializedObject.Update();
             var context = new VatProfileContext(serializedObject);
             yield return new VatProfileChangeController(context, root);
             yield return new VatProfileLayoutController(context, root);

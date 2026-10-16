@@ -216,6 +216,28 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void DuplicatedProfile_GetsItsOwnResult_OnItsFirstBake()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
+            var original = CreateProfile(_rig);
+            AssetDatabase.CreateAsset(original, $"{TempFolder}/original.asset");
+            var asset = VatBaker.Bake(original);
+            var copyPath = $"{TempFolder}/copy.asset";
+            AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(original), copyPath);
+            var copy = AssetDatabase.LoadAssetAtPath<VatBakeProfile>(copyPath);
+            copy.Source = _rig.Renderer;
+            copy.SetClips(_rig.Clip);
+            Assert.AreSame(asset, copy.Asset, "the duplicate starts with the references of the original");
+
+            var copyAsset = VatBaker.Bake(copy);
+
+            Assert.AreNotSame(asset, copyAsset, "the duplicate bakes a separate asset");
+            Assert.AreNotSame(original.Material, copy.Material, "and a separate template");
+            VatProfileDuplicate.Detach(original);
+            Assert.AreSame(asset, original.Asset, "the original keeps its result");
+        }
+
+        [Test]
         public void TemplateMaterial_WithoutAVatShader_IsAProblem()
         {
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);

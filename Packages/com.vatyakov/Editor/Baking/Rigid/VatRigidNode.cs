@@ -102,7 +102,7 @@ namespace VATyakov.Editor
 
         private Vector3 Center(int[] vertices)
         {
-            return VatCentroid.Of(Array.ConvertAll(vertices, vertex => Track.Local.Positions[vertex]));
+            return VatCentroid.Of(Track.Local.Positions, vertices);
         }
 
         private static bool Deforms(Vector3[] rest, IReadOnlyList<Vector3> positions)

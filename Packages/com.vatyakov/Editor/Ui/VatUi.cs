@@ -49,11 +49,6 @@ namespace VATyakov.Editor
             return new Button { text = text }.WithClass("vat-primary-button");
         }
 
-        public static Button SecondaryButton()
-        {
-            return new Button().WithClass("vat-secondary-button");
-        }
-
         public static VisualElement Stats()
         {
             return new VisualElement().WithClass("vat-stats");

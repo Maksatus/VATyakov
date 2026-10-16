@@ -23,11 +23,6 @@ namespace VATyakov
             return (time - _startTime) * Clip.FrameRate * Speed + _offset;
         }
 
-        public Vector4 Frame(double time)
-        {
-            return Clip.Frame(Position(time));
-        }
-
         public void SetSpeed(double time, float speed)
         {
             _offset = Clip.Wrap(Position(time));
