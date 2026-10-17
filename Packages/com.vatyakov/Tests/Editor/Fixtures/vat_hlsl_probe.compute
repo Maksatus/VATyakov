@@ -1,0 +1,103 @@
+#pragma kernel VertexProbe
+#pragma kernel VertexBlendProbe
+#pragma kernel BoneBlendProbe
+#pragma kernel RigidProbe
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Common.hlsl"
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Texture.hlsl"
+#include "Packages/com.vatyakov/Shaders/VatShaderGraph.hlsl"
+
+TEXTURE2D(_PosTex);
+SAMPLER(sampler_PosTex);
+float4 _PosTex_TexelSize;
+TEXTURE2D(_RotTex);
+SAMPLER(sampler_RotTex);
+float4 _RotTex_TexelSize;
+
+float4 _Layout;
+float4 _Frame;
+float4 _FrameB;
+float4 _Drift;
+float4 _PosScale;
+uint _Count;
+
+StructuredBuffer<float4> _Uv;
+StructuredBuffer<float3> _RestPosition;
+StructuredBuffer<float3> _RestNormal;
+StructuredBuffer<float3> _RestTangent;
+RWStructuredBuffer<float3> _Position;
+RWStructuredBuffer<float3> _Normal;
+RWStructuredBuffer<float3> _Tangent;
+
+[numthreads(64, 1, 1)]
+void VertexProbe(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Count)
+    {
+        return;
+    }
+
+    float3 position;
+    float3 normal;
+    float3 tangent;
+    VatVertexPosition_float(id.x, _RestPosition[id.x], UnityBuildTexture2DStructNoScale(_PosTex), _Layout, _Frame, _Drift, _PosScale, position);
+    VatVertexNormalTangent_float(id.x, UnityBuildTexture2DStructNoScale(_RotTex), _Layout, _Frame, normal, tangent);
+    _Position[id.x] = position;
+    _Normal[id.x] = normal;
+    _Tangent[id.x] = tangent;
+}
+
+[numthreads(64, 1, 1)]
+void VertexBlendProbe(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Count)
+    {
+        return;
+    }
+
+    float3 position;
+    float3 normal;
+    float3 tangent;
+    VatVertexPositionBlend_float(id.x, _RestPosition[id.x], UnityBuildTexture2DStructNoScale(_PosTex), _Layout, _Frame, _FrameB, _Drift, _PosScale,
+        position);
+    VatVertexNormalTangentBlend_float(id.x, UnityBuildTexture2DStructNoScale(_RotTex), _Layout, _Frame, _FrameB, normal, tangent);
+    _Position[id.x] = position;
+    _Normal[id.x] = normal;
+    _Tangent[id.x] = tangent;
+}
+
+[numthreads(64, 1, 1)]
+void BoneBlendProbe(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Count)
+    {
+        return;
+    }
+
+    float3 position;
+    float3 normal;
+    float3 tangent;
+    VatBoneVertexBlend_float(_Uv[id.x], _RestPosition[id.x], _RestNormal[id.x], _RestTangent[id.x], UnityBuildTexture2DStructNoScale(_PosTex), _Layout,
+        _Frame, _FrameB, position, normal, tangent);
+    _Position[id.x] = position;
+    _Normal[id.x] = normal;
+    _Tangent[id.x] = tangent;
+}
+
+[numthreads(64, 1, 1)]
+void RigidProbe(uint3 id : SV_DispatchThreadID)
+{
+    if (id.x >= _Count)
+    {
+        return;
+    }
+
+    float3 position;
+    float3 normal;
+    float3 tangent;
+    VatRigidVertex_float(_Uv[id.x], _RestPosition[id.x], _RestNormal[id.x], _RestTangent[id.x], UnityBuildTexture2DStructNoScale(_PosTex), _Layout,
+        _Frame, position, normal, tangent);
+    _Position[id.x] = position;
+    _Normal[id.x] = normal;
+    _Tangent[id.x] = tangent;
+}

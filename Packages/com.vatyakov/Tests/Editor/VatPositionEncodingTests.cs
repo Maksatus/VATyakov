@@ -4,6 +4,7 @@ using NUnit.Framework;
 using UnityEngine;
 using VATyakov.Editor;
 using Object = UnityEngine.Object;
+using Random = System.Random;
 
 namespace VATyakov.Tests
 {
@@ -17,6 +18,13 @@ namespace VATyakov.Tests
         private const float Swing = 0.2f;
         private const float Flight = 10f;
         private const float Epsilon = 1e-5f;
+        private const int Seed = 5;
+        private const int RandomDeltas = 2000;
+        private const float HalfStep = 0.5f;
+        private const float ByteMax = 255f;
+        private const float HalfRounding = 1f / 4096f;
+
+        private static readonly Vector3 _deltaScale = new(0.3f, 2f, 0.05f);
 
         [Test]
         public void SmallMotion_BakesBytes_WithinTheTolerance()
@@ -52,6 +60,23 @@ namespace VATyakov.Tests
             finally
             {
                 run.Destroy();
+            }
+        }
+
+        [Test]
+        public void BytePosition_OnEveryAxis_StaysWithinHalfAStepPlusTheHalfRounding()
+        {
+            var random = new Random(Seed);
+            var deltas = Enumerable.Range(0, RandomDeltas).Select(_ => Vector3.Scale(VatTestUtil.NextSignedVector(random), _deltaScale)).ToArray();
+            var range = VatBytePositions.Range(deltas);
+            var bound = range.Size * (HalfStep / ByteMax + HalfRounding);
+
+            foreach (var delta in deltas)
+            {
+                var error = VatBytePositions.Decode(VatBytePositions.Encode(delta, range), range) - delta;
+                Assert.LessOrEqual(Mathf.Abs(error.x), bound.x + Epsilon, $"x of {delta}");
+                Assert.LessOrEqual(Mathf.Abs(error.y), bound.y + Epsilon, $"y of {delta}");
+                Assert.LessOrEqual(Mathf.Abs(error.z), bound.z + Epsilon, $"z of {delta}");
             }
         }
 

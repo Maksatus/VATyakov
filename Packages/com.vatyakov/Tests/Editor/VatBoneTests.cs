@@ -357,7 +357,11 @@ namespace VATyakov.Tests
         [Test]
         public void Rebake_VertexToBone_SwapsTheTexturesAndTheShader_KeepsTheMesh()
         {
-            AssetDatabase.CreateFolder("Assets", TempFolder.Substring("Assets/".Length));
+            if (!AssetDatabase.IsValidFolder(TempFolder))
+            {
+                AssetDatabase.CreateFolder("Assets", TempFolder.Substring("Assets/".Length));
+            }
+
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false);
             _profile = Profile(_rig.Renderer, _rig.Clip, Fps, true);
             _profile.Mode = VatMode.Vertex;

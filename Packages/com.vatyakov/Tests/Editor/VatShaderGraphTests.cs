@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEditor.Rendering;
@@ -22,6 +26,76 @@ namespace VATyakov.Tests
         private const string LitBoneBlendSample = "Packages/com.vatyakov/Samples/LitBoneBlend/vat_lit_bone_blend.shadergraph";
         private const string LitRigidSample = "Packages/com.vatyakov/Samples/LitRigid/vat_lit_rigid.shadergraph";
         private const string LitBlendShaderName = "VATyakov/vat_lit_vertex_blend";
+        private const string SubGraphFolder = "Packages/com.vatyakov/Shaders/SubGraphs";
+        private const int SinglePrecision = 1;
+        private const int UnityPerMaterial = 2;
+        private const int HybridPerInstance = 3;
+
+        private static readonly string[] _samples =
+        {
+            UnlitSample, LitSample, LitBlendSample, TriplanarSample, LitBoneSample, LitBoneBlendSample, LitRigidSample,
+        };
+
+        private static readonly (ShaderCompilerPlatform Platform, BuildTarget Target)[] _mobileTargets =
+        {
+            (ShaderCompilerPlatform.GLES3x, BuildTarget.Android), (ShaderCompilerPlatform.Vulkan, BuildTarget.Android),
+            (ShaderCompilerPlatform.Metal, BuildTarget.iOS),
+        };
+
+        private static readonly Dictionary<string, int> _declarations = new()
+        {
+            ["_VatLayout"] = UnityPerMaterial,
+            ["_VatPosScale"] = UnityPerMaterial,
+            ["_VatFrame"] = HybridPerInstance,
+            ["_VatFrameB"] = HybridPerInstance,
+            ["_VatDrift"] = HybridPerInstance,
+        };
+
+        [Test]
+        public void SubGraphs_KeepVectorsAndCustomFunctionsInSinglePrecision_WithTheirDeclarations()
+        {
+            var paths = Directory.GetFiles(SubGraphFolder, "*.shadersubgraph");
+            Assert.AreEqual(5, paths.Length, "five subgraphs");
+            foreach (var path in paths)
+            {
+                foreach (var block in Regex.Split(File.ReadAllText(path), @"\r?\n\r?\n(?=\{)"))
+                {
+                    AssertBlock(Path.GetFileName(path), block);
+                }
+            }
+        }
+
+        [Test]
+        public void HalfPrecisionParent_KeepsTheVertexPositionInFloat()
+        {
+            var descriptions = Regex.Matches(RequireGeneratedCode(HalfParent), @"struct VertexDescription\s*\{[^}]*\}");
+
+            Assert.IsNotEmpty(descriptions, "the generated code has VertexDescription");
+            foreach (Match description in descriptions)
+            {
+                StringAssert.Contains("float3 Position;", description.Value, "a half position loses millimeters far from the origin");
+            }
+        }
+
+        [Test]
+        public void Samples_CompileForGles3VulkanAndMetal()
+        {
+            var failures = new List<string>();
+            foreach (var path in _samples)
+            {
+                var pass = ShaderUtil.GetShaderData(AssetDatabase.LoadAssetAtPath<Shader>(path)).GetSubshader(0).GetPass(0);
+                foreach (var (platform, target) in _mobileTargets)
+                {
+                    var info = pass.CompileVariant(ShaderType.Vertex, Array.Empty<string>(), platform, target);
+                    if (!info.Success)
+                    {
+                        failures.Add($"{Path.GetFileName(path)}, {platform}: {string.Join("; ", info.Messages.Select(message => message.message))}");
+                    }
+                }
+            }
+
+            Assert.IsEmpty(failures, string.Join("\n", failures));
+        }
 
         [Test]
         public void HalfPrecisionParent_CompilesAndCallsFloatWrapper()
@@ -145,7 +219,6 @@ namespace VATyakov.Tests
         [Test]
         public void UnlitSample_CompilesAndTakesNormalAndTangentForShadowsAndDepthNormals()
         {
-            Assume.That(AssetDatabase.LoadAssetAtPath<Shader>(UnlitSample), Is.Not.Null, "sample not in the project");
             AssertCompiles(UnlitSample);
 
             var code = RequireGeneratedCode(UnlitSample);
@@ -160,6 +233,27 @@ namespace VATyakov.Tests
                 AssertFloat4(code, property);
                 StringAssert.Contains($"UNITY_ACCESS_HYBRID_INSTANCED_PROP({property}, float4)", code, $"{property} is Hybrid Per Instance");
             }
+        }
+
+        private static void AssertBlock(string file, string block)
+        {
+            if (block.Contains("Vector4ShaderProperty\""))
+            {
+                var name = Regex.Match(block, "\"m_DefaultReferenceName\": \"(\\w+)\"").Groups[1].Value;
+                Assert.AreEqual(SinglePrecision, Number(block, "m_Precision"), $"{file}: precision of {name}");
+                Assert.IsTrue(_declarations.ContainsKey(name), $"{file}: unknown vector {name}");
+                Assert.AreEqual(_declarations[name], Number(block, "hlslDeclarationOverride"), $"{file}: declaration of {name}");
+            }
+
+            if (block.Contains("CustomFunctionNode\""))
+            {
+                Assert.AreEqual(SinglePrecision, Number(block, "m_Precision"), $"{file}: precision of a Custom Function");
+            }
+        }
+
+        private static int Number(string block, string field)
+        {
+            return int.Parse(Regex.Match(block, $"\"{field}\": (\\d+)").Groups[1].Value, CultureInfo.InvariantCulture);
         }
 
         private static void AssertFloat4(string code, string property)
@@ -197,7 +291,7 @@ namespace VATyakov.Tests
             var code = GeneratedCode(path);
             if (code == null)
             {
-                Assert.Inconclusive("Shader Graph internals changed: generated code is not available.");
+                Assert.Fail("Shader Graph internals changed: generated code is not available.");
             }
 
             return code;

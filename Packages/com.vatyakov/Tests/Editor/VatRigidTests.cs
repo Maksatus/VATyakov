@@ -19,6 +19,7 @@ namespace VATyakov.Tests
         private const int LateLastFrame = 23;
         private const float Gravity = 9.81f;
         private const float SlowTurnRate = 12f;
+        private const int BoundsSteps = 8;
 
         private static readonly Vector3 _stillPoint = new(0.1f, 0.15f, -0.05f);
         private static readonly Vector3 _drift = new(0.5f, 0.2f, 0f);
@@ -75,6 +76,30 @@ namespace VATyakov.Tests
             }
 
             AssertMatchesPose(decoder, clip, LatePose, LateFirstFrame, LateLastFrame);
+        }
+
+        [Test]
+        public void Bounds_ContainTheTumblingPiece_BetweenBakedFrames()
+        {
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, new VatSyntheticPiece("tumbling", Tumbling)), Fps, false, "Synthetic");
+            var decoder = new VatBoneDecoder(_result.Textures.Bone);
+            var clip = _result.Layout.Clips[0];
+            var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
+            var rest = _result.Mesh.vertices;
+            var bounds = _result.Mesh.bounds;
+
+            for (var frame = 0; frame < clip.FrameCount - 1; frame++)
+            {
+                for (var step = 0; step <= BoundsSteps; step++)
+                {
+                    var rows = new Vector4(clip.StartRow + frame, clip.StartRow + frame + 1, step / (float)BoundsSteps, 0f);
+                    for (var vertex = 0; vertex < rest.Length; vertex++)
+                    {
+                        var point = decoder.PiecePosition(uvs[vertex], rest[vertex], rows);
+                        Assert.Less(bounds.SqrDistance(point), Tolerance * Tolerance, $"frame {frame} + {rows.z}, vertex {vertex}");
+                    }
+                }
+            }
         }
 
         [Test]

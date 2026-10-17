@@ -28,6 +28,14 @@
   диалогом, остальные профили пекутся.
 - `VatAnimator` редактируется у нескольких объектов сразу; Clip привязан к свойству (Undo, prefab override).
 
+### Тесты
+- HLSL пакета исполняется на GPU: compute-зонд `Tests/Editor/Fixtures/vat_hlsl_probe.compute` вызывает функции
+  `VatShaderGraph.hlsl` (Vertex с переходом и без, Bone с переходом, Rigid) при дробном кадре и w ≠ 0 и сверяет с CPU.
+- Shader Graph: точность и объявления векторов в пяти сабграфах, `float3 Position` в Half-родителе, компиляция сэмплов
+  под GLES3, Vulkan и Metal; нет сгенерированного кода — тест падает, а не пропускается.
+- Константы `VatCore.hlsl` против `VatMath`, `VatPieceTexel` в half-арифметике для всех 2048 кусков, граница ошибки
+  8-битных позиций по осям, граница высоты 4096/4097, блендшейп в Vertex против `BakeMesh`, баунды Rigid между кадрами.
+
 ### Упрощено (поведение не меняется)
 - Удалён мёртвый код: `VatBakeProfile.IsBaked`, `VatUi.SecondaryButton`, `VatBoneFormat.Strides`, сеттер `VatAnimator.Asset`,
   `VatPlayback.Frame`, вторая перегрузка `VatTexture.Create`, обёртка `VatLayout.FrameCount` с мёртвым `catch`.

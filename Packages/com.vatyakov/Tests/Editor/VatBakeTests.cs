@@ -216,6 +216,33 @@ namespace VATyakov.Tests
         }
 
         [Test]
+        public void BlendShape_InVertexMode_MatchesBakeMesh()
+        {
+            _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: true, hasBlendShape: true);
+            var bake = new VatInMemoryBake(_rig, Fps);
+            try
+            {
+                var texels = VatTestUtil.ReadGpu(bake.Position);
+                var clip = bake.Layout.Clips[0];
+                var maxError = 0f;
+                for (var k = 0; k < clip.FrameCount; k++)
+                {
+                    var reference = VatTestUtil.BakeMesh(_rig.Root, _rig.Renderer, _rig.Clip, clip.FrameTime(k), SkinQuality.Bone4, out _);
+                    for (var v = 0; v < reference.Length; v++)
+                    {
+                        maxError = Mathf.Max(maxError, Vector3.Distance(bake.DecodePosition(texels, bake.Rest[v], v, clip.StartRow + k), reference[v]));
+                    }
+                }
+
+                Assert.Less(maxError, bake.Precision.Error + Tolerance, "decoded positions against SkinnedMeshRenderer.BakeMesh");
+            }
+            finally
+            {
+                bake.Destroy();
+            }
+        }
+
+        [Test]
         public void DuplicatedProfile_GetsItsOwnResult_OnItsFirstBake()
         {
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy: false);
@@ -335,12 +362,14 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void Layout_TallerThan4096Rows_FailsWithAClearMessage()
+        public void Layout_Of4096Rows_Fits_4097RowsFail()
         {
-            var clips = new[] { new VatClipRequest("Long", 100f, Fps) };
-            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(TwoBlockVertexCount, clips));
-            StringAssert.Contains("4096", error.Message);
-            StringAssert.Contains("fps", error.Message);
+            var fits = VatLayout.ForVertex(OneBlockVertexCount, new[] { new VatClipRequest("Fits", VatMath.MaxTextureSize, 1f) });
+            Assert.AreEqual(VatMath.MaxTextureSize, fits.Info.Height, "4096 rows fit");
+
+            var tall = new[] { new VatClipRequest("Tall", VatMath.MaxTextureSize + 1, 1f) };
+            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(OneBlockVertexCount, tall));
+            StringAssert.Contains("= 4097 rows, the limit is 4096", error.Message);
         }
 
         private static void AssertProblem(List<string> problems, string expected)

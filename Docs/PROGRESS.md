@@ -264,7 +264,7 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
 - `Editor/Framework/` — IVatController, VatControllerExtensions, VatControllerInspector, VatEditorContainer, VatProperty, VatTrackerContainer, VatTrigger, VatVisualElementExtensions
 - `Editor/Ui/` — VatAssetSummary, VatAssetSummaryContainer, VatEditor.uss, VatInfoRow (строка «имя — сведения», бывший VatClipRow), VatObjectLink, VatStat, VatText, VatUi
-- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRigidAlembicTests (1.15, под `#if VAT_ALEMBIC`), VatRigidIslandTests (1.16), VatSourceTests (0.16.2), VatRigidTests (1.15), VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatSyntheticPiece и VatSyntheticRigidSource (1.15), VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc, vat_rigid.abc (1.15), vat_rigid_deform.abc (1.16)
+- `Tests/Editor/` — VatAlembicTests (под `#if VAT_ALEMBIC`), VatAssetMemoryTests, VatCoreHlslTests и VatHlslProbe + VatHlslProbeTests (0.16.4), VatBakeTests, VatBoneDecoder, VatBoneTests, VatClipFrameTests, VatClipsTests, VatDriftTests, VatInMemoryBake, VatMaterialCopiesTests, VatMathTests, VatMixerTests, VatPlaybackTests, VatPlayerTests, VatPositionEncodingTests, VatRigidAlembicTests (1.15, под `#if VAT_ALEMBIC`), VatRigidIslandTests (1.16), VatSourceTests (0.16.2), VatRigidTests (1.15), VatRotationCodecTests, VatRotationSignsTests, VatShaderGraphTests, VatSwingRig, VatSyntheticPiece и VatSyntheticRigidSource (1.15), VatTangentFramesTests, VatTestRig, VatTestUtil, VatTriadRig, VatTimingTests, VatVertexEncoderTests; `Fixtures/` — vat_hlsl_probe.compute (0.16.4, зонд HLSL), vat_half_parent.shadergraph, vat_half_parent_blend.shadergraph, vat_cloth.abc, vat_topology.abc, vat_shuffled.abc, vat_rigid.abc (1.15), vat_rigid_deform.abc (1.16)
 - Вне пакета, замер толпы (1.14): `Assets/VatDev/Scripts/Stress/` (сборка `VATyakov.Dev`, в билде) — VatStress (толпа, `Select`
   варианта, маркер `VatStress.Drive`), VatStressVariant и VatStressMode (варианты `empty`, `smr`, `vat`, `smr_crossfade`,
   `vat_crossfade`, `smr_lod0`, `vat_lod0`), IVatStressUnit, VatStressVatUnit, VatStressSmrUnit, VatStressInfo (конфигурация и счётчики сцены для отчёта), VatStressRemote и VatStressMessages
@@ -751,3 +751,12 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   `Sample(time)` проверяет топологию — оба источника без своих копий этой логики (у Rigid ошибка топологии без
   `RecipeHint`, он удалён); `VatBytePositions` — таблица 256 значений. SM-4 не делали: в `VatAnimatorFieldsController`
   с 0.16.3 есть применение Speed в Play mode, это уже не дубль. Проверено: 297 тестов зелёные.
+  Раздел 5 бэклога (тесты): TS-2 (`VatAnimator` в Play mode) — не делаем, решение пользователя: логику покрывают
+  EditMode-тесты, Play mode проверяется руками на сценах VatDev. TS-1: `vat_hlsl_probe.compute` подключает Core RP
+  `Common.hlsl` и `Texture.hlsl` и `VatShaderGraph.hlsl`, текстуры — через `UnityBuildTexture2DStructNoScale`
+  (нужны `sampler_X` и `X_TexelSize`); `VatHlslProbe` — буферы и Dispatch; сверка с `VatTestUtil.PositionSample`/
+  `DecodeRotation` и `VatBoneDecoder` с допуском 0.1 мм. Отрицательный контроль: порча `VatClipOffset` и строки пивотов
+  в `VatBoneSkin` роняет все 4 теста зонда. SH-6: `ShaderData.Pass.CompileVariant` на первом проходе каждого сэмпла
+  (все проходы — ~5 с на шейдер); Vulkan пишет предупреждение «integer modulus may be much slower» (деление в
+  `VatTexel`, SH-5). SH-7: `VatMath.ByteMax` и `ByteSteps` — internal для теста. TS-11 (foot IK) не сделан: нужна
+  Humanoid-фикстура в пакете. Проверено: 309 тестов зелёные (13 новых).

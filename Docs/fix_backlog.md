@@ -1,6 +1,6 @@
 # Задача: исправить оставшиеся проблемы из аудита VATyakov
 
-Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.4 (разделы 1–4 сделаны). Полный аудит с доказательствами —
+Это бриф для нового чата. Пакет — `Packages/com.vatyakov`, сейчас версия 0.16.4 (разделы 1–5 сделаны). Полный аудит с доказательствами —
 `Docs/audit_2026-10-07.md` (номера в скобках — его пункты: RT, SH, BK, VX, AB, BN, RG, UI, DC, DT, UX, SM, TS, G, SRC, ED).
 Что уже сделано в 0.16.2 — последняя заметка в `Docs/PROGRESS.md`.
 
@@ -121,17 +121,17 @@
 
 ## 5. Тесты
 
-- [ ] HLSL ни разу не исполняется (TS-1): compute-зонд в `Tests/Editor/Fixtures`, который зовёт функции
+- [x] HLSL ни разу не исполняется (TS-1): compute-зонд в `Tests/Editor/Fixtures`, который зовёт функции
   `VatShaderGraph.hlsl` на текстурах in-memory бейков и сверяет с `VatMath`/`VatBoneDecoder` при frac ≠ 0, w ≠ 0.
-- [ ] Shader Graph: `Assert.Inconclusive` → `Assert.Fail` в `RequireGeneratedCode` (TS-4); JSON-тест пяти
+- [x] Shader Graph: `Assert.Inconclusive` → `Assert.Fail` в `RequireGeneratedCode` (TS-4); JSON-тест пяти
   `.shadersubgraph` на `m_Precision` и `hlslDeclarationOverride` (SH-2); тип `VertexDescription.Position` в Half-родителе
   (SH-3); компиляция под GLES3, Vulkan и Metal через `ShaderData.Pass.CompileVariant` (SH-6).
-- [ ] Константы `VatCore.hlsl` против `VatMath` регэкспом; `PieceTexel` в half-арифметике (SH-7, DT-5).
-- [ ] Абсолютная граница ошибки 8 бит `|Size|·(0.5/255 + 1/4096)` (TS-3); граница 4096/4097 вместо дубля теста (TS-7);
+- [x] Константы `VatCore.hlsl` против `VatMath` регэкспом; `PieceTexel` в half-арифметике (SH-7, DT-5).
+- [x] Абсолютная граница ошибки 8 бит `|Size|·(0.5/255 + 1/4096)` (TS-3); граница 4096/4097 вместо дубля теста (TS-7);
   пустые проверки (TS-8); баунды Rigid (TS-9); блендшейп в Vertex против `BakeMesh` (TS-6); foot IK (TS-11);
-  `CreateFolder` без `IsValidFolder` (TS-10).
-- [ ] **[решение]** `VatAnimator` в Play mode (TS-2): `[UnityTest]` с `EnterPlayMode` — в проекте включена перезагрузка
-  домена, тест может быть хрупким.
+  `CreateFolder` без `IsValidFolder` (TS-10). Сделано всё, кроме foot IK (TS-11): нужна Humanoid-фикстура.
+- [x] **[решение]** `VatAnimator` в Play mode (TS-2): `[UnityTest]` с `EnterPlayMode` — в проекте включена перезагрузка Решено: не делаем.
+  домена, тест может быть хрупким. Решено: не делаем.
 
 ## 6. Документы
 

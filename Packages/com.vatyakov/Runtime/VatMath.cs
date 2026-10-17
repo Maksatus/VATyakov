@@ -11,8 +11,8 @@ namespace VATyakov
         public const int BonePivotRows = 1;
         public const float BoneWeightMax = 65535f;
 
-        private const float ByteMax = 255f;
-        private const float ByteSteps = 256f;
+        internal const float ByteMax = 255f;
+        internal const float ByteSteps = 256f;
 
         public static int BlockCount(int elementCount)
         {
