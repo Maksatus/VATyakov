@@ -23,7 +23,6 @@ namespace VATyakov.Editor
             }
 
             hash.Append(profile.Fps);
-            hash.Append(profile.IsLooping ? 1 : 0);
             if (!profile.IsRigid)
             {
                 hash.Append(profile.MaxPositionError);

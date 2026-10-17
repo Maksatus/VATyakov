@@ -14,7 +14,6 @@ namespace VATyakov.Editor
             {
                 new VatSourceFieldsController(context, _container.Source),
                 new VatEstimateController(context, _container.Source),
-                new VatLoopHintController(context, _container.Source),
                 new VatProblemsController(context, _container.Actions),
                 new VatOutdatedController(context, _container.Actions),
                 new VatBakeButtonController(context, _container.Actions),

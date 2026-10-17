@@ -11,7 +11,7 @@ namespace VATyakov.Tests
         private const double StepTime = 1.0 / StepsPerSecond;
         private const float FrameRate = 30f;
         private const int OneShotFrameCount = 31;
-        private const int LoopFrameCount = 30;
+        private const int LoopFrameCount = 31;
         private const int ClipEndStep = 60;
         private const float Tolerance = 1e-6f;
 

@@ -17,7 +17,6 @@ namespace VATyakov.Editor
         public readonly float MaxOffset;
         public readonly VatQuantizationStats Stats;
         public readonly VatChirality Chirality;
-        public readonly VatRotationSigns Signs;
         public readonly IReadOnlyList<string> Warnings;
         public readonly string Fallback;
 
@@ -34,7 +33,6 @@ namespace VATyakov.Editor
             MaxOffset = encoder.MaxOffset;
             Stats = encoder.Stats;
             Chirality = encoder.Chirality;
-            Signs = encoder.Signs;
             Warnings = warnings;
             Fallback = fallback;
         }
@@ -46,7 +44,6 @@ namespace VATyakov.Editor
             Mesh = mesh;
             Textures = textures;
             Precision = encoder.Precision;
-            Signs = encoder.Signs;
             Warnings = warnings;
         }
 
@@ -57,7 +54,6 @@ namespace VATyakov.Editor
             Mesh = mesh;
             Textures = textures;
             Precision = encoder.Precision;
-            Signs = encoder.Signs;
             Warnings = warnings;
         }
     }

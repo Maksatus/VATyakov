@@ -40,7 +40,7 @@ namespace VATyakov.Editor
             {
                 if (clip != null && clip.length > 0f)
                 {
-                    clips.Add(new VatSourceClip(clip.name, clip.length));
+                    clips.Add(VatSourceClip.Of(clip));
                 }
             }
 
@@ -68,7 +68,7 @@ namespace VATyakov.Editor
             var mode = profile.IsBone ? VatMode.Bone : profile.IsRigid ? VatMode.Rigid : VatMode.Vertex;
             try
             {
-                var requests = VatClipRequest.From(clips, profile.Fps, profile.IsLooping);
+                var requests = VatClipRequest.From(clips, profile.Fps);
                 return new VatBakeEstimate(mode, BuildLayout(mode, elementCount, requests), null);
             }
             catch (VatBakeException e)

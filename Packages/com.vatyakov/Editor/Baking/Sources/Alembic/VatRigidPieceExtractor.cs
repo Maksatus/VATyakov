@@ -26,7 +26,7 @@ namespace VATyakov.Editor
         public VatRigidPieceExtractor(GameObject alembic)
         {
             _name = alembic.name;
-            Clip = new VatSourceClip(_name, VatAlembicDuration.Require(alembic));
+            Clip = new VatSourceClip(_name, VatAlembicDuration.Require(alembic), false);
             try
             {
                 Open(alembic);

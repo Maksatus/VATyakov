@@ -114,7 +114,7 @@ namespace VATyakov.Tests
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
             _rig.Root.transform.Find("Model/Bone0/Bone1").localScale = _nonUniformScale;
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Scaled");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Scaled");
 
             Assert.AreEqual(VatMode.Vertex, _result.Mode, "the asset falls back to Vertex");
             Assert.IsNotNull(_result.Textures.Position, "Vertex textures");
@@ -128,7 +128,7 @@ namespace VATyakov.Tests
             _rig = new VatTestRig(_scene, TwoBlockVertexCount, isLegacy: true);
             _rig.Root.transform.Find("Model/Bone0/Bone1").localScale = _nonUniformScale;
 
-            var error = Assert.Throws<VatBakeException>(() => VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, TallFps, true), "Tall"));
+            var error = Assert.Throws<VatBakeException>(() => VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, TallFps), "Tall"));
 
             StringAssert.Contains("bone 'Bone1' scales non-uniformly", error.Message);
             StringAssert.Contains("4096", error.Message);
@@ -142,7 +142,7 @@ namespace VATyakov.Tests
             foreign.SetCurve("Model/Nope", typeof(Transform), "localPosition.x", AnimationCurve.Linear(0f, 0f, 1f, 1f));
             try
             {
-                var profile = Profile(_rig.Renderer, _rig.Clip, Fps, false);
+                var profile = Profile(_rig.Renderer, _rig.Clip, Fps);
                 profile.SetClips(_rig.Clip, foreign);
 
                 _result = VatBakePipeline.Run(profile, "Foreign");
@@ -166,7 +166,7 @@ namespace VATyakov.Tests
             mesh.colors = new Color[mesh.vertexCount];
             AnimationUtility.SetAnimationEvents(_rig.Clip, new[] { new AnimationEvent { time = 0.1f, functionName = "Hit" } });
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, false), "Lost");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Lost");
 
             var warnings = string.Join("\n", _result.Warnings);
             StringAssert.Contains("has constraints or Animation Rigging", warnings);
@@ -189,7 +189,7 @@ namespace VATyakov.Tests
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: true);
             _rig.Root.transform.Find("Model/Bone0/Bone1").localScale = Vector3.zero;
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Hidden");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Hidden");
 
             Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
             Assert.Less(_result.Precision.Error, Millimeter, "decoded against the skinned reference");
@@ -200,7 +200,7 @@ namespace VATyakov.Tests
         {
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false, hasBlendShape: true);
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "BlendShape");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "BlendShape");
 
             Assert.AreEqual(VatMode.Vertex, _result.Mode, "Bone mode does not skin blend shapes");
             StringAssert.Contains("blend shape 'Bulge'", _result.Fallback);
@@ -211,7 +211,7 @@ namespace VATyakov.Tests
         {
             _swing = new VatSwingRig(_scene);
 
-            _result = VatBakePipeline.Run(Profile(_swing.Renderer, _swing.Clip, SwingFps, false), "Swing");
+            _result = VatBakePipeline.Run(Profile(_swing.Renderer, _swing.Clip, SwingFps), "Swing");
 
             Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
             var clip = _result.Layout.Clips[0];
@@ -253,7 +253,7 @@ namespace VATyakov.Tests
             wave.SetCurve("Model/Bone0", typeof(Transform), "localPosition.x", curve);
             try
             {
-                _result = VatBakePipeline.Run(Profile(_rig.Renderer, wave, SwingFps, false), "Wave");
+                _result = VatBakePipeline.Run(Profile(_rig.Renderer, wave, SwingFps), "Wave");
 
                 Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
                 StringAssert.Contains("Clip 'Wave' moves too fast for 1 fps", string.Join("\n", _result.Warnings));
@@ -269,7 +269,7 @@ namespace VATyakov.Tests
         {
             _rig = new VatTestRig(_scene, HalfWeightVertexCount, isLegacy: true, hasTwist: true);
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, false), "Reconstruct");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Reconstruct");
 
             Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
             Assert.That(_rig.Renderer.sharedMesh.boneWeights.Any(weight => weight.weight0 == 0.5f), "the strip has a vertex at weight 0.5");
@@ -291,7 +291,7 @@ namespace VATyakov.Tests
                 Weight(1, 0.2f, 0, 0.5f, 2, 0.3f),
                 Weight(2, 1f));
 
-            _result = VatBakePipeline.Run(Profile(_triad.Renderer, _triad.Clip, Fps, false), "Triad");
+            _result = VatBakePipeline.Run(Profile(_triad.Renderer, _triad.Clip, Fps), "Triad");
 
             Assert.AreEqual(VatMode.Bone, _result.Mode, _result.Fallback);
             var influences = VatBoneDecoder.BoneUvs(_result.Mesh).Select(VatBoneDecoder.Influence).ToArray();
@@ -309,7 +309,7 @@ namespace VATyakov.Tests
         {
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false);
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Zero");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Zero");
 
             var info = _result.Layout.Info;
             var clip = _result.Layout.Clips[0];
@@ -332,7 +332,7 @@ namespace VATyakov.Tests
         {
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false);
 
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Layout");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Layout");
 
             var mesh = _result.Mesh;
             CollectionAssert.AreEqual(VatBoneFormat.Attributes, mesh.GetVertexAttributes(), "streams and formats");
@@ -363,7 +363,7 @@ namespace VATyakov.Tests
             }
 
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false);
-            _profile = Profile(_rig.Renderer, _rig.Clip, Fps, true);
+            _profile = Profile(_rig.Renderer, _rig.Clip, Fps);
             _profile.Mode = VatMode.Vertex;
             var asset = VatBaker.Bake(_profile, $"{TempFolder}/Swap.asset");
             var meshId = Id(asset.Mesh);
@@ -386,7 +386,7 @@ namespace VATyakov.Tests
         public void BoneAsset_ApplyFrame_WritesNoDrift()
         {
             _rig = new VatTestRig(_scene, VertexCount, isLegacy: false);
-            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps, true), "Apply");
+            _result = VatBakePipeline.Run(Profile(_rig.Renderer, _rig.Clip, Fps), "Apply");
             var asset = ScriptableObject.CreateInstance<VatAsset>();
             var material = new Material(Shader.Find(VatBaker.BoneShaderName));
             try
@@ -410,13 +410,12 @@ namespace VATyakov.Tests
             }
         }
 
-        private VatBakeProfile Profile(SkinnedMeshRenderer renderer, AnimationClip clip, float fps, bool isLooping)
+        private VatBakeProfile Profile(SkinnedMeshRenderer renderer, AnimationClip clip, float fps)
         {
             _profile = ScriptableObject.CreateInstance<VatBakeProfile>();
             _profile.Source = renderer;
             _profile.SetClips(clip);
             _profile.Fps = fps;
-            _profile.IsLooping = isLooping;
             _profile.Mode = VatMode.Bone;
             return _profile;
         }

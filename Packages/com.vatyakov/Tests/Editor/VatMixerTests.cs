@@ -7,7 +7,7 @@ namespace VATyakov.Tests
     {
         private const float FrameRate = 30f;
         private const int OneShotFrameCount = 31;
-        private const int LoopFrameCount = 30;
+        private const int LoopFrameCount = 31;
         private const int OtherStartRow = OneShotFrameCount + LoopFrameCount;
         private const float Tolerance = 1e-5f;
 

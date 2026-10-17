@@ -10,10 +10,6 @@ namespace VATyakov.Editor
         private const float BoneErrorBudget = 1e-3f;
         private const string ChiralityHint =
             "The sign comes from rest, so the normal map is mirrored on them. Check mirrored bones and negative scale.";
-        private const string SeamHint =
-            "Their frame makes an odd number of turns over the loop: normal and tangent pass through zero between the last and the first frame.";
-        private const string BoneSeamHint =
-            "They make an odd number of turns over the loop: between the last and the first frame they spin the long way round.";
         private const string BoneErrorHint =
             "The joints are far from the root or the bones scale a lot: half precision of the bone texture does not hold 1 mm.";
         private const string RigidErrorHint =
@@ -30,11 +26,6 @@ namespace VATyakov.Editor
             if (result.Chirality != null && result.Chirality.Count > 0)
             {
                 Debug.LogWarning(Chirality(asset, result.Chirality), asset);
-            }
-
-            if (result.Signs.SeamCount > 0)
-            {
-                Debug.LogWarning(Seams(asset, result), asset);
             }
 
             if (result.Mode == VatMode.Bone && result.Precision.Error > BoneErrorBudget)
@@ -100,15 +91,6 @@ namespace VATyakov.Editor
         {
             var flipped = FormattableString.Invariant($"{chirality.Count} vertices flip the bitangent sign relative to rest (first: {chirality.First})");
             return $"VAT '{asset.name}': {flipped}. {ChiralityHint}";
-        }
-
-        private static string Seams(VatAsset asset, VatBakeResult result)
-        {
-            var signs = result.Signs;
-            var elements = Elements(result.Mode);
-            var hint = result.Mode == VatMode.Vertex ? SeamHint : BoneSeamHint;
-            var seams = FormattableString.Invariant($"{signs.SeamCount} {elements} flip the rotation sign at the loop seam (first: {signs.FirstSeam})");
-            return $"VAT '{asset.name}': {seams}. {hint}";
         }
 
         private static string Elements(VatMode mode)

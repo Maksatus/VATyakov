@@ -17,9 +17,8 @@ MonoBehaviour:
   _mode: 2
   _clips: []
   _alembic: {fileID: 6619792386763987907, guid: 06399504f1e34bf469493a4ce0fb6a45, type: 3}
-  _isLooping: 0
   _fps: 24
   _maxPositionError: 8
   _asset: {fileID: 11400000, guid: 8cc2270e27d8f4249a257a813e395bc6, type: 2}
   _material: {fileID: 2100000, guid: f0a04f4cbab3e7a4e97b4d7ed0484659, type: 2}
-  _shader: {fileID: -6465566751694194690, guid: 766fef141bae5d4458adb5a3ea506a64, type: 3}
+  _ownerGuid: ca8f89b2e1f296c45b926ce168be75cd

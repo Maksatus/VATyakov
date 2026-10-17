@@ -13,7 +13,6 @@ namespace VATyakov.Editor
         public readonly string Problem;
         public readonly int VertexCount;
         public readonly VatSourceClip Clip;
-        public readonly float LoopGap;
 
         private VatAlembicProbe(GameObject alembic, Hash128 hash)
         {
@@ -23,7 +22,7 @@ namespace VATyakov.Editor
                 using var source = VatAlembic.Open(alembic);
                 VertexCount = source.Mesh.VertexCount;
                 Clip = source.Clips[0];
-                LoopGap = VatLoopGap.Measure(source, 0);
+                source.Sample(0, Clip.Length, new VatFrame(VertexCount));
             }
             catch (VatBakeException e)
             {

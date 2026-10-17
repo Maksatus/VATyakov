@@ -60,13 +60,13 @@
   контроллеры. Каркас свой, в `Editor/Framework`, без зависимостей от реестра Kefir. IMGUI `ShaderGUI` — `VatShaderGUI`
   рисует по порядку Surface, Animation и Render Queue (`VatSurfaceFields`, `VatAnimationFields`), без реестра секций.
 - Весь текст в пакете только на английском: комментарии, инспекторы, тултипы, ошибки бейка, лог. Подписи — термины Unity
-  (Skinned Mesh Renderer, Clip, Loop), а не пересказ («Персонаж»). Документация в `Docs/` — на русском.
+  (Skinned Mesh Renderer, Clip, Frames Per Second), а не пересказ («Персонаж»). Документация в `Docs/` — на русском.
 - Культура редактора ru-RU: числа в строки только через `CultureInfo.InvariantCulture`.
 - Пакет обязан компилироваться на 6000.3: не использовать API из 6000.4+ (например `GetEntityId`,
   `FindObjectsByType` без `FindObjectsSortMode`).
 - `VatMath.cs` — CPU-зеркало `VatCore.hlsl`: менять оба файла вместе.
 - Шейдер для слабых телефонов, максимально простой: без времени, ветвлений, клампов и проверок, без `if` и `?:`
-  (только арифметика). Время, loop/one-shot, скорость и
+  (только арифметика). Время, петля или остановка в конце клипа (Loop Time клипа), скорость и
   переходы считает CPU (`VatPlayback`, `VatClip.Frame`) и пишет готовые строки в `_VatFrame`; валидность
   данных обеспечивает бейкер.
 - Shader Graph ассеты (`vat_vertex`, `vat_unlit_vertex`, `vat_lit_vertex`, фикстура `vat_half_parent`) сгенерированы скриптом,

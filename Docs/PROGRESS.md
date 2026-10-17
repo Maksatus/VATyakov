@@ -32,6 +32,7 @@
 | Аудит пакета: исправления, Extra Renderers удалены | готово в редакторе, устройства не проверены | 0.16.2 |
 | Аудит пакета: баги (бэклог, раздел 1) | готово в редакторе | 0.16.3 |
 | Аудит пакета: инспекторы, удобство, раздел 3 и минимальный рантайм | готово в редакторе | 0.16.4 |
+| Loop из клипа, клип целиком, без шва петли | готово в редакторе | 0.16.5 |
 | 1.18 | не начата | — |
 | 1.17 Тени | убрана, рекомендация — в §3 | — |
 | 1.19 Финальные бюджеты | слита с 1.14 | — |
@@ -254,11 +255,11 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
 - `Editor/Baking/Rigid/` (1.15) — IVatRigidSource, VatRigidEncoder, VatRigidFormat, VatRigidFpsCheck, VatRigidInnerTimes, VatRigidPiece, VatRigidPipeline, VatRigidPivot, VatRigidSkin, VatRigidStream0, VatRigidTrack, VatRigidVisibility; острова (1.16) — VatHornRotation, VatRigidFit, VatRigidIsland, VatRigidIslandGroup, VatRigidIslandMerge, VatRigidIslands, VatRigidNode, VatRigidSplit, VatRigidSubset, VatUnionFind; аудит (0.16.1) — VatRigidFitBlend
 - `Editor/Baking/Bone/` (1.11) — VatBlendShapeCheck, VatBoneBounds, VatBoneCheck, VatBoneEncoder, VatBoneFormat, VatBoneInfluence (1.12), VatBoneMeshBuilder, VatBonePipeline, VatBoneRig, VatBoneSkin (1.13), VatBoneStream0, VatBoneTexels, VatMatrix3d, VatSimilarity, VatSkinInfluences (1.13), VatBoneFpsCheck (0.16.4)
 - `Editor/Baking/Layout/` — VatClipRequest, VatLayout, VatVertexFormat
-- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatLoopGap, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1), VatLostAttributes (0.16.3)
+- `Editor/Baking/Sources/` — IVatFrameSource, VatFrame, VatFrameSources, VatSourceClip, VatSourceMesh, VatSourceMeshes, VatSourceSubMesh, VatSourceWinding (0.16.1), VatLostAttributes (0.16.3)
 - `Editor/Baking/Sources/Alembic/` — под `#if VAT_ALEMBIC`: VatAlembicFrameSource, VatAlembicCopy, VatAlembicDuration (1.15), VatAlembicSampleTimes (1.15), VatRigidPieceExtractor (1.15); без условия: VatAlembic, VatAlembicProbe, VatAlembicReader, VatAlembicTopology, VatVertexJumps
 - `Editor/Baking/Sources/Skinned/` — VatSkinnedFrameSource, VatBakeCopy, VatClipPlayer, VatFrameReader, VatPoseSnapshot, VatRootSpace, VatClipTravel (0.16.2), VatClipMotion и VatConstraints (0.16.3), VatClipEvents (0.16.4)
 - `Editor/Baking/Vertex/` — VatBoundsBuilder, VatCentroid, VatBytePositionTexels, VatBytePositions, VatChirality, VatDriftRows, VatHalf3, VatHalfPositionTexels, VatIndexBuffer, IVatPositionTexels, VatPositionEncoding, VatPositions, VatQuantizationStats, VatRestPose, VatRotationCodec, VatRotationSigns, VatRotationTexels, VatSubMeshes, VatTangentFrames, VatTexture, VatVertexMeshBuilder, VatVertexStream1, VatVertexEncoder
-- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatBatchBake (0.16.4, пункт меню Assets → Bake VAT Profiles), VatProfileDuplicate (0.16.4), VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — VatLoopHint*, «Out of date» над кнопкой Bake — VatOutdated*, 0.16.4; секций Output и Result и полей VAT Asset и Template Material нет)
+- `Editor/Profile/` — VatBakeDialog, VatBakeProfile, VatBakeProfileEditor, VatBatchBake (0.16.4, пункт меню Assets → Bake VAT Profiles), VatProfileDuplicate (0.16.4), VatProfileContext, VatProfileModel, VatSourceKind; `Containers/` и `Controllers/` — части инспектора профиля (раскладка и секции — VatProfileLayout*, источник — VatSourceFields*, подсказка loop — «Out of date» над кнопкой Bake — VatOutdated*, 0.16.4; секций Output и Result и полей VAT Asset и Template Material нет)
 - `Editor/Asset/` — VatAssetContext, VatAssetEditor, VatAssetMemory, VatAssetValidation (0.16.4, `TryValidate` — extension), VatProfileLookup; `Containers/` и `Controllers/` — части инспектора VatAsset (память меша и текстур, padding и Total — VatAssetMemory*, 0.16.4; Max Error и формат позиций — плитки сводки VatAssetSummary, карточек Precision и Contents нет с 0.16.4; профиль и «Out of date» — VatAssetProfile*)
 - `Editor/Animator/` — VatAnimatorContext, VatAnimatorEditor; `Containers/` и `Controllers/` — VatAnimatorClip* (VAT Asset и выпадающий Clip, пусто = First — первый клип), VatAnimatorFields* (Play On Enable, Speed)
 - `Editor/Material/` — VatShaderGUI (по порядку Surface — VatSurfaceFields, Animation — VatAnimationFields, Render Queue), VatClipField, VatClipLookup, VatFrameField, VatMaterialBinding, VatMaterialStatus, VatObjectLinkField, VatUndo
@@ -766,3 +767,17 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   пример кода), раздел «Свой шейдер» (`_Vat*` — служебные свойства, Custom Editor GUI `VATyakov.Editor.VatShaderGUI`),
   требования: целевое устройство Redmi 9A, Static запрещён из-за пространства объекта (и Vertex ID у Vertex),
   рантайм не проверяет ассет (чужая версия формата играет без ошибки), копия материала не получает данные ассета.
+- **Loop из клипа (0.16.5):** решение пользователя — «у клипа 78 кадров — печём 78, без лупов», всё про Loop в профиле
+  удалить. `VatTiming.FrameCount = max(2, round(L·fps) + 1)`, `FrameRate = (F−1)/L`, `FrameTime = k·L/(F−1)` — одна
+  формула для всех клипов. `VatClip`: `Intervals = F − 1`; петля заворачивает позицию по модулю `F − 1`, one-shot
+  клампит в [0, F−1]; `Frame` — всегда `f1 = f0 + 1`. Петля клипа — `VatSourceClip.Loops` (Loop Time, у legacy
+  Wrap Mode = Loop; тем же пользуется `VatClipPlayer.BeforeWrap`, чтобы последний кадр петли брался перед `t = L`, а не
+  после заворота Unity); у .abc всегда `false`. Удалены поле `_isLooping` профиля (и из хэша — флаг клипа ловит
+  `DependencyHash` клипа), `VatLoopGap`, `VatLoopHint*`, `VatAlembicProbe.LoopGap` (проба теперь сэмплирует конец
+  клипа, чтобы инспектор видел смену топологии), шов: `VatRotationSigns` — только выравнивание по соседнему кадру,
+  `Signs` в результате бейка нет, `IsSeamShown` у Rigid и предупреждение о шве в логе удалены; у Rigid внутренние
+  времена и fps-проверка — без заворота. `formatVersion` 7. VatDev перепечён: клипы лука (legacy) — один раз (Wrap Mode
+  не Loop), у воина все четыре клипа — петли; профиль `bow_one_shot` теперь совпадает с `bow_default`. Проверено:
+  290 тестов зелёные (тесты шва и подсказки петли удалены, тесты времени переписаны).
+  VatDev: `VatCompare` в режиме Play перезапускает одноразовый клип, дойдя до конца (`IsPastTheEnd`): после 0.16.5
+  клипы лука и Alembic одноразовые, и сравнение иначе замирало на последнем кадре, а повтор требовал двух нажатий.

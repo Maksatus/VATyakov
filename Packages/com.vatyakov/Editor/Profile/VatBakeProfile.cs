@@ -37,11 +37,6 @@ namespace VATyakov.Editor
         [SerializeField]
         private GameObject _alembic;
 
-        [Tooltip("For every clip. On: the clip loops, the last frame does not repeat the first. " +
-                 "Off: the clip plays once and stops on the last frame.")]
-        [SerializeField]
-        private bool _isLooping = true;
-
         [Tooltip("Baked frames per second of animation, for every clip. Higher is smoother and costs more memory.")]
         [Min(0.001f)]
         [SerializeField]
@@ -67,7 +62,6 @@ namespace VATyakov.Editor
         public SkinnedMeshRenderer Source { get => _source; set => _source = value; }
         public IReadOnlyList<AnimationClip> Clips => _clips;
         public GameObject Alembic { get => _alembic; set => _alembic = value; }
-        public bool IsLooping { get => _isLooping; set => _isLooping = value; }
         public float Fps { get => _fps; set => _fps = value; }
         public float MaxPositionError { get => _maxPositionError / MillimetersPerMeter; set => _maxPositionError = value * MillimetersPerMeter; }
         public VatAsset Asset { get => _asset; set => _asset = value; }

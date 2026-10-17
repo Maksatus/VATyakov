@@ -46,7 +46,7 @@ namespace VATyakov.Tests
         {
             var shown = new VatSyntheticPiece("shown", time => VatSyntheticRigidSource.Trs(Vector3.right * (float)time, Quaternion.identity));
             var never = new VatSyntheticPiece("never", _ => Matrix4x4.identity, _ => false);
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, shown, never), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, shown, never), Fps, "Synthetic");
 
             Assert.AreEqual(VatMode.Rigid, _result.Mode);
             Assert.AreEqual(CubeVertices, _result.Mesh.vertexCount, "only the shown piece is in the mesh");
@@ -59,7 +59,7 @@ namespace VATyakov.Tests
         public void PieceHiddenOnFrame0_HoldsItsFirstVisiblePose_WithScaleZero()
         {
             var late = new VatSyntheticPiece("late", LatePose, time => time >= LateShow - 1e-6 && time < LateHide - 1e-6);
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, late), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, late), Fps, "Synthetic");
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
             var clip = _result.Layout.Clips[0];
 
@@ -81,7 +81,7 @@ namespace VATyakov.Tests
         [Test]
         public void Bounds_ContainTheTumblingPiece_BetweenBakedFrames()
         {
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, new VatSyntheticPiece("tumbling", Tumbling)), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, new VatSyntheticPiece("tumbling", Tumbling)), Fps, "Synthetic");
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
             var clip = _result.Layout.Clips[0];
             var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
@@ -118,7 +118,7 @@ namespace VATyakov.Tests
             var tumbling = new VatSyntheticPiece("tumbling", Tumbling, time => time < LateHide - 1e-6);
             Assert.Greater(Pivot(tumbling).magnitude, 0.1f, "the pivot is the still point, away from the center");
 
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, tumbling), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, tumbling), Fps, "Synthetic");
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
             var clip = _result.Layout.Clips[0];
             var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
@@ -151,7 +151,7 @@ namespace VATyakov.Tests
             var debris = new VatSyntheticPiece("debris", SlowTumble);
             Assert.LessOrEqual(Pivot(debris).magnitude, VatSyntheticRigidSource.HalfSize * Mathf.Sqrt(3f), "gravity pulls the still point far away");
 
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, debris), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, debris), Fps, "Synthetic");
             Assert.Less(_result.Precision.Error, VatRigidFormat.Tolerance, "half rotations don't get a lever of meters");
             Assert.Less(_result.Mesh.bounds.size.magnitude, 10f, "the bounds follow the flight, not a far pivot");
         }
@@ -163,14 +163,14 @@ namespace VATyakov.Tests
             var spin = new VatSyntheticPiece("spin", Spin);
             var slide = new VatSyntheticPiece("slide", time => VatSyntheticRigidSource.Trs(Vector3.forward * (float)time, Quaternion.identity));
 
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, spin, slide), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, spin, slide), Fps, "Synthetic");
             var warning = _result.Warnings.SingleOrDefault(text => text.Contains("too fast"));
             Assert.IsNotNull(warning, string.Join("\n", _result.Warnings));
             StringAssert.Contains("1 piece moves", warning);
             StringAssert.Contains("'spin'", warning);
             TearDown();
 
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, spin, slide), SourceFps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, spin, slide), SourceFps, "Synthetic");
             Assert.IsFalse(_result.Warnings.Any(text => text.Contains("too fast")), "every source sample is a baked frame");
         }
 
@@ -180,7 +180,7 @@ namespace VATyakov.Tests
             var times = VatSyntheticRigidSource.Uniform(0.5f, SourceFps);
             var flight = new VatSyntheticPiece("flight", time => VatSyntheticRigidSource.Trs(_flight * (float)time, Quaternion.identity));
 
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, flight), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.5f, times, flight), Fps, "Synthetic");
             Assert.Greater(_result.Precision.Error, VatRigidFormat.Tolerance, "half offsets 35 m away lose millimeters");
             Assert.IsFalse(_result.Warnings.Any(text => text.Contains("too fast")), string.Join("\n", _result.Warnings));
         }
@@ -190,7 +190,7 @@ namespace VATyakov.Tests
         {
             var plain = new VatSyntheticPiece("plain", _ => Matrix4x4.identity);
             var mirrored = new VatSyntheticPiece("mirrored", _ => Matrix4x4.TRS(_mirroredCenter, Quaternion.identity, new Vector3(-1f, 1f, 1f)));
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.2f, null, plain, mirrored), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.2f, null, plain, mirrored), Fps, "Synthetic");
 
             var positions = _result.Mesh.vertices;
             var triangles = _result.Mesh.triangles;
@@ -205,7 +205,7 @@ namespace VATyakov.Tests
         public void ZeroScaleOnAVisibleFrame_HidesThePiece()
         {
             var shrinking = new VatSyntheticPiece("shrinking", time => Matrix4x4.Scale(Vector3.one * (time < LateHide - 1e-6 ? 1f : 0f)));
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, shrinking), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(1f, null, shrinking), Fps, "Synthetic");
             var decoder = new VatBoneDecoder(_result.Textures.Bone);
             var clip = _result.Layout.Clips[0];
 
@@ -222,7 +222,7 @@ namespace VATyakov.Tests
             var squashed = new VatSyntheticPiece("squashed", time => Matrix4x4.Scale(new Vector3(1f, 1f + (float)time, 1f)));
             var source = new VatSyntheticRigidSource(1f, null, squashed);
 
-            var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, Fps, false, "Synthetic"));
+            var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, Fps, "Synthetic"));
             StringAssert.Contains("piece 'squashed' scales non-uniformly", error.Message);
         }
 
@@ -241,7 +241,7 @@ namespace VATyakov.Tests
         {
             const int pieceCount = 300;
             var pieces = Enumerable.Range(0, pieceCount).Select(index => new VatSyntheticPiece($"piece_{index}", time => Row(index, time))).ToArray();
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.2f, null, pieces), Fps, false, "Synthetic");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(0.2f, null, pieces), Fps, "Synthetic");
             Assert.AreEqual(1, _result.Mesh.subMeshCount, "pieces share their material slots: one submesh, not one per piece");
 
             var uvs = VatBoneDecoder.BoneUvs(_result.Mesh);
@@ -250,9 +250,10 @@ namespace VATyakov.Tests
                 Assert.AreEqual(vertex / CubeVertices * VatMath.TexelsPerBone, VatBoneDecoder.PieceTexel(uvs[vertex]), $"vertex {vertex}");
             }
 
-            var largest = VatLayout.ForRigid(VatRigidFormat.MaxPieces, new[] { new VatClipRequest("Clip", 1f, Fps) });
+            var largest = VatLayout.ForRigid(VatRigidFormat.MaxPieces, new[] { new VatClipRequest("Clip", 1f, Fps, false) });
             Assert.AreEqual(VatMath.MaxTextureSize, largest.Info.Width, "2048 pieces fill the width");
-            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForRigid(VatRigidFormat.MaxPieces + 1, new[] { new VatClipRequest("Clip", 1f, Fps) }));
+            var clips = new[] { new VatClipRequest("Clip", 1f, Fps, false) };
+            var error = Assert.Throws<VatBakeException>(() => VatLayout.ForRigid(VatRigidFormat.MaxPieces + 1, clips));
             StringAssert.Contains("up to 2048", error.Message);
         }
 

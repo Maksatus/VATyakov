@@ -25,11 +25,10 @@ namespace VATyakov.Editor
             var intervals = new List<int>();
             var fractions = new List<float>();
             var times = new List<double>();
-            var intervalCount = clip.IsLooping ? clip.FrameCount : clip.FrameCount - 1;
-            for (var frame = 0; frame < intervalCount; frame++)
+            for (var frame = 0; frame < clip.FrameCount - 1; frame++)
             {
                 var start = clip.FrameTime(frame);
-                var end = frame + 1 < clip.FrameCount ? clip.FrameTime(frame + 1) : clip.Length;
+                var end = clip.FrameTime(frame + 1);
                 foreach (var time in Inside(start, end, sourceTimes))
                 {
                     intervals.Add(frame);

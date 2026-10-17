@@ -22,7 +22,7 @@ namespace VATyakov.Tests
         private VatTestRig _rig;
         private VatBakeProfile _profile;
 
-        private static int ClipRows => Mathf.RoundToInt(VatTestRig.Length * Fps);
+        private static int ClipRows => Mathf.RoundToInt(VatTestRig.Length * Fps) + 1;
 
         [SetUp]
         public void SetUp()
@@ -104,7 +104,7 @@ namespace VATyakov.Tests
             var error = Assert.Throws<VatBakeException>(() => VatBaker.Bake(_profile));
 
             StringAssert.Contains("4096", error.Message);
-            StringAssert.Contains("2 blocks × 2200 frames of 2 clips = 4400 rows", error.Message);
+            StringAssert.Contains("2 blocks × 2202 frames of 2 clips = 4404 rows", error.Message);
             StringAssert.Contains("split the clips into several VatAssets", error.Message);
             Assert.AreEqual(error.Message, VatBakeEstimate.For(_profile).Error, "the inspector shows it before a bake");
             Assert.AreEqual(TwoBlocks * 2 * ClipRows, asset.PositionTexture.height, "the old bake is untouched");

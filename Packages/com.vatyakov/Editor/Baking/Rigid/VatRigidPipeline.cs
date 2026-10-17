@@ -8,9 +8,9 @@ namespace VATyakov.Editor
     {
         private const string NothingVisible = "No piece is visible on any baked frame: nothing to bake. Check the visibility in the .abc.";
 
-        public static VatBakeResult Run(IVatRigidSource source, float fps, bool isLooping, string name)
+        public static VatBakeResult Run(IVatRigidSource source, float fps, string name)
         {
-            var requests = VatClipRequest.From(new[] { source.Clip }, fps, isLooping);
+            var requests = VatClipRequest.From(new[] { source.Clip }, fps);
             var clip = VatLayout.ForRigid(Math.Min(source.PieceCount, VatRigidFormat.MaxPieces), requests).Clips[0];
             var inner = VatRigidInnerTimes.Between(clip, source.SampleTimes);
             var warnings = new List<string>(source.Warnings);

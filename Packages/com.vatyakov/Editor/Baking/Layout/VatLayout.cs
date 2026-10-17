@@ -80,7 +80,7 @@ namespace VATyakov.Editor
             var rows = 0L;
             for (var i = 0; i < frames.Length; i++)
             {
-                frames[i] = VatTiming.FrameCount(requests[i].Length, requests[i].Fps, requests[i].IsLooping);
+                frames[i] = VatTiming.FrameCount(requests[i].Length, requests[i].Fps);
                 rows += frames[i];
             }
 
@@ -99,7 +99,7 @@ namespace VATyakov.Editor
 
         private static VatClip Clip(VatClipRequest request, int startRow, int frames)
         {
-            var rate = VatTiming.FrameRate(frames, request.Length, request.IsLooping);
+            var rate = VatTiming.FrameRate(frames, request.Length);
             return new VatClip(request.Name, startRow, frames, request.Length, rate, request.IsLooping);
         }
 

@@ -28,11 +28,11 @@ namespace VATyakov.Tests
         {
         }
 
-        public VatInMemoryBake(IVatFrameSource source, float fps, bool isLooping = true)
+        public VatInMemoryBake(IVatFrameSource source, float fps)
         {
             using (source)
             {
-                var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, fps, isLooping));
+                var layout = VatLayout.ForVertex(source.Mesh.VertexCount, VatClipRequest.From(source.Clips, fps));
                 var encoder = new VatVertexEncoder(layout, source.Mesh);
                 EncodeAll(source, layout, encoder);
                 Layout = encoder.Layout;

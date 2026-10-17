@@ -12,11 +12,11 @@ namespace VATyakov.Editor
             if (profile.IsRigid)
             {
                 using var rigid = VatAlembic.OpenRigid(profile.Alembic);
-                return VatRigidPipeline.Run(rigid, profile.Fps, profile.IsLooping, name);
+                return VatRigidPipeline.Run(rigid, profile.Fps, name);
             }
 
             using var source = VatFrameSources.Open(profile);
-            var requests = VatClipRequest.From(source.Clips, profile.Fps, profile.IsLooping);
+            var requests = VatClipRequest.From(source.Clips, profile.Fps);
             string fallback = null;
             if (profile.IsBone && source is VatSkinnedFrameSource skinned)
             {

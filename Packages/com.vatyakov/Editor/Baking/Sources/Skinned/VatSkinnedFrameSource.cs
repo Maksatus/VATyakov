@@ -27,7 +27,7 @@ namespace VATyakov.Editor
         public VatSkinnedFrameSource(SkinnedMeshRenderer source, IReadOnlyList<AnimationClip> clips)
         {
             _clips = clips.ToArray();
-            _clipInfos = Array.ConvertAll(_clips, clip => new VatSourceClip(clip.name, clip.length));
+            _clipInfos = Array.ConvertAll(_clips, VatSourceClip.Of);
             _travel = new VatClipTravel(_clipInfos);
             _motion = new VatClipMotion(_clipInfos);
             try

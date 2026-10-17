@@ -10,8 +10,8 @@ namespace VATyakov.Editor
         public readonly VatLayout Layout;
         public readonly VatRigidPiece[] Pieces;
         public readonly VatBoneSkin Skin;
-        public readonly VatRotationSigns Signs;
 
+        private readonly VatRotationSigns _signs;
         private readonly VatBoneTexels _texels;
         private readonly VatBoneBounds _bounds;
         private readonly Vector4[][] _exactOffsetScales;
@@ -26,7 +26,7 @@ namespace VATyakov.Editor
             Layout = layout;
             Pieces = pieces;
             Skin = VatRigidSkin.Build(meshName, pieces);
-            Signs = new VatRotationSigns(pieces.Length, VatRotationSigns.Piece);
+            _signs = new VatRotationSigns(pieces.Length);
             _texels = new VatBoneTexels(layout.Info);
             _bounds = new VatBoneBounds(Array.ConvertAll(pieces, piece => piece.Pivot));
             _exactOffsetScales = new Vector4[pieces.Length][];
@@ -39,11 +39,6 @@ namespace VATyakov.Editor
             {
                 _texels.WritePivot(index, Pieces[index].Pivot);
                 Encode(index);
-            }
-
-            if (Clip.IsLooping)
-            {
-                Signs.CloseLoop(Clip.Name, IsSeamShown);
             }
         }
 
@@ -80,7 +75,7 @@ namespace VATyakov.Editor
                     var similarity = Similarity(piece, frame);
                     var offset = piece.Motions[frame].MultiplyPoint3x4(piece.Pivot) - piece.Pivot;
                     poses[frame] = new Vector4(offset.x, offset.y, offset.z, similarity.Scale);
-                    rotations[frame] = Signs.Align(index, aligned, similarity.RotationAfter(previous));
+                    rotations[frame] = _signs.Align(index, aligned, similarity.RotationAfter(previous));
                     previous = rotations[frame];
                     aligned++;
                 }
@@ -120,12 +115,6 @@ namespace VATyakov.Editor
                     MeasureError(index, frame, storedPose, storedRotation);
                 }
             }
-        }
-
-        private bool IsSeamShown(int index)
-        {
-            var visibility = Pieces[index].Visibility;
-            return visibility.IsVisible(0) || visibility.IsVisible(Clip.FrameCount - 1);
         }
 
         private static Vector4 Collapsed(VatRigidPiece piece, int source)

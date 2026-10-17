@@ -7,8 +7,8 @@ namespace VATyakov.Editor
     {
         public readonly VatLayout Layout;
         public readonly VatBoneRig Rig;
-        public readonly VatRotationSigns Signs;
 
+        private readonly VatRotationSigns _signs;
         private readonly VatBoneTexels _texels;
         private readonly VatBoneBounds _bounds;
         private readonly Vector4[] _offsetScales;
@@ -23,7 +23,7 @@ namespace VATyakov.Editor
         {
             Layout = layout;
             Rig = rig;
-            Signs = new VatRotationSigns(rig.BoneCount, VatRotationSigns.Bone);
+            _signs = new VatRotationSigns(rig.BoneCount);
             _texels = new VatBoneTexels(layout.Info);
             _bounds = new VatBoneBounds(rig.Pivots);
             _offsetScales = new Vector4[rig.BoneCount];
@@ -55,11 +55,6 @@ namespace VATyakov.Editor
             }
 
             MeasureError(skin);
-            if (clipLayout.IsLooping && frame == clipLayout.FrameCount - 1)
-            {
-                Signs.CloseLoop(clipLayout.Name);
-            }
-
             return null;
         }
 
@@ -94,7 +89,7 @@ namespace VATyakov.Editor
         {
             var pivot = Rig.Pivots[bone];
             var offset = skin.MultiplyPoint3x4(pivot) - pivot;
-            var rotation = Signs.Align(bone, frame, similarity.RotationAfter(_rotations[bone]));
+            var rotation = _signs.Align(bone, frame, similarity.RotationAfter(_rotations[bone]));
             var offsetScale = new Vector4(offset.x, offset.y, offset.z, similarity.Scale);
             _texels.WritePose(bone, row, offsetScale, rotation, out _offsetScales[bone], out _rotations[bone]);
             _bounds.Add(bone, pivot + (Vector3)_offsetScales[bone], _offsetScales[bone].w);

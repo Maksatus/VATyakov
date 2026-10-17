@@ -8,8 +8,8 @@ namespace VATyakov.Editor
         public readonly VatLayout Layout;
         public readonly VatQuantizationStats Stats = new();
         public readonly VatChirality Chirality;
-        public readonly VatRotationSigns Signs;
 
+        private readonly VatRotationSigns _signs;
         private readonly VatSourceMesh _source;
         private readonly VatPositions _positions;
         private readonly VatDriftRows _drift;
@@ -33,7 +33,7 @@ namespace VATyakov.Editor
             _rotations = new VatRotationTexels(layout.Info);
             _frames = new VatTangentFrames(source.VertexCount);
             Chirality = new VatChirality(source.VertexCount);
-            Signs = new VatRotationSigns(source.VertexCount);
+            _signs = new VatRotationSigns(source.VertexCount);
         }
 
         public void AddFrame(int clip, int frame, VatFrame data)
@@ -52,10 +52,6 @@ namespace VATyakov.Editor
             }
 
             _positions.EndRow(row);
-            if (clipLayout.IsLooping && frame == clipLayout.FrameCount - 1)
-            {
-                Signs.CloseLoop(clipLayout.Name);
-            }
         }
 
         public Mesh BuildMesh(string name)
@@ -84,7 +80,7 @@ namespace VATyakov.Editor
         {
             var normal = _frames.Normals[vertex];
             var tangent = _frames.Tangents[vertex];
-            var rotation = _rotations.Write(vertex, row, Signs.Align(vertex, frame, VatTangentFrames.Rotation(normal, tangent)));
+            var rotation = _rotations.Write(vertex, row, _signs.Align(vertex, frame, VatTangentFrames.Rotation(normal, tangent)));
             Stats.AddRotation(Vector3.Angle(normal, VatMath.FrameNormal(rotation)), Vector3.Angle(tangent, VatMath.FrameTangent(rotation)));
         }
 

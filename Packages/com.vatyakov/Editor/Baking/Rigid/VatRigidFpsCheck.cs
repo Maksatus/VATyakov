@@ -73,7 +73,7 @@ namespace VATyakov.Editor
         {
             var piece = _encoder.Pieces[index];
             var frame0 = _inner.Intervals[sample];
-            var frame1 = (frame0 + 1) % Clip.FrameCount;
+            var frame1 = frame0 + 1;
             if (!piece.Visibility.IsVisible(frame0) || !piece.Visibility.IsVisible(frame1) || !piece.IsVisibleInside(sample))
             {
                 return 0f;

@@ -4,40 +4,21 @@ namespace VATyakov
 {
     public static class VatTiming
     {
-        public static int LoopFrameCount(float length, float fps)
+        private const int MinFrameCount = 2;
+
+        public static int FrameCount(float length, float fps)
         {
-            return Math.Max(1, RoundFrames(length, fps));
+            return Math.Max(MinFrameCount, (int)Math.Round((double)length * fps, MidpointRounding.AwayFromZero) + 1);
         }
 
-        public static int OneShotFrameCount(float length, float fps)
+        public static float FrameRate(int frameCount, float length)
         {
-            return RoundFrames(length, fps) + 1;
+            return (float)((frameCount - 1) / (double)length);
         }
 
-        public static int FrameCount(float length, float fps, bool isLooping)
+        public static double FrameTime(int frame, int frameCount, float length)
         {
-            return isLooping ? LoopFrameCount(length, fps) : OneShotFrameCount(length, fps);
-        }
-
-        public static float FrameRate(int frameCount, float length, bool isLooping)
-        {
-            return (float)(Intervals(frameCount, isLooping) / (double)length);
-        }
-
-        public static double FrameTime(int frame, int frameCount, float length, bool isLooping)
-        {
-            var intervals = Intervals(frameCount, isLooping);
-            return intervals > 0 ? frame * (double)length / intervals : 0.0;
-        }
-
-        private static int Intervals(int frameCount, bool isLooping)
-        {
-            return isLooping ? frameCount : frameCount - 1;
-        }
-
-        private static int RoundFrames(float length, float fps)
-        {
-            return (int)Math.Round((double)length * fps, MidpointRounding.AwayFromZero);
+            return frame * (double)length / (frameCount - 1);
         }
     }
 }

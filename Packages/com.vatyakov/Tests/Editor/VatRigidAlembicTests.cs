@@ -164,7 +164,7 @@ namespace VATyakov.Tests
         public void DeformingAlembic_FailsTheRigidBake()
         {
             using var source = VatAlembic.OpenRigid(Load("vat_cloth"));
-            var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, LowFps, false, "Cloth"));
+            var error = Assert.Throws<VatBakeException>(() => VatRigidPipeline.Run(source, LowFps, "Cloth"));
             StringAssert.Contains("islands of deforming meshes don't move rigidly", error.Message);
             StringAssert.Contains("Packed Transform = Transform Geometry", error.Message);
             StringAssert.Contains("' island 0: ", error.Message, "the report lists the islands");
@@ -199,7 +199,7 @@ namespace VATyakov.Tests
         private VatBakeResult Bake(string fixture, float fps)
         {
             using var source = VatAlembic.OpenRigid(Instance(fixture));
-            return VatRigidPipeline.Run(source, fps, false, "Rigid");
+            return VatRigidPipeline.Run(source, fps, "Rigid");
         }
 
         private int PieceTexel(string piece)
@@ -228,7 +228,6 @@ namespace VATyakov.Tests
             profile.Mode = mode;
             profile.Alembic = alembic;
             profile.Fps = fps;
-            profile.IsLooping = false;
             return profile;
         }
 

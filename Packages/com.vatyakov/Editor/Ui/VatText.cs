@@ -69,21 +69,6 @@ namespace VATyakov.Editor
             return FormattableString.Invariant($"{info.Width}×{info.Height}");
         }
 
-        public static string LoopHint(float gap, bool isClosed, bool isLooping)
-        {
-            var distance = FormattableString.Invariant($"{gap * MillimetersPerMeter:0.##} mm");
-            if (isClosed)
-            {
-                return isLooping
-                    ? $"The end matches the start ({distance}): a loop."
-                    : $"The end matches the start ({distance}): looks like a loop, Loop can be enabled.";
-            }
-
-            return isLooping
-                ? $"The end differs from the start by {distance}: Loop will pop at the seam. Disable Loop or adjust the Time Range of the .abc."
-                : $"The end differs from the start by {distance}: not a loop.";
-        }
-
         public static string Millimeters(float meters)
         {
             return FormattableString.Invariant($"{meters * MillimetersPerMeter:0.###} mm");

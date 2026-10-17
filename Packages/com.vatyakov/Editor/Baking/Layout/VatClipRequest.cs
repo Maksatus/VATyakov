@@ -9,7 +9,7 @@ namespace VATyakov.Editor
         public readonly float Fps;
         public readonly bool IsLooping;
 
-        public VatClipRequest(string name, float length, float fps, bool isLooping = true)
+        public VatClipRequest(string name, float length, float fps, bool isLooping)
         {
             Name = name;
             Length = length;
@@ -17,12 +17,12 @@ namespace VATyakov.Editor
             IsLooping = isLooping;
         }
 
-        public static VatClipRequest[] From(IReadOnlyList<VatSourceClip> clips, float fps, bool isLooping)
+        public static VatClipRequest[] From(IReadOnlyList<VatSourceClip> clips, float fps)
         {
             var requests = new VatClipRequest[clips.Count];
             for (var i = 0; i < requests.Length; i++)
             {
-                requests[i] = new VatClipRequest(clips[i].Name, clips[i].Length, fps, isLooping);
+                requests[i] = new VatClipRequest(clips[i].Name, clips[i].Length, fps, clips[i].IsLooping);
             }
 
             return requests;

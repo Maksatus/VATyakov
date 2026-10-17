@@ -17,10 +17,10 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void NegativeSpeed_Loop_WrapsToTheLastFrame()
+        public void NegativeSpeed_Loop_WrapsToTheEnd()
         {
-            var playback = new VatPlayback(Clip(30, isLooping: true), 0.0, speed: -1f);
-            VatTestUtil.AssertFrame(Frame(playback, 0.01), StartRow, 29, 0, 0.7f);
+            var playback = new VatPlayback(Clip(31, isLooping: true), 0.0, speed: -1f);
+            VatTestUtil.AssertFrame(Frame(playback, 0.01), StartRow, 29, 30, 0.7f);
         }
 
         [Test]
@@ -47,8 +47,8 @@ namespace VATyakov.Tests
         [Test]
         public void FourHourSession_KeepsTheFramePosition([Values(0.0, FourHours)] double start, [Values] bool isLooping)
         {
-            var playback = new VatPlayback(Clip(30, isLooping), start);
-            for (var k = 0; k < 29; k++)
+            var playback = new VatPlayback(Clip(31, isLooping), start);
+            for (var k = 0; k < 30; k++)
             {
                 var frame = Frame(playback, FourHours + (k + 0.5) / FrameRate);
                 if (isLooping || start > 0.0)
@@ -57,7 +57,7 @@ namespace VATyakov.Tests
                 }
                 else
                 {
-                    VatTestUtil.AssertFrame(frame, StartRow, 28, 29, 1f);
+                    VatTestUtil.AssertFrame(frame, StartRow, 29, 30, 1f);
                 }
             }
         }

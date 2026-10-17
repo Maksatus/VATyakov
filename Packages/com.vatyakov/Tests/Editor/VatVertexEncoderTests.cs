@@ -21,8 +21,8 @@ namespace VATyakov.Tests
         {
             var layout = VatLayout.ForVertex(VertexCount, new[]
             {
-                new VatClipRequest("A", 0.1f, Fps),
-                new VatClipRequest("B", 2f / Fps, Fps),
+                new VatClipRequest("A", 0.1f, Fps, false),
+                new VatClipRequest("B", 2f / Fps, Fps, false),
             });
             var source = new VatSourceMesh("Synthetic", VertexCount, null,
                 new[] { new VatSourceSubMesh(Enumerable.Range(0, VertexCount).ToArray(), MeshTopology.Points) });

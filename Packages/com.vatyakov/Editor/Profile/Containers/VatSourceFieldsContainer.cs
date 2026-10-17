@@ -22,7 +22,6 @@ namespace VATyakov.Editor
                 new PropertyField { bindingPath = "_kind", label = "Source" },
                 Skinned,
                 Alembic,
-                new PropertyField { bindingPath = "_isLooping", label = "Loop" },
                 new PropertyField { bindingPath = "_fps", label = "Frames Per Second" },
                 MaxPositionError);
         }

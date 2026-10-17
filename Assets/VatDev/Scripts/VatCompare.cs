@@ -135,6 +135,11 @@ namespace VATyakov.Dev
                     _playback.SetSpeed(Time.timeAsDouble, _speed);
                 }
 
+                if (IsPastTheEnd(clip, _playback.Position(Time.timeAsDouble)))
+                {
+                    _playback = new VatPlayback(clip, Time.timeAsDouble, _speed, StartPosition(clip));
+                }
+
                 var position = clip.Wrap(_playback.Position(Time.timeAsDouble));
                 time = clip.FrameRate > 0f ? position / clip.FrameRate : 0.0;
                 ApplyFrame(clip.Frame(position));
@@ -244,6 +249,11 @@ namespace VATyakov.Dev
             {
                 _graph.Destroy();
             }
+        }
+
+        private static bool IsPastTheEnd(VatClip clip, double position)
+        {
+            return !clip.IsLooping && (position > clip.FrameCount - 1 || position < 0.0);
         }
 
         private float StartPosition(VatClip clip)

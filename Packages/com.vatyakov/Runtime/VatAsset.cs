@@ -7,7 +7,7 @@ namespace VATyakov
     [PreferBinarySerialization]
     public sealed class VatAsset : ScriptableObject
     {
-        public const int CurrentFormatVersion = 6;
+        public const int CurrentFormatVersion = 7;
 
         [SerializeField]
         private int _formatVersion;

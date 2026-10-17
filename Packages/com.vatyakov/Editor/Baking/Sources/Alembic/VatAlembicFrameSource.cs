@@ -27,7 +27,7 @@ namespace VATyakov.Editor
         public VatAlembicFrameSource(GameObject alembic)
         {
             _name = alembic.name;
-            _clips = new[] { new VatSourceClip(_name, VatAlembicDuration.Require(alembic)) };
+            _clips = new[] { new VatSourceClip(_name, VatAlembicDuration.Require(alembic), false) };
             try
             {
                 Open(alembic);

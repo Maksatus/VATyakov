@@ -175,7 +175,6 @@ namespace VATyakov.Tests
             _profile.Source = _rig.Renderer;
             _profile.SetClips(_rig.Clip);
             _profile.Fps = Fps;
-            _profile.IsLooping = false;
             _profile.Mode = mode;
             return _profile;
         }

@@ -21,8 +21,8 @@ MonoBehaviour:
   - {fileID: -9009526262329929909, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
   - {fileID: 3012392024595009210, guid: 737aff139c0585045b1ac384edccafaf, type: 3}
   _alembic: {fileID: 0}
-  _isLooping: 1
   _fps: 30
   _maxPositionError: 8
   _asset: {fileID: 11400000, guid: 92a935c4829b97c47a949560803d1a98, type: 2}
   _material: {fileID: 2100000, guid: d28ff62af8d37804789c6a7ec4ce5689, type: 2}
+  _ownerGuid: cbd79b5ab5c504e449c98f20d483ec2d

@@ -25,7 +25,7 @@ namespace VATyakov.Tests
         public VatSyntheticRigidSource(float length, IReadOnlyList<double> sampleTimes, params VatSyntheticPiece[] pieces)
         {
             _pieces = pieces;
-            Clip = new VatSourceClip("Synthetic", length);
+            Clip = new VatSourceClip("Synthetic", length, false);
             SampleTimes = sampleTimes;
         }
 

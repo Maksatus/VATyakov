@@ -50,12 +50,7 @@ namespace VATyakov.Editor
         private static double BeforeWrap(AnimationClip clip, double time)
         {
             var guard = Math.Max(MinWrapGuard, clip.length * RelativeWrapGuard);
-            return Wraps(clip) && time > clip.length - guard ? clip.length - guard : time;
-        }
-
-        private static bool Wraps(AnimationClip clip)
-        {
-            return clip.legacy ? clip.wrapMode == WrapMode.Loop : clip.isLooping;
+            return VatSourceClip.Loops(clip) && time > clip.length - guard ? clip.length - guard : time;
         }
 
         private void Evaluate(AnimationClip clip, double time)

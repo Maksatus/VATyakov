@@ -137,7 +137,7 @@ namespace VATyakov.Tests
         {
             var still = new VatSyntheticPiece("still", _ => Matrix4x4.identity);
             var thrown = new VatSyntheticPiece("thrown", Thrown);
-            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(RigidLength, null, still, thrown), Fps, false, "Probe");
+            _result = VatRigidPipeline.Run(new VatSyntheticRigidSource(RigidLength, null, still, thrown), Fps, "Probe");
             var frame = _result.Layout.Clips[0].Frame(PositionA);
             var mesh = _result.Mesh;
             var uvs = VatBoneDecoder.BoneUvs(mesh);

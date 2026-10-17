@@ -133,16 +133,15 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void OneShotBake_EndsOnTheClipEnd([Values] bool isLegacy, [Values] bool isLoopingClip)
+        public void Bake_EndsOnTheClipEnd_AndLoopsLikeTheClip([Values] bool isLegacy, [Values] bool isLoopingClip)
         {
             _rig = new VatTestRig(_scene, OneBlockVertexCount, isLegacy, isLoopingClip);
             _profile = CreateProfile(_rig);
-            _profile.IsLooping = false;
-            var asset = VatBaker.Bake(_profile, $"{TempFolder}/OneShot.asset");
+            var asset = VatBaker.Bake(_profile, $"{TempFolder}/EveryFrame.asset");
 
             var clip = asset.Clips[0];
-            Assert.IsFalse(clip.IsLooping, "the clip is baked as a one-shot");
-            Assert.AreEqual(LoopFrameCount(Fps) + 1, clip.FrameCount, "round(L·fps) + 1");
+            Assert.AreEqual(isLoopingClip, clip.IsLooping, "the clip loops when its Loop Time or Wrap Mode says so");
+            Assert.AreEqual(FrameCount(Fps), clip.FrameCount, "round(L·fps) + 1");
             Assert.AreEqual(Fps, clip.FrameRate, 1e-4f, "fps_eff = (F − 1) / L");
             Assert.AreEqual(VatTestRig.Length, clip.FrameTime(clip.FrameCount - 1), 1e-9, "the last frame is the clip end");
             Assert.AreEqual(clip.Frame(0.0), _profile.Material.GetVector(VatShaderIds.Frame), "template shows frame 0");
@@ -158,14 +157,14 @@ namespace VATyakov.Tests
             var prefabPath = CreatePrefab(asset, _profile.Material);
             var ids = Ids(asset);
             var materialPath = AssetDatabase.GetAssetPath(_profile.Material);
-            Assert.AreEqual(LoopFrameCount(Fps), asset.PositionTexture.height, "one row per frame");
+            Assert.AreEqual(FrameCount(Fps), asset.PositionTexture.height, "one row per frame");
 
             _profile.Fps = RebakeFps;
             var rebaked = VatBaker.Bake(_profile);
 
             Assert.AreSame(asset, rebaked, "the rebake updates the same asset");
             CollectionAssert.AreEqual(ids, Ids(rebaked), "file ids survive the rebake");
-            Assert.AreEqual(LoopFrameCount(RebakeFps), rebaked.PositionTexture.height, "rows after the rebake");
+            Assert.AreEqual(FrameCount(RebakeFps), rebaked.PositionTexture.height, "rows after the rebake");
             AssertReferencesSurviveReload(rebaked, materialPath, prefabPath);
         }
 
@@ -364,10 +363,10 @@ namespace VATyakov.Tests
         [Test]
         public void Layout_Of4096Rows_Fits_4097RowsFail()
         {
-            var fits = VatLayout.ForVertex(OneBlockVertexCount, new[] { new VatClipRequest("Fits", VatMath.MaxTextureSize, 1f) });
+            var fits = VatLayout.ForVertex(OneBlockVertexCount, new[] { new VatClipRequest("Fits", VatMath.MaxTextureSize - 1, 1f, false) });
             Assert.AreEqual(VatMath.MaxTextureSize, fits.Info.Height, "4096 rows fit");
 
-            var tall = new[] { new VatClipRequest("Tall", VatMath.MaxTextureSize + 1, 1f) };
+            var tall = new[] { new VatClipRequest("Tall", VatMath.MaxTextureSize, 1f, false) };
             var error = Assert.Throws<VatBakeException>(() => VatLayout.ForVertex(OneBlockVertexCount, tall));
             StringAssert.Contains("= 4097 rows, the limit is 4096", error.Message);
         }
@@ -377,9 +376,9 @@ namespace VATyakov.Tests
             Assert.That(problems.Exists(problem => problem.StartsWith(expected, StringComparison.Ordinal)), $"'{expected}' in:\n{string.Join("\n", problems)}");
         }
 
-        private static int LoopFrameCount(float fps)
+        private static int FrameCount(float fps)
         {
-            return Mathf.RoundToInt(VatTestRig.Length * fps);
+            return Mathf.RoundToInt(VatTestRig.Length * fps) + 1;
         }
 
         private static void AssertFormat(VatInMemoryBake bake)
@@ -450,7 +449,7 @@ namespace VATyakov.Tests
             Assert.AreEqual(reloaded.PositionTexture, material.GetTexture(VatShaderIds.PositionTexture), "material keeps the position texture");
             Assert.AreEqual(reloaded.RotationTexture, material.GetTexture(VatShaderIds.RotationTexture), "material keeps the rotation texture");
             Assert.AreEqual(reloaded.Mesh, prefab.GetComponent<MeshFilter>().sharedMesh, "prefab keeps the mesh");
-            Assert.AreEqual(LoopFrameCount(RebakeFps), material.GetTexture(VatShaderIds.PositionTexture).height, "material sees the rebaked rows");
+            Assert.AreEqual(FrameCount(RebakeFps), material.GetTexture(VatShaderIds.PositionTexture).height, "material sees the rebaked rows");
             Assert.AreEqual(reloaded.Layout.ShaderLayout, material.GetVector(VatShaderIds.Layout), "material layout");
             Assert.AreEqual(reloaded.PositionRange.ShaderScale, material.GetVector(VatShaderIds.PositionScale), "material position scale");
             Assert.AreEqual(reloaded.Clips[0].Frame(0.0), material.GetVector(VatShaderIds.Frame), "material shows frame 0");

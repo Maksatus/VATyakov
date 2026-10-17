@@ -7,10 +7,8 @@ namespace VATyakov.Tests
 {
     public class VatRotationSignsTests
     {
-        private const int LoopFrames = 12;
         private const int SpinFrames = 48;
         private const float SpinStep = 30f;
-        private const float WobbleAmplitude = 30f;
 
         [Test]
         public void Align_KeepsNeighbourFramesInOneHemisphere()
@@ -41,24 +39,6 @@ namespace VATyakov.Tests
             signs.Align(0, 1, rotation);
 
             Assert.AreEqual(-rotation, signs.Align(0, 0, -rotation), "a clip does not follow the previous one");
-        }
-
-        [Test]
-        public void CloseLoop_OneTurnIsASeam_TwoTurnsAndAWobbleAreNot()
-        {
-            var signs = new VatRotationSigns(3);
-            for (var frame = 0; frame < LoopFrames; frame++)
-            {
-                var phase = (float)frame / LoopFrames;
-                signs.Align(0, frame, Spin(phase * 360f));
-                signs.Align(1, frame, Spin(phase * 720f));
-                signs.Align(2, frame, Spin(WobbleAmplitude * Mathf.Sin(phase * 2f * Mathf.PI)));
-            }
-
-            signs.CloseLoop("Spin");
-
-            Assert.AreEqual(1, signs.SeamCount, "only one turn per loop breaks the seam");
-            StringAssert.Contains("vertex 0, clip 'Spin'", signs.FirstSeam);
         }
 
         private static Vector4 Spin(float degrees)

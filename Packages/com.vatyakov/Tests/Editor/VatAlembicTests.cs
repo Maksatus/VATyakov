@@ -53,7 +53,7 @@ namespace VATyakov.Tests
         {
             var cloth = Instance("vat_cloth");
             cloth.GetComponent<AlembicStreamPlayer>().StartTime = start;
-            _bake = new VatInMemoryBake(VatAlembic.Open(cloth), Fps, isLooping: false);
+            _bake = new VatInMemoryBake(VatAlembic.Open(cloth), Fps);
             var clip = _bake.Layout.Clips[0];
             Assert.AreEqual(Mathf.RoundToInt((1f - start) * Fps) + 1, clip.FrameCount, "round(Duration·fps) + 1");
             CollectionAssert.IsEmpty(_bake.Warnings, string.Join("\n", _bake.Warnings));
@@ -85,7 +85,7 @@ namespace VATyakov.Tests
         [Test]
         public void ShuffledPoints_GiveAWarning()
         {
-            _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_shuffled")), Fps, isLooping: false);
+            _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_shuffled")), Fps);
             Assert.IsTrue(_bake.Warnings.Any(warning => warning.Contains("point order")), string.Join("\n", _bake.Warnings));
             Assert.IsTrue(_bake.Warnings.Any(warning => warning.Contains(VatBaker.TriplanarShaderName)), "no UV — triplanar hint");
         }
@@ -97,7 +97,7 @@ namespace VATyakov.Tests
             instance.GetComponent<AlembicStreamPlayer>().UpdateImmediately(0f);
             var indexCount = instance.GetComponentsInChildren<MeshFilter>(true).Sum(node => node.sharedMesh.triangles.Length);
 
-            _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_rigid")), Fps, isLooping: false);
+            _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_rigid")), Fps);
 
             Assert.AreEqual(1, _bake.Mesh.subMeshCount, "one material draws every node");
             Assert.AreEqual(indexCount, _bake.Mesh.GetIndices(0).Length, "the submesh has the triangles of every node");
@@ -121,7 +121,7 @@ namespace VATyakov.Tests
         [Test]
         public void ChangingTopology_FailsTheBake_WithTheVisibilityHint()
         {
-            var error = Assert.Throws<VatBakeException>(() => _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_topology")), Fps, isLooping: false));
+            var error = Assert.Throws<VatBakeException>(() => _bake = new VatInMemoryBake(VatAlembic.Open(Load("vat_topology")), Fps));
             StringAssert.Contains("vertices 81 → 100", error.Message);
             StringAssert.Contains("hide it with the visibility", error.Message);
             Assert.IsNotEmpty(VatBaker.Validate(AlembicProfile(Load("vat_topology"))), "the inspector sees it too");
@@ -137,13 +137,12 @@ namespace VATyakov.Tests
         }
 
         [Test]
-        public void LoopHint_SeesTheClosedCloth()
+        public void Probe_ReadsTheCloth()
         {
             var probe = VatAlembicProbe.For(Load("vat_cloth"));
             Assert.IsNull(probe.Problem, "the cloth has no problem");
             Assert.AreEqual(ClothVertexCount, probe.VertexCount, "vertex count of the cloth");
             Assert.AreEqual(1f, probe.Clip.Length, 1e-5f, "clip length, seconds");
-            Assert.Less(probe.LoopGap, VatLoopGap.Max, "the last frame meets the first");
         }
 
         private VatBakeProfile AlembicProfile(GameObject alembic)
