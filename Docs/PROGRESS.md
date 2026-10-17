@@ -760,3 +760,9 @@ PowerVR — отдельный вендор. Сцены `rot_decode` больш�
   (все проходы — ~5 с на шейдер); Vulkan пишет предупреждение «integer modulus may be much slower» (деление в
   `VatTexel`, SH-5). SH-7: `VatMath.ByteMax` и `ByteSteps` — internal для теста. TS-11 (foot IK) не сделан: нужна
   Humanoid-фикстура в пакете. Проверено: 309 тестов зелёные (13 новых).
+  Раздел 6 бэклога (документы): §2.1 — 4 influences нет ни в одной сборке, Bone меряет ошибку между кадрами (1 см);
+  §2.3 — нормаль куска без `+1e-6·n`; §0 — масштаб 100–500, цель Redmi 9A. README: быстрый старт (git URL
+  `https://github.com/Maksatus/VATyakov.git?path=/Packages/com.vatyakov`, профиль, Bake, сборка юнита, `*_blend`,
+  пример кода), раздел «Свой шейдер» (`_Vat*` — служебные свойства, Custom Editor GUI `VATyakov.Editor.VatShaderGUI`),
+  требования: целевое устройство Redmi 9A, Static запрещён из-за пространства объекта (и Vertex ID у Vertex),
+  рантайм не проверяет ассет (чужая версия формата играет без ошибки), копия материала не получает данные ассета.

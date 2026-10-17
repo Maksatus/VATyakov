@@ -3,6 +3,47 @@
 Vertex Animation Textures для Unity и URP: анимация запекается в текстуры и проигрывается в вершинном шейдере
 Shader Graph без SkinnedMeshRenderer и Animator.
 
+## Быстрый старт
+
+1. Package Manager → **+** → Install package from git URL:
+   `https://github.com/Maksatus/VATyakov.git?path=/Packages/com.vatyakov`.
+2. Project → Create → VATyakov → VAT Bake Profile. Source = Skinned Mesh Renderer из префаба или модели, Clips —
+   клипы персонажа, Mode = Bone для персонажей (Vertex — для ткани и мягких тел, Rigid — для разрушений из .abc).
+3. **Bake**. Рядом с профилем появятся `<профиль>_vat` (ассет с мешем и текстурой) и `<профиль>_vat.mat` (шаблон).
+   Перепечь несколько профилей — выделить их в Project, правая кнопка → Bake VAT Profiles.
+4. Префаб юнита собирается руками: GameObject с MeshFilter (меш `<профиль>_vat_mesh` из ассета), MeshRenderer
+   (шаблон `<профиль>_vat.mat`) и `VatAnimator` (VAT Asset — ассет бейка, Clip — клип при включении).
+5. Для плавных переходов между клипами шаблону нужен шейдер с `_blend`: `vat_lit_vertex_blend` или
+   `vat_lit_bone_blend`. На шейдере без бленда `CrossFade` переключает клип мгновенно.
+
+```csharp
+public sealed class Unit : MonoBehaviour
+{
+    [SerializeField]
+    private VatAnimator _animator;
+
+    private void OnEnable()
+    {
+        _animator.ClipFinished += OnClipFinished;
+    }
+
+    private void OnDisable()
+    {
+        _animator.ClipFinished -= OnClipFinished;
+    }
+
+    public void Attack()
+    {
+        _animator.CrossFade("Attack", 0.15f);
+    }
+
+    private void OnClipFinished(VatClip clip)
+    {
+        _animator.CrossFade("Idle", 0.2f);
+    }
+}
+```
+
 ## Реализовано — 0.16.4 (подверсии 1.1–1.16)
 
 - Бейк SkinnedMeshRenderer в Vertex-режиме: позиции вертексов по кадрам, смещения от позы покоя в RGBAHalf.
@@ -40,8 +81,8 @@ Shader Graph без SkinnedMeshRenderer и Animator.
 - SubGraph `vat_vertex` (позиция, нормаль, тангент; один клип, 4 выборки на вертекс) и `vat_vertex_blend` (два
   клипа для переходов, 8 выборок), примеры `vat_lit_vertex` с normal map (шаблон по умолчанию),
   `vat_lit_vertex_blend` для юнитов с переходами, `vat_lit_vertex_triplanar` для мешей без UV и `vat_unlit_vertex`.
-- `VatAnimator` — компонент юнита: в Play mode у каждого юнита своя копия VAT-материала (одна на шаблон, с данными
-  ассета), без MaterialPropertyBlock; рендереры вложенного `VatAnimator` принадлежат ему. `Play` по имени или
+- `VatAnimator` — компонент юнита: в Play mode у каждого юнита своя копия VAT-материала (одна на шаблон),
+  без MaterialPropertyBlock; рендереры вложенного `VatAnimator` принадлежат ему. `Play` по имени или
   индексу, `Speed`, `Pause/Resume`, `GetNormalizedTime`, событие `ClipFinished` (один раз за Play, для one-shot),
   Play On Enable для пулов через `SetActive`. Пауза держится до `Resume()`: `Play`, `CrossFade` и `SetActive` её не
   снимают: юниту, которого вернули в пул на паузе, после выдачи нужен `Resume()`. Эффекты юнита пишутся в копии из
@@ -87,27 +128,40 @@ Shader Graph без SkinnedMeshRenderer и Animator.
    Frames Per Second — частота симуляции (при меньшей лог покажет, какие куски не успевают).
 5. Шаблон — `vat_lit_rigid`, меш ассета — один, с общими слотами материалов всех кусков.
 
+## Свой шейдер
+
+1. Скопируйте пример под режим ассета: `vat_lit_vertex`, `vat_lit_bone` или `vat_lit_rigid`; для переходов —
+   `*_blend`. Сабграф режима (`vat_vertex`, `vat_bone`, `vat_rigid` и их `*_blend`) должен совпадать с Mode ассета.
+2. Ноду сабграфа не трогайте: её выходы Position, Normal и Tangent идут в блоки вертекса, свойства `_Vat*` пишет
+   `VatAnimator` и бейк.
+3. Свои свойства называйте без префикса `_Vat`: инспектор материала прячет их как служебные.
+4. Graph Settings → Custom Editor GUI = `VATyakov.Editor.VatShaderGUI` — инспектор с клипом, кадром и ссылкой на ассет.
+
 ## Будет реализовано
 
 | Подверсия | Возможность |
 |---|---|
 | 1.18 | LOD через Mesh LOD |
 
-Патч 2: жидкости с меняющейся топологией, толпы больше ~100 (BRG или GPU Resident Drawer), долгие смеси циклов
+Патч 2: жидкости с меняющейся топологией, толпы больше 500 (BRG или GPU Resident Drawer), долгие смеси циклов
 с синхронизацией фаз, компактные форматы для фона, root motion из клипа, motion vectors для TAA и motion blur.
 
 ## Технические требования
 
 - Unity 6000.3+, URP 17.3+, Shader Graph 17.3+.
-- iOS Metal (от iPhone 12), Android Vulkan и GLES 3.1+ (Adreno 650 / Mali-G78 и выше).
+- iOS Metal, Android Vulkan и GLES 3.1+. Целевое слабое устройство — Redmi 9A (Helio G25, PowerVR GE8320); замер
+  толпы сделан на Galaxy S21+ (Mali-G78), слабые устройства ещё не мерены.
 - Alembic 2.4.5 — необязательно, с подверсии 1.4.
-- VAT-меш не Static и не попадает в static/dynamic batching: индекс вертекса берётся из Vertex ID.
+- VAT-меш не Static и не попадает в static/dynamic batching: шейдер считает позу в пространстве объекта, а
+  Vertex-режим ещё и берёт индекс вертекса из Vertex ID.
 - Без `MaterialPropertyBlock` и `renderer.material`; Enable GPU Instancing на VAT-материалах выключен.
 - Переходы: все VAT-материалы юнита — на бленд-шейдере, иначе `CrossFade` мгновенный; `SetWeight` действует только
   после `CrossFade`. Нарушения этих правил пакет в лог не пишет.
-- Рантайм не проверяет настройку: `VatAnimator` без ассета, с невалидным ассетом или с несуществующим клипом падает
-  исключением. Ошибки настройки видны в инспекторе `VatAnimator` и VAT-ассета.
-- Все VAT-материалы под одним `VatAnimator` — от его ассета: в свои копии он пишет данные ассета и строки своих клипов.
+- Рантайм не проверяет настройку: `Play` без ассета или с несуществующим клипом падает с исключением, ассет чужой
+  версии формата или неполный играет как есть, без ошибки. Ошибки настройки видны в инспекторах `VatAnimator`,
+  VAT-ассета и материала.
+- Все VAT-материалы под одним `VatAnimator` — от его ассета: в свои копии он пишет только строки кадров, текстуры и
+  раскладку копия берёт из шаблона (их обновляет бейк или кнопка Update from Asset в инспекторе материала).
   Экипировка из другого VAT-ассета — со своим `VatAnimator` (вложенный аниматор владеет своими рендерерами),
   синхронизация клипов — забота игры. Новый VAT-материал после `OnEnable` юнит не подхватывает: копии делаются один раз.
 - Вершины запечённого меша не переставляются (`Mesh.Optimize` и сторонние оптимизаторы запрещены).
